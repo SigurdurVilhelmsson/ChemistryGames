@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takmarkandi Hvarfefni - Kvenno Efnafræði</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --kvenno-orange: #f36b22;
+            --kvenno-orange-dark: #d95a1a;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: #f9fafb;
+        }
+
+        .site-header {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--kvenno-orange);
+            text-decoration: none;
+        }
+
+        .site-logo:hover {
+            color: var(--kvenno-orange-dark);
+        }
+
+        .header-btn {
+            background: white;
+            border: 2px solid var(--kvenno-orange);
+            color: var(--kvenno-orange);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .header-btn:hover {
+            background: var(--kvenno-orange);
+            color: white;
+        }
+
+        .breadcrumb {
+            color: #6b7280;
+            font-size: 0.875rem;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb a {
+            color: var(--kvenno-orange);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--kvenno-orange);
+            color: var(--kvenno-orange);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin: 0 1rem 1rem 1rem;
+        }
+
+        .back-btn:hover {
+            background: var(--kvenno-orange);
+            color: white;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Molecule animations */
+        @keyframes moleculePop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes moleculeFadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+
+        @keyframes moleculeGlow {
+            0%, 100% { box-shadow: 0 0 10px currentColor; }
+            50% { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+        }
+
+        .molecule {
+            animation: moleculePop 0.3s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .molecule:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        .molecule-reacting {
+            animation: moleculeFadeOut 0.5s ease-out forwards;
+        }
+
+        .molecule-product {
+            animation: moleculePop 0.5s ease-out, moleculeGlow 1s ease-in-out;
+        }
+
+        .molecule-excess {
+            opacity: 0.6;
+            filter: grayscale(0.3);
+        }
+
+        /* Input validation styles */
+        .input-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2;
+        }
+
+        .input-valid {
+            border-color: #10b981 !important;
+        }
+
+        /* Streak flame animation */
+        @keyframes flameFlicker {
+            0%, 100% { transform: scale(1) rotate(-2deg); }
+            50% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        .streak-flame {
+            animation: flameFlicker 0.5s ease-in-out infinite;
+        }
+
+        /* Celebration animation */
+        @keyframes celebration {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2) rotate(5deg); }
+            50% { transform: scale(0.9) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(3deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .celebration {
+            animation: celebration 0.6s ease-out;
+        }
+
+        /* Timer progress bar */
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .timer-warning {
+            animation: timerPulse 1s ease-in-out infinite;
+        }
+
+        /* Focus visible for accessibility */
+        *:focus-visible {
+            outline: 3px solid var(--kvenno-orange);
+            outline-offset: 2px;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .molecule {
+                width: 40px !important;
+                height: 40px !important;
+                font-size: 0.625rem !important;
+            }
+
+            .site-header {
+                position: sticky;
+                top: 0;
+            }
+        }
+
+        /* High contrast mode */
+        .high-contrast {
+            filter: contrast(1.5);
+        }
+
+        /* Skip to main content link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--kvenno-orange);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Fara beint í efni</a>
+
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="/" class="site-logo">Kvenno Efnafræði</a>
+            <div class="header-actions">
+                <button class="header-btn" onclick="alert('Stjórnendaaðgangur í þróun')">Stjórnandi</button>
+                <button class="header-btn" onclick="alert('Hjálp og upplýsingar um leikina')">Upplýsingar</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumbs -->
+    <div class="breadcrumb">
+        <a href="/">Heim</a> > <a href="/1-ar/">1. ár</a> > <a href="/1-ar/games/">Leikir</a> > <span>Takmarkandi Hvarfefni</span>
+    </div>
+
+    <!-- Back Button -->
+    <div class="nav-container">
+        <a href="/1-ar/games/" class="back-btn">
+            <span>←</span>
+            <span>Til baka</span>
+        </a>
+    </div>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ============================================================================
+        // ICON COMPONENTS
+        // ============================================================================
+        const Play = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+        );
+
+        const RotateCcw = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+        );
+
+        const HelpCircle = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        );
+
+        const Info = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+        );
+
+        const Volume2 = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+        );
+
+        const VolumeX = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+        );
+
+        // ============================================================================
+        // REACTION DATABASE
+        // ============================================================================
+        // CRITICAL FIX: Changed from single 'product' object to 'products' array
+        // This allows proper handling of multi-product reactions
+        // For single-product reactions: products: [{ formula, coeff, color }]
+        // For multi-product reactions: products: [{ formula, coeff, color }, { formula, coeff, color }]
+        const reactions = [
+            // EASY LEVEL - Simple 1:1 and 2:1 ratios
+            {
+                id: '1',
+                equation: '2H₂ + O₂ → 2H₂O',
+                reactant1: { formula: 'H₂', coeff: 2, color: '#3b82f6' },
+                reactant2: { formula: 'O₂', coeff: 1, color: '#ef4444' },
+                products: [{ formula: 'H₂O', coeff: 2, color: '#8b5cf6' }],
+                difficulty: 'easy'
+            },
+            {
+                id: '2',
+                equation: '2Mg + O₂ → 2MgO',
+                reactant1: { formula: 'Mg', coeff: 2, color: '#a855f7' },
+                reactant2: { formula: 'O₂', coeff: 1, color: '#ef4444' },
+                products: [{ formula: 'MgO', coeff: 2, color: '#f97316' }],
+                difficulty: 'easy'
+            },
+            {
+                id: '3',
+                equation: 'C + O₂ → CO₂',
+                reactant1: { formula: 'C', coeff: 1, color: '#1f2937' },
+                reactant2: { formula: 'O₂', coeff: 1, color: '#ef4444' },
+                products: [{ formula: 'CO₂', coeff: 1, color: '#6b7280' }],
+                difficulty: 'easy'
+            },
+            {
+                id: '7',
+                equation: '2Na + Cl₂ → 2NaCl',
+                reactant1: { formula: 'Na', coeff: 2, color: '#fbbf24' },
+                reactant2: { formula: 'Cl₂', coeff: 1, color: '#84cc16' },
+                products: [{ formula: 'NaCl', coeff: 2, color: '#f3f4f6' }],
+                difficulty: 'easy'
+            },
+            {
+                id: '8',
+                equation: '2K + Cl₂ → 2KCl',
+                reactant1: { formula: 'K', coeff: 2, color: '#c084fc' },
+                reactant2: { formula: 'Cl₂', coeff: 1, color: '#84cc16' },
+                products: [{ formula: 'KCl', coeff: 2, color: '#e5e7eb' }],
+                difficulty: 'easy'
+            },
+            {
+                id: '9',
+                equation: 'Ca + S → CaS',
+                reactant1: { formula: 'Ca', coeff: 1, color: '#fb923c' },
+                reactant2: { formula: 'S', coeff: 1, color: '#fde047' },
+                products: [{ formula: 'CaS', coeff: 1, color: '#fcd34d' }],
+                difficulty: 'easy'
+            },
+            {
+                id: '10',
+                equation: 'Zn + S → ZnS',
+                reactant1: { formula: 'Zn', coeff: 1, color: '#94a3b8' },
+                reactant2: { formula: 'S', coeff: 1, color: '#fde047' },
+                products: [{ formula: 'ZnS', coeff: 1, color: '#f59e0b' }],
+                difficulty: 'easy'
+            },
+            {
+                id: '11',
+                equation: '2Cu + O₂ → 2CuO',
+                reactant1: { formula: 'Cu', coeff: 2, color: '#f97316' },
+                reactant2: { formula: 'O₂', coeff: 1, color: '#ef4444' },
+                products: [{ formula: 'CuO', coeff: 2, color: '#78350f' }],
+                difficulty: 'easy'
+            },
+
+            // MEDIUM LEVEL - 3:1, 1:3, and 2:3 ratios
+            {
+                id: '4',
+                equation: 'N₂ + 3H₂ → 2NH₃',
+                reactant1: { formula: 'N₂', coeff: 1, color: '#10b981' },
+                reactant2: { formula: 'H₂', coeff: 3, color: '#3b82f6' },
+                products: [{ formula: 'NH₃', coeff: 2, color: '#f59e0b' }],
+                difficulty: 'medium'
+            },
+            {
+                id: '12',
+                equation: '4Al + 3O₂ → 2Al₂O₃',
+                reactant1: { formula: 'Al', coeff: 4, color: '#cbd5e1' },
+                reactant2: { formula: 'O₂', coeff: 3, color: '#ef4444' },
+                products: [{ formula: 'Al₂O₃', coeff: 2, color: '#f3f4f6' }],
+                difficulty: 'medium'
+            },
+            {
+                id: '13',
+                equation: '3Ca + N₂ → Ca₃N₂',
+                reactant1: { formula: 'Ca', coeff: 3, color: '#fb923c' },
+                reactant2: { formula: 'N₂', coeff: 1, color: '#10b981' },
+                products: [{ formula: 'Ca₃N₂', coeff: 1, color: '#fdba74' }],
+                difficulty: 'medium'
+            },
+            {
+                id: '14',
+                equation: '2C + O₂ → 2CO',
+                reactant1: { formula: 'C', coeff: 2, color: '#1f2937' },
+                reactant2: { formula: 'O₂', coeff: 1, color: '#ef4444' },
+                products: [{ formula: 'CO', coeff: 2, color: '#4b5563' }],
+                difficulty: 'medium'
+            },
+            {
+                id: '15',
+                equation: '3Mg + N₂ → Mg₃N₂',
+                reactant1: { formula: 'Mg', coeff: 3, color: '#a855f7' },
+                reactant2: { formula: 'N₂', coeff: 1, color: '#10b981' },
+                products: [{ formula: 'Mg₃N₂', coeff: 1, color: '#c084fc' }],
+                difficulty: 'medium'
+            },
+
+            // HARD LEVEL - Complex ratios and larger coefficients
+            {
+                id: '6',
+                equation: '4Fe + 3O₂ → 2Fe₂O₃',
+                reactant1: { formula: 'Fe', coeff: 4, color: '#dc2626' },
+                reactant2: { formula: 'O₂', coeff: 3, color: '#ef4444' },
+                products: [{ formula: 'Fe₂O₃', coeff: 2, color: '#92400e' }],
+                difficulty: 'hard'
+            },
+            {
+                id: '16',
+                equation: '3Fe + 2O₂ → Fe₃O₄',
+                reactant1: { formula: 'Fe', coeff: 3, color: '#dc2626' },
+                reactant2: { formula: 'O₂', coeff: 2, color: '#ef4444' },
+                products: [{ formula: 'Fe₃O₄', coeff: 1, color: '#7c2d12' }],
+                difficulty: 'hard'
+            },
+            {
+                id: '17',
+                equation: 'P₄ + 5O₂ → 2P₂O₅',
+                reactant1: { formula: 'P₄', coeff: 1, color: '#7c3aed' },
+                reactant2: { formula: 'O₂', coeff: 5, color: '#ef4444' },
+                products: [{ formula: 'P₂O₅', coeff: 2, color: '#f3f4f6' }],
+                difficulty: 'hard'
+            },
+            {
+                id: '18',
+                equation: 'S₈ + 12O₂ → 8SO₃',
+                reactant1: { formula: 'S₈', coeff: 1, color: '#fde047' },
+                reactant2: { formula: 'O₂', coeff: 12, color: '#ef4444' },
+                products: [{ formula: 'SO₃', coeff: 8, color: '#fef3c7' }],
+                difficulty: 'hard'
+            },
+
+            // MULTI-PRODUCT REACTIONS (FIXED)
+            // These reactions have multiple products - each product is tracked separately
+            {
+                id: '5',
+                equation: 'CH₄ + 2O₂ → CO₂ + 2H₂O',
+                reactant1: { formula: 'CH₄', coeff: 1, color: '#14b8a6' },
+                reactant2: { formula: 'O₂', coeff: 2, color: '#ef4444' },
+                products: [
+                    { formula: 'CO₂', coeff: 1, color: '#6b7280' },
+                    { formula: 'H₂O', coeff: 2, color: '#8b5cf6' }
+                ],
+                difficulty: 'medium'
+            },
+            {
+                id: '19',
+                equation: '2Al + 3CuO → Al₂O₃ + 3Cu',
+                reactant1: { formula: 'Al', coeff: 2, color: '#cbd5e1' },
+                reactant2: { formula: 'CuO', coeff: 3, color: '#78350f' },
+                products: [
+                    { formula: 'Al₂O₃', coeff: 1, color: '#f3f4f6' },
+                    { formula: 'Cu', coeff: 3, color: '#f97316' }
+                ],
+                difficulty: 'hard'
+            },
+            {
+                id: '20',
+                equation: '4FeS₂ + 11O₂ → 2Fe₂O₃ + 8SO₂',
+                reactant1: { formula: 'FeS₂', coeff: 4, color: '#fcd34d' },
+                reactant2: { formula: 'O₂', coeff: 11, color: '#ef4444' },
+                products: [
+                    { formula: 'Fe₂O₃', coeff: 2, color: '#92400e' },
+                    { formula: 'SO₂', coeff: 8, color: '#fef3c7' }
+                ],
+                difficulty: 'hard'
+            }
+        ];
+
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+
+        // LocalStorage wrapper with try-catch for safety
+        const storage = {
+            get: (key, defaultValue = null) => {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : defaultValue;
+                } catch (e) {
+                    console.error('Error reading from localStorage:', e);
+                    return defaultValue;
+                }
+            },
+            set: (key, value) => {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.error('Error writing to localStorage:', e);
+                }
+            }
+        };
+
+        // Sound effects (simple beep synthesis)
+        const playSound = (soundEnabled, type) => {
+            if (!soundEnabled) return;
+
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                if (type === 'correct') {
+                    oscillator.frequency.value = 523.25; // C5
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } else if (type === 'incorrect') {
+                    oscillator.frequency.value = 220; // A3
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } else if (type === 'streak') {
+                    // Celebration fanfare - ascending notes
+                    [261.63, 329.63, 392, 523.25].forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.3);
+                        osc.start(audioContext.currentTime + i * 0.1);
+                        osc.stop(audioContext.currentTime + i * 0.1 + 0.3);
+                    });
+                } else if (type === 'pop') {
+                    oscillator.frequency.value = 880; // A5
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                }
+            } catch (e) {
+                // Silently fail if audio context not available
+            }
+        };
+
+        // Validate input - only positive integers allowed
+        const isValidInteger = (value) => {
+            if (value === '') return false;
+            const num = parseInt(value);
+            return !isNaN(num) && num >= 0 && num.toString() === value.trim();
+        };
+
+        // Count atoms in a formula for balance checker
+        const countAtoms = (formula) => {
+            const atoms = {};
+            // Simple parser - works for common formulas
+            const matches = formula.matchAll(/([A-Z][a-z]?)(\d*)/g);
+            for (const match of matches) {
+                const element = match[1];
+                const count = match[2] ? parseInt(match[2]) : 1;
+                atoms[element] = (atoms[element] || 0) + count;
+            }
+            return atoms;
+        };
+
+        // ============================================================================
+        // MAIN GAME COMPONENT
+        // ============================================================================
+        const LimitingReactantGame = () => {
+            // Core game state
+            const [gameState, setGameState] = useState({
+                currentReaction: null,
+                reactant1Count: 0,
+                reactant2Count: 0,
+                userAnswer: { limitingReactant: '', productsFormed: {}, excessRemaining: '' },
+                isAnswered: false,
+                isCorrect: null,
+                score: 0,
+                questionsAnswered: 0,
+                showHint: false,
+                difficulty: 'easy',
+                incorrectAttempts: 0,
+                showingSolution: false,
+                animatingReaction: false,
+                animationStep: 0
+            });
+
+            // UI state
+            const [showInstructions, setShowInstructions] = useState(true);
+            const [showProgress, setShowProgress] = useState(false);
+            const [showBalanceChecker, setShowBalanceChecker] = useState(false);
+            const [showCalculationHelper, setShowCalculationHelper] = useState(false);
+            const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+
+            // Mode settings
+            const [practiceMode, setPracticeMode] = useState(storage.get('practiceMode', false));
+            const [smartDifficulty, setSmartDifficulty] = useState(storage.get('smartDifficulty', false));
+            const [timerMode, setTimerMode] = useState(storage.get('timerMode', false));
+            const [soundEnabled, setSoundEnabled] = useState(storage.get('soundEnabled', true));
+            const [highContrast, setHighContrast] = useState(storage.get('highContrast', false));
+
+            // Streak tracking
+            const [streak, setStreak] = useState(0);
+            const [bestStreak, setBestStreak] = useState(storage.get('bestStreak', 0));
+            const [showStreakCelebration, setShowStreakCelebration] = useState(false);
+
+            // Timer state
+            const [timeRemaining, setTimeRemaining] = useState(120);
+            const timerRef = useRef(null);
+
+            // Progress tracking
+            const [progress, setProgress] = useState(storage.get('progress', {
+                totalGames: 0,
+                totalCorrect: 0,
+                bestStreak: 0,
+                reactionsMastered: [],
+                accuracyByDifficulty: { easy: [], medium: [], hard: [] },
+                commonMistakes: { limitingReactant: 0, products: 0, excess: 0 },
+                timeSpentMinutes: 0
+            }));
+
+            // Input validation state
+            const [inputErrors, setInputErrors] = useState({
+                productsFormed: false,
+                excessRemaining: false
+            });
+
+            // ============================================================================
+            // GAME LOGIC FUNCTIONS
+            // ============================================================================
+
+            // Generate new problem based on difficulty and smart mode
+            const generateNewProblem = (difficulty) => {
+                let availableReactions = reactions.filter(r => r.difficulty === difficulty);
+
+                // In smart mode, filter by mastery level
+                if (smartDifficulty) {
+                    const unmastered = availableReactions.filter(r =>
+                        !progress.reactionsMastered.includes(r.id)
+                    );
+                    if (unmastered.length > 0) {
+                        availableReactions = unmastered;
+                    }
+                }
+
+                const reaction = availableReactions[Math.floor(Math.random() * availableReactions.length)];
+
+                let r1Count, r2Count;
+                if (difficulty === 'easy') {
+                    r1Count = Math.floor(Math.random() * 6) + 3;
+                    r2Count = Math.floor(Math.random() * 6) + 3;
+                } else if (difficulty === 'medium') {
+                    r1Count = Math.floor(Math.random() * 10) + 5;
+                    r2Count = Math.floor(Math.random() * 10) + 5;
+                } else {
+                    r1Count = Math.floor(Math.random() * 15) + 10;
+                    r2Count = Math.floor(Math.random() * 15) + 10;
+                }
+
+                // Initialize products formed object for all products
+                const initialProductsFormed = {};
+                reaction.products.forEach(product => {
+                    initialProductsFormed[product.formula] = '';
+                });
+
+                setGameState(prev => ({
+                    ...prev,
+                    currentReaction: reaction,
+                    reactant1Count: r1Count,
+                    reactant2Count: r2Count,
+                    userAnswer: {
+                        limitingReactant: '',
+                        productsFormed: initialProductsFormed,
+                        excessRemaining: ''
+                    },
+                    isAnswered: false,
+                    isCorrect: null,
+                    showHint: false,
+                    incorrectAttempts: 0,
+                    showingSolution: false,
+                    animatingReaction: false,
+                    animationStep: 0
+                }));
+
+                setShowCalculationHelper(false);
+                setInputErrors({ productsFormed: false, excessRemaining: false });
+
+                // Reset timer
+                if (timerMode) {
+                    setTimeRemaining(120);
+                    if (timerRef.current) clearInterval(timerRef.current);
+                    timerRef.current = setInterval(() => {
+                        setTimeRemaining(prev => {
+                            if (prev <= 1) {
+                                clearInterval(timerRef.current);
+                                handleTimeOut();
+                                return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
+            };
+
+            // Calculate correct answer - FIXED to handle products array
+            const calculateCorrectAnswer = () => {
+                const { currentReaction, reactant1Count, reactant2Count } = gameState;
+                if (!currentReaction) return null;
+
+                const timesFromR1 = reactant1Count / currentReaction.reactant1.coeff;
+                const timesFromR2 = reactant2Count / currentReaction.reactant2.coeff;
+
+                const limitingReactant = timesFromR1 < timesFromR2
+                    ? currentReaction.reactant1.formula
+                    : currentReaction.reactant2.formula;
+
+                const timesReactionRuns = Math.floor(Math.min(timesFromR1, timesFromR2));
+
+                // CRITICAL FIX: Calculate each product separately
+                const productsFormed = {};
+                currentReaction.products.forEach(product => {
+                    productsFormed[product.formula] = timesReactionRuns * product.coeff;
+                });
+
+                const r1Used = timesReactionRuns * currentReaction.reactant1.coeff;
+                const r2Used = timesReactionRuns * currentReaction.reactant2.coeff;
+
+                const excessReactant = limitingReactant === currentReaction.reactant1.formula
+                    ? currentReaction.reactant2.formula
+                    : currentReaction.reactant1.formula;
+
+                const excessRemaining = limitingReactant === currentReaction.reactant1.formula
+                    ? reactant2Count - r2Used
+                    : reactant1Count - r1Used;
+
+                return {
+                    limitingReactant,
+                    productsFormed,
+                    excessReactant,
+                    excessRemaining,
+                    timesReactionRuns,
+                    timesFromR1,
+                    timesFromR2,
+                    r1Used,
+                    r2Used
+                };
+            };
+
+            // Handle answer submission
+            const handleSubmit = () => {
+                if (!gameState.currentReaction) return;
+
+                // Validate all inputs
+                const productsValid = Object.values(gameState.userAnswer.productsFormed).every(val =>
+                    isValidInteger(val)
+                );
+                const excessValid = isValidInteger(gameState.userAnswer.excessRemaining);
+
+                if (!productsValid || !excessValid) {
+                    setInputErrors({
+                        productsFormed: !productsValid,
+                        excessRemaining: !excessValid
+                    });
+                    return;
+                }
+
+                const correct = calculateCorrectAnswer();
+                const isLimitingCorrect = gameState.userAnswer.limitingReactant === correct.limitingReactant;
+
+                // Check all products
+                let isProductsCorrect = true;
+                gameState.currentReaction.products.forEach(product => {
+                    if (parseInt(gameState.userAnswer.productsFormed[product.formula]) !== correct.productsFormed[product.formula]) {
+                        isProductsCorrect = false;
+                    }
+                });
+
+                const isExcessCorrect = parseInt(gameState.userAnswer.excessRemaining) === correct.excessRemaining;
+
+                const allCorrect = isLimitingCorrect && isProductsCorrect && isExcessCorrect;
+
+                // Calculate points
+                let points = 0;
+                if (allCorrect) {
+                    points = gameState.difficulty === 'easy' ? 10 :
+                             gameState.difficulty === 'medium' ? 15 : 20;
+
+                    // Speed bonus in timer mode
+                    if (timerMode) {
+                        if (timeRemaining > 90) points += 10;
+                        else if (timeRemaining > 60) points += 5;
+                    }
+
+                    // Streak bonus
+                    const newStreak = streak + 1;
+                    if (newStreak % 10 === 0) points += 15;
+                    else if (newStreak % 5 === 0) points += 10;
+                    else if (newStreak % 3 === 0) points += 5;
+
+                    setStreak(newStreak);
+                    if (newStreak > bestStreak) {
+                        setBestStreak(newStreak);
+                        storage.set('bestStreak', newStreak);
+                    }
+
+                    // Celebration on milestones
+                    if (newStreak % 3 === 0) {
+                        setShowStreakCelebration(true);
+                        playSound(soundEnabled, 'streak');
+                        setTimeout(() => setShowStreakCelebration(false), 2000);
+                    } else {
+                        playSound(soundEnabled, 'correct');
+                    }
+                } else {
+                    setStreak(0);
+                    playSound(soundEnabled, 'incorrect');
+
+                    // Track mistakes
+                    const newProgress = { ...progress };
+                    if (!isLimitingCorrect) newProgress.commonMistakes.limitingReactant++;
+                    if (!isProductsCorrect) newProgress.commonMistakes.products++;
+                    if (!isExcessCorrect) newProgress.commonMistakes.excess++;
+                    setProgress(newProgress);
+                    storage.set('progress', newProgress);
+                }
+
+                // Update progress tracking
+                const newProgress = { ...progress };
+                newProgress.totalGames++;
+                if (allCorrect) newProgress.totalCorrect++;
+                newProgress.accuracyByDifficulty[gameState.difficulty].push(allCorrect ? 1 : 0);
+                if (allCorrect) {
+                    // Track mastery (3+ correct on same reaction)
+                    const reactionId = gameState.currentReaction.id;
+                    const masteryCount = newProgress.accuracyByDifficulty[gameState.difficulty]
+                        .slice(-3).filter(x => x === 1).length;
+                    if (masteryCount >= 3 && !newProgress.reactionsMastered.includes(reactionId)) {
+                        newProgress.reactionsMastered.push(reactionId);
+                    }
+                }
+                setProgress(newProgress);
+                storage.set('progress', newProgress);
+
+                setGameState(prev => ({
+                    ...prev,
+                    isAnswered: true,
+                    isCorrect: allCorrect,
+                    score: practiceMode ? prev.score : prev.score + points,
+                    questionsAnswered: prev.questionsAnswered + 1,
+                    incorrectAttempts: allCorrect ? 0 : prev.incorrectAttempts + 1
+                }));
+
+                // Clear timer
+                if (timerRef.current) {
+                    clearInterval(timerRef.current);
+                }
+            };
+
+            // Handle timeout
+            const handleTimeOut = () => {
+                setGameState(prev => ({
+                    ...prev,
+                    isAnswered: true,
+                    isCorrect: false,
+                    questionsAnswered: prev.questionsAnswered + 1
+                }));
+                setStreak(0);
+                playSound(soundEnabled, 'incorrect');
+            };
+
+            // Show solution
+            const showSolution = () => {
+                setGameState(prev => ({
+                    ...prev,
+                    showingSolution: true,
+                    isAnswered: true,
+                    isCorrect: false,
+                    score: practiceMode ? prev.score : prev.score + 5 // Small points for trying
+                }));
+                animateReaction();
+            };
+
+            // Animate reaction step-by-step
+            const animateReaction = () => {
+                setGameState(prev => ({ ...prev, animatingReaction: true, animationStep: 0 }));
+                const correct = calculateCorrectAnswer();
+
+                let step = 0;
+                const interval = setInterval(() => {
+                    step++;
+                    setGameState(prev => ({ ...prev, animationStep: step }));
+                    playSound(soundEnabled, 'pop');
+
+                    if (step >= correct.timesReactionRuns) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            setGameState(prev => ({ ...prev, animatingReaction: false }));
+                        }, 1000);
+                    }
+                }, 1000);
+            };
+
+            // Next question
+            const handleNextQuestion = () => {
+                generateNewProblem(gameState.difficulty);
+            };
+
+            // Reset game
+            const handleReset = () => {
+                setGameState(prev => ({
+                    ...prev,
+                    score: 0,
+                    questionsAnswered: 0
+                }));
+                setStreak(0);
+                generateNewProblem(gameState.difficulty);
+            };
+
+            // ============================================================================
+            // KEYBOARD SHORTCUTS
+            // ============================================================================
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    // Don't trigger if typing in input
+                    if (e.target.tagName === 'INPUT') return;
+
+                    switch(e.key) {
+                        case 'Enter':
+                            if (!gameState.isAnswered && gameState.userAnswer.limitingReactant) {
+                                handleSubmit();
+                            } else if (gameState.isAnswered) {
+                                handleNextQuestion();
+                            }
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            setShowCalculationHelper(prev => !prev);
+                            break;
+                        case 'n':
+                        case 'N':
+                            if (gameState.isAnswered) handleNextQuestion();
+                            break;
+                        case 'r':
+                        case 'R':
+                            handleReset();
+                            break;
+                        case 'h':
+                        case 'H':
+                            setShowKeyboardHelp(prev => !prev);
+                            break;
+                        case '1':
+                            if (!gameState.isAnswered && gameState.currentReaction) {
+                                setGameState(prev => ({
+                                    ...prev,
+                                    userAnswer: {
+                                        ...prev.userAnswer,
+                                        limitingReactant: gameState.currentReaction.reactant1.formula
+                                    }
+                                }));
+                            }
+                            break;
+                        case '2':
+                            if (!gameState.isAnswered && gameState.currentReaction) {
+                                setGameState(prev => ({
+                                    ...prev,
+                                    userAnswer: {
+                                        ...prev.userAnswer,
+                                        limitingReactant: gameState.currentReaction.reactant2.formula
+                                    }
+                                }));
+                            }
+                            break;
+                        case '?':
+                            setShowKeyboardHelp(prev => !prev);
+                            break;
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            }, [gameState, soundEnabled]);
+
+            // ============================================================================
+            // RENDER MOLECULES
+            // ============================================================================
+            const renderMolecules = (formula, count, color, state = 'normal') => {
+                const moleculeSize = window.innerWidth < 768 ? 40 : 60;
+                let className = 'molecule rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg';
+
+                if (state === 'reacting') className += ' molecule-reacting';
+                else if (state === 'product') className += ' molecule-product';
+                else if (state === 'excess') className += ' molecule-excess';
+
+                return (
+                    <div className="flex flex-wrap gap-2 justify-center min-h-[100px] items-center p-2">
+                        {Array.from({ length: count }).map((_, i) => (
+                            <div
+                                key={i}
+                                className={className}
+                                style={{
+                                    backgroundColor: color,
+                                    width: `${moleculeSize}px`,
+                                    height: `${moleculeSize}px`
+                                }}
+                                onMouseEnter={() => playSound(soundEnabled, 'pop')}
+                            >
+                                {formula}
+                            </div>
+                        ))}
+                    </div>
+                );
+            };
+
+            // Initialize on mount
+            useEffect(() => {
+                generateNewProblem('easy');
+            }, []);
+
+            // Save settings to localStorage
+            useEffect(() => {
+                storage.set('practiceMode', practiceMode);
+                storage.set('smartDifficulty', smartDifficulty);
+                storage.set('timerMode', timerMode);
+                storage.set('soundEnabled', soundEnabled);
+                storage.set('highContrast', highContrast);
+            }, [practiceMode, smartDifficulty, timerMode, soundEnabled, highContrast]);
+
+            // Cleanup timer on unmount
+            useEffect(() => {
+                return () => {
+                    if (timerRef.current) clearInterval(timerRef.current);
+                };
+            }, []);
+
+            // ============================================================================
+            // RENDER: INSTRUCTIONS SCREEN
+            // ============================================================================
+            if (showInstructions) {
+                return (
+                    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8 ${highContrast ? 'high-contrast' : ''}`}>
+                        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+                            <h1 className="text-4xl font-bold text-center mb-6" style={{ color: 'var(--kvenno-orange)' }}>
+                                ⚗️ Takmarkandi Hvarfefni
+                            </h1>
+
+                            <div className="space-y-4 text-gray-700">
+                                <h2 className="text-2xl font-semibold text-indigo-500">Leiðbeiningar</h2>
+
+                                <div className="bg-blue-50 p-4 rounded-lg">
+                                    <h3 className="font-semibold mb-2">Markmið:</h3>
+                                    <p>Finndu takmörkuðu hvarfefnið og reiknaðu hversu miklar afurðir myndast!</p>
+                                </div>
+
+                                <div className="bg-green-50 p-4 rounded-lg">
+                                    <h3 className="font-semibold mb-2">Hvernig á að spila:</h3>
+                                    <ol className="list-decimal list-inside space-y-2">
+                                        <li>Skoðaðu jöfnuna og fjölda hvarfefna</li>
+                                        <li>Reiknaðu hvaða hvarfefni klárast fyrst</li>
+                                        <li>Finndu hversu margar afurðir myndast</li>
+                                        <li>Reiknaðu afganginn af hinum hvarfefnunum</li>
+                                    </ol>
+                                </div>
+
+                                <div className="bg-yellow-50 p-4 rounded-lg">
+                                    <h3 className="font-semibold mb-2">Erfiðleikastig:</h3>
+                                    <ul className="space-y-1">
+                                        <li><strong>Auðvelt:</strong> Litlar tölur (10 stig)</li>
+                                        <li><strong>Miðlungs:</strong> Meðalstórar tölur (15 stig)</li>
+                                        <li><strong>Erfitt:</strong> Stórar tölur (20 stig)</li>
+                                    </ul>
+                                </div>
+
+                                <div className="bg-purple-50 p-4 rounded-lg">
+                                    <h3 className="font-semibold mb-2">Ábending:</h3>
+                                    <p className="text-sm">Notaðu formúluna: fjöldi hvarfefnis ÷ stuðull í jöfnu</p>
+                                    <p className="text-sm mt-1">Hvarfefnið með lægri útkoman er takmarkandi!</p>
+                                </div>
+
+                                <div className="bg-indigo-50 p-4 rounded-lg">
+                                    <h3 className="font-semibold mb-2">Flýtilyklar:</h3>
+                                    <ul className="text-sm space-y-1">
+                                        <li><kbd className="px-2 py-1 bg-gray-200 rounded">Enter</kbd> - Skila svari / Næsta spurning</li>
+                                        <li><kbd className="px-2 py-1 bg-gray-200 rounded">Space</kbd> - Sýna/fela reiknihjálp</li>
+                                        <li><kbd className="px-2 py-1 bg-gray-200 rounded">1/2</kbd> - Velja takmarkandi hvarfefni</li>
+                                        <li><kbd className="px-2 py-1 bg-gray-200 rounded">H</kbd> - Hjálp</li>
+                                        <li><kbd className="px-2 py-1 bg-gray-200 rounded">R</kbd> - Endurræsa</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => setShowInstructions(false)}
+                                className="w-full mt-6 text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
+                                style={{ backgroundColor: 'var(--kvenno-orange)' }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--kvenno-orange-dark)'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--kvenno-orange)'}
+                            >
+                                Byrja að spila! 🚀
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ============================================================================
+            // RENDER: PROGRESS SCREEN
+            // ============================================================================
+            if (showProgress) {
+                const totalAttempts = progress.totalGames;
+                const accuracy = totalAttempts > 0 ? (progress.totalCorrect / totalAttempts * 100).toFixed(1) : 0;
+
+                return (
+                    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8 ${highContrast ? 'high-contrast' : ''}`} id="main-content">
+                        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h1 className="text-4xl font-bold" style={{ color: 'var(--kvenno-orange)' }}>
+                                    📊 Þróun þín
+                                </h1>
+                                <button
+                                    onClick={() => setShowProgress(false)}
+                                    className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                                >
+                                    Loka
+                                </button>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="bg-blue-50 p-6 rounded-xl">
+                                    <h3 className="text-lg font-semibold mb-2">Heildarniðurstöður</h3>
+                                    <p className="text-3xl font-bold text-blue-600">{progress.totalCorrect} / {totalAttempts}</p>
+                                    <p className="text-gray-600">Rétt svör ({accuracy}%)</p>
+                                </div>
+
+                                <div className="bg-purple-50 p-6 rounded-xl">
+                                    <h3 className="text-lg font-semibold mb-2">Besta röð</h3>
+                                    <p className="text-3xl font-bold text-purple-600">{bestStreak} 🔥</p>
+                                    <p className="text-gray-600">Núverandi röð: {streak}</p>
+                                </div>
+
+                                <div className="bg-green-50 p-6 rounded-xl">
+                                    <h3 className="text-lg font-semibold mb-2">Hvarfir sem þú hefur náð tökum á</h3>
+                                    <p className="text-3xl font-bold text-green-600">{progress.reactionsMastered.length}</p>
+                                    <p className="text-gray-600">af {reactions.length} hvarfum</p>
+                                </div>
+
+                                <div className="bg-red-50 p-6 rounded-xl">
+                                    <h3 className="text-lg font-semibold mb-2">Algengustu mistök</h3>
+                                    <div className="text-sm space-y-1">
+                                        <p>Takmarkandi: {progress.commonMistakes.limitingReactant}</p>
+                                        <p>Afurðir: {progress.commonMistakes.products}</p>
+                                        <p>Afgangur: {progress.commonMistakes.excess}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 bg-yellow-50 p-6 rounded-xl">
+                                <h3 className="text-lg font-semibold mb-4">Nákvæmni eftir erfiðleikastigi</h3>
+                                {['easy', 'medium', 'hard'].map(diff => {
+                                    const attempts = progress.accuracyByDifficulty[diff].length;
+                                    const correct = progress.accuracyByDifficulty[diff].filter(x => x === 1).length;
+                                    const pct = attempts > 0 ? (correct / attempts * 100).toFixed(1) : 0;
+                                    const label = diff === 'easy' ? 'Auðvelt' : diff === 'medium' ? 'Miðlungs' : 'Erfitt';
+
+                                    return (
+                                        <div key={diff} className="mb-3">
+                                            <div className="flex justify-between mb-1">
+                                                <span className="font-semibold">{label}</span>
+                                                <span>{pct}% ({correct}/{attempts})</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-4">
+                                                <div
+                                                    className="bg-indigo-600 h-4 rounded-full transition-all"
+                                                    style={{ width: `${pct}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (!gameState.currentReaction) {
+                return <div className="min-h-screen flex items-center justify-center">Hleður...</div>;
+            }
+
+            const correctAnswer = calculateCorrectAnswer();
+
+            // ============================================================================
+            // RENDER: MAIN GAME SCREEN
+            // ============================================================================
+            return (
+                <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-8 ${highContrast ? 'high-contrast' : ''}`} id="main-content">
+                    <div className="max-w-6xl mx-auto">
+                        {/* Header with Score and Settings */}
+                        <div className="bg-white rounded-2xl shadow-2xl p-6 mb-6">
+                            <div className="flex justify-between items-center flex-wrap gap-4">
+                                <h1 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--kvenno-orange)' }}>
+                                    ⚗️ Takmarkandi Hvarfefni
+                                </h1>
+
+                                <div className="flex gap-4 items-center flex-wrap">
+                                    {/* Streak Display */}
+                                    {streak > 0 && (
+                                        <div className={`text-center ${showStreakCelebration ? 'celebration' : ''}`}>
+                                            <div className="text-sm text-gray-600">Röð</div>
+                                            <div className="text-2xl font-bold flex items-center gap-1">
+                                                <span className="streak-flame">🔥</span>
+                                                <span style={{ color: 'var(--kvenno-orange)' }}>{streak}</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="text-center">
+                                        <div className="text-sm text-gray-600">Stig</div>
+                                        <div className="text-2xl font-bold text-indigo-600">{gameState.score}</div>
+                                    </div>
+
+                                    <div className="text-center">
+                                        <div className="text-sm text-gray-600">Spurningar</div>
+                                        <div className="text-2xl font-bold text-gray-700">{gameState.questionsAnswered}</div>
+                                    </div>
+
+                                    {/* Timer */}
+                                    {timerMode && !gameState.isAnswered && (
+                                        <div className={`text-center ${timeRemaining < 30 ? 'timer-warning' : ''}`}>
+                                            <div className="text-sm text-gray-600">Tími</div>
+                                            <div className={`text-2xl font-bold ${timeRemaining < 30 ? 'text-red-600' : 'text-green-600'}`}>
+                                                {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Settings buttons */}
+                                    <button
+                                        onClick={() => setShowProgress(true)}
+                                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                        aria-label="Skoða þróun"
+                                    >
+                                        📊
+                                    </button>
+
+                                    <button
+                                        onClick={() => setSoundEnabled(!soundEnabled)}
+                                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                        aria-label={soundEnabled ? 'Slökkva á hljóði' : 'Kveikja á hljóði'}
+                                    >
+                                        {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                                    </button>
+
+                                    <button
+                                        onClick={() => setShowInstructions(true)}
+                                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                        aria-label="Sýna leiðbeiningar"
+                                    >
+                                        <HelpCircle size={24} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Mode toggles and difficulty */}
+                            <div className="mt-4 flex gap-2 justify-center flex-wrap">
+                                {/* Practice Mode Toggle */}
+                                <button
+                                    onClick={() => setPracticeMode(!practiceMode)}
+                                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                        practiceMode
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    {practiceMode ? '📚 Æfingastilling' : '🏆 Keppnisstilling'}
+                                </button>
+
+                                {/* Smart Difficulty Toggle */}
+                                <button
+                                    onClick={() => setSmartDifficulty(!smartDifficulty)}
+                                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                        smartDifficulty
+                                            ? 'bg-purple-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                    title="Aðlagast þinni framvindu"
+                                >
+                                    {smartDifficulty ? '🧠 Snjallval' : '🎲 Handahóf'}
+                                </button>
+
+                                {/* Timer Mode Toggle */}
+                                <button
+                                    onClick={() => setTimerMode(!timerMode)}
+                                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                        timerMode
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    {timerMode ? '⏱️ Tímamót' : '⏱️ Án tíma'}
+                                </button>
+
+                                {/* Difficulty selector */}
+                                <div className="flex gap-2">
+                                    {['easy', 'medium', 'hard'].map(diff => (
+                                        <button
+                                            key={diff}
+                                            onClick={() => {
+                                                setGameState(prev => ({ ...prev, difficulty: diff }));
+                                                generateNewProblem(diff);
+                                            }}
+                                            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                                gameState.difficulty === diff
+                                                    ? 'text-white'
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            }`}
+                                            style={gameState.difficulty === diff ?
+                                                { backgroundColor: 'var(--kvenno-orange)' } : {}}
+                                        >
+                                            {diff === 'easy' ? 'Auðvelt' : diff === 'medium' ? 'Miðlungs' : 'Erfitt'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Timer progress bar */}
+                            {timerMode && !gameState.isAnswered && (
+                                <div className="mt-4">
+                                    <div className="w-full bg-gray-200 rounded-full h-2">
+                                        <div
+                                            className={`h-2 rounded-full transition-all ${
+                                                timeRemaining < 30 ? 'bg-red-600' : 'bg-green-600'
+                                            }`}
+                                            style={{ width: `${(timeRemaining / 120) * 100}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Keyboard Help Popup */}
+                        {showKeyboardHelp && (
+                            <div className="bg-white rounded-2xl shadow-2xl p-6 mb-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-bold">⌨️ Flýtilyklar</h2>
+                                    <button onClick={() => setShowKeyboardHelp(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-3 text-sm">
+                                    <div><kbd className="px-2 py-1 bg-gray-200 rounded">Enter</kbd> Skila svari / Næsta</div>
+                                    <div><kbd className="px-2 py-1 bg-gray-200 rounded">Space</kbd> Sýna/fela reiknihjálp</div>
+                                    <div><kbd className="px-2 py-1 bg-gray-200 rounded">1</kbd> Velja fyrsta hvarfefni</div>
+                                    <div><kbd className="px-2 py-1 bg-gray-200 rounded">2</kbd> Velja annað hvarfefni</div>
+                                    <div><kbd className="px-2 py-1 bg-gray-200 rounded">N</kbd> Næsta spurning</div>
+                                    <div><kbd className="px-2 py-1 bg-gray-200 rounded">R</kbd> Endurræsa leik</div>
+                                    <div><kbd className="px-2 py-1 bg-gray-200 rounded">H</kbd> Sýna/fela hjálp</div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Main Game Area */}
+                        <div className="bg-white rounded-2xl shadow-2xl p-6">
+                            {/* Equation Display */}
+                            <div className="text-center mb-6">
+                                <div className="inline-block bg-indigo-50 px-6 py-3 rounded-xl">
+                                    <div className="text-xl md:text-2xl font-bold text-indigo-900 mb-1 flex items-center gap-2 justify-center">
+                                        {gameState.currentReaction.equation}
+                                        <button
+                                            onClick={() => setShowBalanceChecker(!showBalanceChecker)}
+                                            className="text-sm text-indigo-600 hover:text-indigo-800"
+                                            title="Athuga jafnvægi"
+                                        >
+                                            <Info size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Balance Checker */}
+                            {showBalanceChecker && (
+                                <div className="max-w-2xl mx-auto mb-6 bg-blue-50 border-2 border-blue-300 p-4 rounded-xl">
+                                    <h4 className="font-semibold text-blue-800 mb-2">⚖️ Jafnvægisathugun</h4>
+                                    <p className="text-sm text-blue-900">
+                                        Efnajöfnun athugar hvort fjöldi atóma af hverju frumefni er sá sami báðum megin við örina.
+                                        Þetta sýnir okkur lögmálið um varðveislu efnis - engu er bætt við eða eytt í efnahvarfi!
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Reactants Display */}
+                            <div className="grid md:grid-cols-2 gap-6 mb-6">
+                                <div className="bg-blue-50 p-4 rounded-xl">
+                                    <h3 className="text-center font-semibold text-lg mb-3 text-gray-700">
+                                        {gameState.currentReaction.reactant1.formula}
+                                        <span className="ml-2 text-indigo-600">×{gameState.reactant1Count}</span>
+                                    </h3>
+                                    {renderMolecules(
+                                        gameState.currentReaction.reactant1.formula,
+                                        gameState.reactant1Count,
+                                        gameState.currentReaction.reactant1.color
+                                    )}
+                                </div>
+
+                                <div className="bg-red-50 p-4 rounded-xl">
+                                    <h3 className="text-center font-semibold text-lg mb-3 text-gray-700">
+                                        {gameState.currentReaction.reactant2.formula}
+                                        <span className="ml-2 text-indigo-600">×{gameState.reactant2Count}</span>
+                                    </h3>
+                                    {renderMolecules(
+                                        gameState.currentReaction.reactant2.formula,
+                                        gameState.reactant2Count,
+                                        gameState.currentReaction.reactant2.color
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Calculation Helper */}
+                            {showCalculationHelper && correctAnswer && (
+                                <div className="max-w-2xl mx-auto mb-6 bg-purple-50 border-2 border-purple-300 p-4 rounded-xl">
+                                    <h4 className="font-semibold text-purple-800 mb-2">🧮 Reiknihjálp</h4>
+                                    <div className="space-y-2 text-sm font-mono">
+                                        <div className={correctAnswer.limitingReactant === gameState.currentReaction.reactant1.formula ? 'text-green-700 font-bold' : 'text-purple-900'}>
+                                            {gameState.currentReaction.reactant1.formula}: {gameState.reactant1Count} ÷ {gameState.currentReaction.reactant1.coeff} = {correctAnswer.timesFromR1.toFixed(2)} möl
+                                        </div>
+                                        <div className={correctAnswer.limitingReactant === gameState.currentReaction.reactant2.formula ? 'text-green-700 font-bold' : 'text-purple-900'}>
+                                            {gameState.currentReaction.reactant2.formula}: {gameState.reactant2Count} ÷ {gameState.currentReaction.reactant2.coeff} = {correctAnswer.timesFromR2.toFixed(2)} möl
+                                        </div>
+                                        <div className="text-purple-900 font-semibold mt-2">
+                                            → Lægra gildið ({Math.min(correctAnswer.timesFromR1, correctAnswer.timesFromR2).toFixed(2)}) gefur takmarkandi hvarfefni
+                                        </div>
+                                    </div>
+                                    {!practiceMode && (
+                                        <p className="text-xs text-purple-700 mt-2">💡 Í keppnisstillingu kostar reiknihjálp 5 stig</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Answer Input Area */}
+                            {!gameState.isAnswered ? (
+                                <div className="space-y-4 max-w-2xl mx-auto">
+                                    {/* Question 1: Limiting Reactant */}
+                                    <div className="bg-gray-50 p-4 rounded-xl">
+                                        <label className="block font-semibold mb-2 text-gray-700">
+                                            1. Hvaða hvarfefni er takmarkandi?
+                                        </label>
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => setGameState(prev => ({
+                                                    ...prev,
+                                                    userAnswer: { ...prev.userAnswer, limitingReactant: gameState.currentReaction.reactant1.formula }
+                                                }))}
+                                                className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
+                                                    gameState.userAnswer.limitingReactant === gameState.currentReaction.reactant1.formula
+                                                        ? 'text-white'
+                                                        : 'bg-white border-2 border-gray-300 hover:border-indigo-400'
+                                                }`}
+                                                style={gameState.userAnswer.limitingReactant === gameState.currentReaction.reactant1.formula ?
+                                                    { backgroundColor: 'var(--kvenno-orange)' } : {}}
+                                            >
+                                                {gameState.currentReaction.reactant1.formula}
+                                            </button>
+                                            <button
+                                                onClick={() => setGameState(prev => ({
+                                                    ...prev,
+                                                    userAnswer: { ...prev.userAnswer, limitingReactant: gameState.currentReaction.reactant2.formula }
+                                                }))}
+                                                className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
+                                                    gameState.userAnswer.limitingReactant === gameState.currentReaction.reactant2.formula
+                                                        ? 'text-white'
+                                                        : 'bg-white border-2 border-gray-300 hover:border-indigo-400'
+                                                }`}
+                                                style={gameState.userAnswer.limitingReactant === gameState.currentReaction.reactant2.formula ?
+                                                    { backgroundColor: 'var(--kvenno-orange)' } : {}}
+                                            >
+                                                {gameState.currentReaction.reactant2.formula}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Question 2: Products Formed - FIXED to handle multiple products */}
+                                    <div className="bg-gray-50 p-4 rounded-xl">
+                                        <label className="block font-semibold mb-2 text-gray-700">
+                                            2. Hversu margar afurðir myndast?
+                                        </label>
+                                        {gameState.currentReaction.products.map((product, idx) => (
+                                            <div key={product.formula} className={idx > 0 ? 'mt-3' : ''}>
+                                                <label className="block text-sm mb-1 text-gray-600">
+                                                    Hversu mörg {product.formula}?
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    pattern="[0-9]*"
+                                                    value={gameState.userAnswer.productsFormed[product.formula] || ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        setGameState(prev => ({
+                                                            ...prev,
+                                                            userAnswer: {
+                                                                ...prev.userAnswer,
+                                                                productsFormed: {
+                                                                    ...prev.userAnswer.productsFormed,
+                                                                    [product.formula]: value
+                                                                }
+                                                            }
+                                                        }));
+                                                        // Clear error when user types
+                                                        if (inputErrors.productsFormed) {
+                                                            setInputErrors(prev => ({ ...prev, productsFormed: false }));
+                                                        }
+                                                    }}
+                                                    className={`w-full p-3 border-2 rounded-lg focus:outline-none text-lg ${
+                                                        inputErrors.productsFormed && !isValidInteger(gameState.userAnswer.productsFormed[product.formula])
+                                                            ? 'input-error'
+                                                            : gameState.userAnswer.productsFormed[product.formula] && isValidInteger(gameState.userAnswer.productsFormed[product.formula])
+                                                            ? 'input-valid'
+                                                            : 'border-gray-300 focus:border-indigo-500'
+                                                    }`}
+                                                    placeholder="0"
+                                                    aria-label={`Fjöldi ${product.formula}`}
+                                                />
+                                            </div>
+                                        ))}
+                                        {inputErrors.productsFormed && (
+                                            <p className="text-red-600 text-sm mt-1">Sláðu inn heila jákvæða tölu</p>
+                                        )}
+                                    </div>
+
+                                    {/* Question 3: Excess Remaining */}
+                                    <div className="bg-gray-50 p-4 rounded-xl">
+                                        <label className="block font-semibold mb-2 text-gray-700">
+                                            3. Hve mikið af umframhvarfefninu er eftir?
+                                        </label>
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            value={gameState.userAnswer.excessRemaining}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setGameState(prev => ({
+                                                    ...prev,
+                                                    userAnswer: { ...prev.userAnswer, excessRemaining: value }
+                                                }));
+                                                // Clear error when user types
+                                                if (inputErrors.excessRemaining) {
+                                                    setInputErrors(prev => ({ ...prev, excessRemaining: false }));
+                                                }
+                                            }}
+                                            className={`w-full p-3 border-2 rounded-lg focus:outline-none text-lg ${
+                                                inputErrors.excessRemaining && !isValidInteger(gameState.userAnswer.excessRemaining)
+                                                    ? 'input-error'
+                                                    : gameState.userAnswer.excessRemaining && isValidInteger(gameState.userAnswer.excessRemaining)
+                                                    ? 'input-valid'
+                                                    : 'border-gray-300 focus:border-indigo-500'
+                                            }`}
+                                            placeholder="0"
+                                            aria-label="Umframhvarfefni eftir"
+                                        />
+                                        {inputErrors.excessRemaining && (
+                                            <p className="text-red-600 text-sm mt-1">Sláðu inn heila jákvæða tölu</p>
+                                        )}
+                                    </div>
+
+                                    {/* Hint Section */}
+                                    {gameState.showHint && correctAnswer && (
+                                        <div className="bg-yellow-50 border-2 border-yellow-300 p-4 rounded-xl">
+                                            <h4 className="font-semibold text-yellow-800 mb-2">💡 Ábending:</h4>
+                                            <p className="text-sm text-yellow-900">
+                                                Deildu fjölda hvers hvarfefnis með stuðlinum í jöfnunni. Hvarfefnið með lægri útkoman er takmarkandi.
+                                            </p>
+                                            <div className="mt-2 text-sm font-mono bg-yellow-100 p-2 rounded">
+                                                {gameState.currentReaction.reactant1.formula}: {gameState.reactant1Count} ÷ {gameState.currentReaction.reactant1.coeff} = {correctAnswer.timesFromR1.toFixed(2)}
+                                                <br />
+                                                {gameState.currentReaction.reactant2.formula}: {gameState.reactant2Count} ÷ {gameState.currentReaction.reactant2.coeff} = {correctAnswer.timesFromR2.toFixed(2)}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={() => setGameState(prev => ({ ...prev, showHint: !prev.showHint }))}
+                                            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                                        >
+                                            {gameState.showHint ? 'Fela ábendingu' : 'Sýna ábendingu'} 💡
+                                        </button>
+                                        <button
+                                            onClick={() => setShowCalculationHelper(!showCalculationHelper)}
+                                            className="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                                        >
+                                            {showCalculationHelper ? 'Fela reikning' : 'Reiknihjálp'} 🧮
+                                        </button>
+                                        <button
+                                            onClick={handleSubmit}
+                                            disabled={!gameState.userAnswer.limitingReactant ||
+                                                     !Object.values(gameState.userAnswer.productsFormed).every(v => v) ||
+                                                     !gameState.userAnswer.excessRemaining}
+                                            className="flex-1 text-white font-bold py-3 px-6 rounded-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                            style={{ backgroundColor: 'var(--kvenno-orange)' }}
+                                            onMouseEnter={(e) => !e.target.disabled && (e.target.style.backgroundColor = 'var(--kvenno-orange-dark)')}
+                                            onMouseLeave={(e) => !e.target.disabled && (e.target.style.backgroundColor = 'var(--kvenno-orange)')}
+                                        >
+                                            Athuga svar ✓
+                                        </button>
+                                    </div>
+
+                                    {/* Show Solution Button (after 2 incorrect attempts or in practice mode) */}
+                                    {(gameState.incorrectAttempts >= 2 || practiceMode) && (
+                                        <button
+                                            onClick={showSolution}
+                                            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                                        >
+                                            Sýna lausn 📖
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                /* Results Display */
+                                <div className="max-w-2xl mx-auto">
+                                    <div className={`p-6 rounded-xl ${gameState.isCorrect ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'}`}>
+                                        <h3 className="text-2xl font-bold mb-4 text-center">
+                                            {gameState.isCorrect ? '🎉 Rétt!' : '❌ Rangt'}
+                                        </h3>
+
+                                        {/* Detailed Answer Breakdown */}
+                                        <div className="space-y-3 bg-white p-4 rounded-lg">
+                                            {/* Limiting Reactant */}
+                                            <div className="flex justify-between items-start">
+                                                <span className="font-semibold">Takmarkandi hvarfefni:</span>
+                                                <span className={gameState.userAnswer.limitingReactant === correctAnswer.limitingReactant ? 'text-green-600 font-bold' : 'text-red-600'}>
+                                                    {gameState.userAnswer.limitingReactant === correctAnswer.limitingReactant ? '✓ ' : '✗ '}
+                                                    {correctAnswer.limitingReactant}
+                                                    {gameState.userAnswer.limitingReactant !== correctAnswer.limitingReactant &&
+                                                        ` (þú sagðir: ${gameState.userAnswer.limitingReactant})`
+                                                    }
+                                                </span>
+                                            </div>
+
+                                            {/* Products Formed - FIXED to show each product separately */}
+                                            {gameState.currentReaction.products.map(product => {
+                                                const userAnswer = parseInt(gameState.userAnswer.productsFormed[product.formula]);
+                                                const correctAmount = correctAnswer.productsFormed[product.formula];
+                                                const isCorrect = userAnswer === correctAmount;
+
+                                                return (
+                                                    <div key={product.formula} className="flex justify-between items-start">
+                                                        <span className="font-semibold">{product.formula} sem myndast:</span>
+                                                        <span className={isCorrect ? 'text-green-600 font-bold' : 'text-red-600'}>
+                                                            {isCorrect ? '✓ ' : '✗ '}
+                                                            {correctAmount}
+                                                            {!isCorrect && ` (þú sagðir: ${userAnswer})`}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+
+                                            {/* Excess Remaining */}
+                                            <div className="flex justify-between items-start">
+                                                <span className="font-semibold">Umframhvarfefni eftir:</span>
+                                                <span className={parseInt(gameState.userAnswer.excessRemaining) === correctAnswer.excessRemaining ? 'text-green-600 font-bold' : 'text-red-600'}>
+                                                    {parseInt(gameState.userAnswer.excessRemaining) === correctAnswer.excessRemaining ? '✓ ' : '✗ '}
+                                                    {correctAnswer.excessRemaining} {correctAnswer.excessReactant}
+                                                    {parseInt(gameState.userAnswer.excessRemaining) !== correctAnswer.excessRemaining &&
+                                                        ` (þú sagðir: ${gameState.userAnswer.excessRemaining})`
+                                                    }
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Enhanced Step-by-Step Explanation */}
+                                        {!gameState.isCorrect && correctAnswer && (
+                                            <div className="mt-4 bg-blue-50 p-4 rounded-lg text-sm space-y-3">
+                                                <h4 className="font-semibold text-lg mb-2">📚 Útskýring skref fyrir skref:</h4>
+
+                                                <div className="bg-white p-3 rounded">
+                                                    <p className="font-semibold text-indigo-700">Skref 1: Reikna möl á hverja einingu</p>
+                                                    <p className="font-mono text-sm">
+                                                        {gameState.currentReaction.reactant1.formula}: {gameState.reactant1Count} ÷ {gameState.currentReaction.reactant1.coeff} = {correctAnswer.timesFromR1.toFixed(2)} möl
+                                                    </p>
+                                                    <p className="font-mono text-sm">
+                                                        {gameState.currentReaction.reactant2.formula}: {gameState.reactant2Count} ÷ {gameState.currentReaction.reactant2.coeff} = {correctAnswer.timesFromR2.toFixed(2)} möl
+                                                    </p>
+                                                </div>
+
+                                                <div className="bg-white p-3 rounded">
+                                                    <p className="font-semibold text-indigo-700">Skref 2: Finna lægsta gildið</p>
+                                                    <p>
+                                                        {correctAnswer.timesFromR1.toFixed(2)} {correctAnswer.timesFromR1 < correctAnswer.timesFromR2 ? '<' : '>'} {correctAnswer.timesFromR2.toFixed(2)}
+                                                        {' → '}<strong>{correctAnswer.limitingReactant}</strong> er takmarkandi
+                                                    </p>
+                                                </div>
+
+                                                <div className="bg-white p-3 rounded">
+                                                    <p className="font-semibold text-indigo-700">Skref 3: Reikna afurðir</p>
+                                                    <p>Hvarfin getur gerst <strong>{correctAnswer.timesReactionRuns}</strong> sinnum</p>
+                                                    {gameState.currentReaction.products.map(product => (
+                                                        <p key={product.formula} className="font-mono text-sm">
+                                                            {product.formula} sem myndast: {correctAnswer.timesReactionRuns} × {product.coeff} = <strong>{correctAnswer.productsFormed[product.formula]}</strong>
+                                                        </p>
+                                                    ))}
+                                                </div>
+
+                                                <div className="bg-white p-3 rounded">
+                                                    <p className="font-semibold text-indigo-700">Skref 4: Reikna afgang</p>
+                                                    <p className="font-mono text-sm">
+                                                        {correctAnswer.excessReactant} notað: {correctAnswer.timesReactionRuns} × {
+                                                            correctAnswer.excessReactant === gameState.currentReaction.reactant1.formula
+                                                                ? gameState.currentReaction.reactant1.coeff
+                                                                : gameState.currentReaction.reactant2.coeff
+                                                        } = {correctAnswer.excessReactant === gameState.currentReaction.reactant1.formula
+                                                                ? correctAnswer.r1Used
+                                                                : correctAnswer.r2Used}
+                                                    </p>
+                                                    <p className="font-mono text-sm">
+                                                        {correctAnswer.excessReactant} eftir: {
+                                                            correctAnswer.excessReactant === gameState.currentReaction.reactant1.formula
+                                                                ? gameState.reactant1Count
+                                                                : gameState.reactant2Count
+                                                        } - {correctAnswer.excessReactant === gameState.currentReaction.reactant1.formula
+                                                                ? correctAnswer.r1Used
+                                                                : correctAnswer.r2Used} = <strong>{correctAnswer.excessRemaining}</strong>
+                                                    </p>
+                                                </div>
+
+                                                {/* Contextual Feedback */}
+                                                <div className="bg-yellow-100 p-3 rounded border-l-4 border-yellow-600">
+                                                    <p className="font-semibold">💡 Ábending fyrir næsta skiptið:</p>
+                                                    {gameState.userAnswer.limitingReactant !== correctAnswer.limitingReactant && (
+                                                        <p className="text-sm">Athugaðu deiliútreikninginn aftur. Hver hefur lægra gildi?</p>
+                                                    )}
+                                                    {gameState.userAnswer.limitingReactant === correctAnswer.limitingReactant &&
+                                                     Object.keys(correctAnswer.productsFormed).some(key =>
+                                                         parseInt(gameState.userAnswer.productsFormed[key]) !== correctAnswer.productsFormed[key]
+                                                     ) && (
+                                                        <p className="text-sm">Rétt takmarkandi! En athugaðu margföldunina: {correctAnswer.timesReactionRuns} × stuðull afurðar</p>
+                                                    )}
+                                                    {gameState.userAnswer.limitingReactant === correctAnswer.limitingReactant &&
+                                                     Object.keys(correctAnswer.productsFormed).every(key =>
+                                                         parseInt(gameState.userAnswer.productsFormed[key]) === correctAnswer.productsFormed[key]
+                                                     ) &&
+                                                     parseInt(gameState.userAnswer.excessRemaining) !== correctAnswer.excessRemaining && (
+                                                        <p className="text-sm">Gott! En gleymdirðu að draga notað magn frá?</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Success message for correct answer */}
+                                        {gameState.isCorrect && (
+                                            <div className="mt-4 bg-green-100 p-4 rounded-lg text-center">
+                                                <p className="text-green-800 font-semibold">
+                                                    {streak >= 5 ? '🔥 Frábært! Þú ert á skriði!' :
+                                                     streak >= 3 ? '⭐ Vel gert! Haltu áfram!' :
+                                                     '👍 Rétt svar!'}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Next/Reset Buttons */}
+                                    <div className="flex gap-4 mt-6">
+                                        <button
+                                            onClick={handleReset}
+                                            className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <RotateCcw size={20} />
+                                            Byrja upp á nýtt
+                                        </button>
+                                        <button
+                                            onClick={handleNextQuestion}
+                                            className="flex-1 text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                            style={{ backgroundColor: 'var(--kvenno-orange)' }}
+                                            onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--kvenno-orange-dark)'}
+                                            onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--kvenno-orange)'}
+                                        >
+                                            Næsta spurning
+                                            <Play size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Best Streak Display */}
+                        {bestStreak > 0 && (
+                            <div className="text-center mt-4 text-gray-600">
+                                <p>Lengsta röð: <strong className="text-orange-600">{bestStreak} 🔥</strong></p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<LimitingReactantGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
