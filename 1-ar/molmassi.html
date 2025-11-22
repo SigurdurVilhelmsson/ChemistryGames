@@ -122,6 +122,75 @@
         .animate-pulse {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .mobile-input {
+                font-size: 24px !important;
+                min-height: 48px !important;
+            }
+
+            .mobile-btn {
+                min-height: 44px !important;
+                min-width: 44px !important;
+                font-size: 16px !important;
+            }
+
+            .header-content {
+                padding: 0 0.5rem;
+            }
+
+            .site-logo {
+                font-size: 1rem;
+            }
+
+            .header-btn {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .breadcrumb {
+                font-size: 0.75rem;
+                padding: 0.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.8); }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        .glow {
+            animation: glow 1s;
+        }
+
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Focus indicators for accessibility */
+        button:focus, input:focus {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
@@ -131,7 +200,7 @@
             <a href="/" class="site-logo">Kvenno Efnafræði</a>
             <div>
                 <button class="header-btn" onclick="alert('Admin aðgangur kemur fljótlega')">Admin</button>
-                <button class="header-btn" onclick="alert('Upplýsingar um leiki og notkun')">Info</button>
+                <button class="header-btn" onclick="alert('Upplýsingar um leiki og notkun')">Upplýsingar</button>
             </div>
         </div>
     </header>
@@ -151,56 +220,63 @@
         const { useState, useEffect, useRef } = React;
 
         const elements = [
-            { symbol: 'H', name: 'Hydrogen', atomicMass: 1.008 },
-            { symbol: 'C', name: 'Carbon', atomicMass: 12.011 },
-            { symbol: 'N', name: 'Nitrogen', atomicMass: 14.007 },
-            { symbol: 'O', name: 'Oxygen', atomicMass: 15.999 },
-            { symbol: 'F', name: 'Fluorine', atomicMass: 18.998 },
-            { symbol: 'Na', name: 'Sodium', atomicMass: 22.990 },
-            { symbol: 'Mg', name: 'Magnesium', atomicMass: 24.305 },
-            { symbol: 'Al', name: 'Aluminum', atomicMass: 26.982 },
-            { symbol: 'Si', name: 'Silicon', atomicMass: 28.086 },
-            { symbol: 'P', name: 'Phosphorus', atomicMass: 30.974 },
-            { symbol: 'S', name: 'Sulfur', atomicMass: 32.06 },
-            { symbol: 'Cl', name: 'Chlorine', atomicMass: 35.45 },
-            { symbol: 'K', name: 'Potassium', atomicMass: 39.098 },
-            { symbol: 'Ca', name: 'Calcium', atomicMass: 40.078 },
-            { symbol: 'Fe', name: 'Iron', atomicMass: 55.845 },
-            { symbol: 'Cu', name: 'Copper', atomicMass: 63.546 },
-            { symbol: 'Zn', name: 'Zinc', atomicMass: 65.38 },
-            { symbol: 'Br', name: 'Bromine', atomicMass: 79.904 },
-            { symbol: 'Ag', name: 'Silver', atomicMass: 107.868 },
-            { symbol: 'I', name: 'Iodine', atomicMass: 126.904 },
+            { symbol: 'H', name: 'Vetni', atomicMass: 1.008 },
+            { symbol: 'C', name: 'Kolefni', atomicMass: 12.011 },
+            { symbol: 'N', name: 'Köfnunarefni', atomicMass: 14.007 },
+            { symbol: 'O', name: 'Súrefni', atomicMass: 15.999 },
+            { symbol: 'F', name: 'Flúor', atomicMass: 18.998 },
+            { symbol: 'Na', name: 'Natríum', atomicMass: 22.990 },
+            { symbol: 'Mg', name: 'Magnesíum', atomicMass: 24.305 },
+            { symbol: 'Al', name: 'Ál', atomicMass: 26.982 },
+            { symbol: 'Si', name: 'Kísill', atomicMass: 28.086 },
+            { symbol: 'P', name: 'Fosfór', atomicMass: 30.974 },
+            { symbol: 'S', name: 'Brennisteinn', atomicMass: 32.06 },
+            { symbol: 'Cl', name: 'Klór', atomicMass: 35.45 },
+            { symbol: 'K', name: 'Kalíum', atomicMass: 39.098 },
+            { symbol: 'Ca', name: 'Kalsíum', atomicMass: 40.078 },
+            { symbol: 'Fe', name: 'Járn', atomicMass: 55.845 },
+            { symbol: 'Cu', name: 'Kopar', atomicMass: 63.546 },
+            { symbol: 'Zn', name: 'Sink', atomicMass: 65.38 },
+            { symbol: 'Br', name: 'Bróm', atomicMass: 79.904 },
+            { symbol: 'Ag', name: 'Silfur', atomicMass: 107.868 },
+            { symbol: 'I', name: 'Joð', atomicMass: 126.904 },
         ];
 
         const compoundsList = [
-            // Easy
+            // Easy - Real-world chemicals students know
             { formula: 'H₂O', name: 'Vatn', elements: [{symbol: 'H', count: 2}, {symbol: 'O', count: 1}], molarMass: 18.015, difficulty: 'easy' },
+            { formula: 'NaCl', name: 'Borðsalt', elements: [{symbol: 'Na', count: 1}, {symbol: 'Cl', count: 1}], molarMass: 58.44, difficulty: 'easy' },
+            { formula: 'O₂', name: 'Súrefni', elements: [{symbol: 'O', count: 2}], molarMass: 31.998, difficulty: 'easy' },
+            { formula: 'N₂', name: 'Köfnunarefni', elements: [{symbol: 'N', count: 2}], molarMass: 28.014, difficulty: 'easy' },
+            { formula: 'CH₄', name: 'Metan', elements: [{symbol: 'C', count: 1}, {symbol: 'H', count: 4}], molarMass: 16.043, difficulty: 'easy' },
+            { formula: 'C₂H₆', name: 'Etan', elements: [{symbol: 'C', count: 2}, {symbol: 'H', count: 6}], molarMass: 30.070, difficulty: 'easy' },
+            { formula: 'C₃H₈', name: 'Própan', elements: [{symbol: 'C', count: 3}, {symbol: 'H', count: 8}], molarMass: 44.097, difficulty: 'easy' },
             { formula: 'CO₂', name: 'Koltvísýringur', elements: [{symbol: 'C', count: 1}, {symbol: 'O', count: 2}], molarMass: 44.009, difficulty: 'easy' },
             { formula: 'NH₃', name: 'Ammóníak', elements: [{symbol: 'N', count: 1}, {symbol: 'H', count: 3}], molarMass: 17.031, difficulty: 'easy' },
-            { formula: 'CH₄', name: 'Metan', elements: [{symbol: 'C', count: 1}, {symbol: 'H', count: 4}], molarMass: 16.043, difficulty: 'easy' },
-            { formula: 'NaCl', name: 'Natrímklóríð', elements: [{symbol: 'Na', count: 1}, {symbol: 'Cl', count: 1}], molarMass: 58.440, difficulty: 'easy' },
-            { formula: 'O₂', name: 'Súrefni', elements: [{symbol: 'O', count: 2}], molarMass: 31.998, difficulty: 'easy' },
             { formula: 'HCl', name: 'Saltsýra', elements: [{symbol: 'H', count: 1}, {symbol: 'Cl', count: 1}], molarMass: 36.458, difficulty: 'easy' },
-            { formula: 'MgO', name: 'Magnesíumoxíð', elements: [{symbol: 'Mg', count: 1}, {symbol: 'O', count: 1}], molarMass: 40.304, difficulty: 'easy' },
 
-            // Medium
-            { formula: 'H₂SO₄', name: 'Brennisteinssýra', elements: [{symbol: 'H', count: 2}, {symbol: 'S', count: 1}, {symbol: 'O', count: 4}], molarMass: 98.079, difficulty: 'medium' },
-            { formula: 'CaCO₃', name: 'Kalsíumkarbónat', elements: [{symbol: 'Ca', count: 1}, {symbol: 'C', count: 1}, {symbol: 'O', count: 3}], molarMass: 100.087, difficulty: 'medium' },
+            // Medium - Common chemicals in labs and household
+            { formula: 'C₂H₅OH', name: 'Etanól', elements: [{symbol: 'C', count: 2}, {symbol: 'H', count: 6}, {symbol: 'O', count: 1}], molarMass: 46.069, difficulty: 'medium' },
+            { formula: 'CH₃COOH', name: 'Ediksýra', elements: [{symbol: 'C', count: 2}, {symbol: 'H', count: 4}, {symbol: 'O', count: 2}], molarMass: 60.052, difficulty: 'medium' },
             { formula: 'NaOH', name: 'Natrímhýdroxíð', elements: [{symbol: 'Na', count: 1}, {symbol: 'O', count: 1}, {symbol: 'H', count: 1}], molarMass: 39.997, difficulty: 'medium' },
+            { formula: 'CaCO₃', name: 'Kalsíumkarbónat', elements: [{symbol: 'Ca', count: 1}, {symbol: 'C', count: 1}, {symbol: 'O', count: 3}], molarMass: 100.087, difficulty: 'medium' },
+            { formula: 'KCl', name: 'Kalíumklóríð', elements: [{symbol: 'K', count: 1}, {symbol: 'Cl', count: 1}], molarMass: 74.551, difficulty: 'medium' },
+            { formula: 'MgSO₄', name: 'Magnesíumsúlfat', elements: [{symbol: 'Mg', count: 1}, {symbol: 'S', count: 1}, {symbol: 'O', count: 4}], molarMass: 120.366, difficulty: 'medium' },
+            { formula: 'NaHCO₃', name: 'Matarsódi', elements: [{symbol: 'Na', count: 1}, {symbol: 'H', count: 1}, {symbol: 'C', count: 1}, {symbol: 'O', count: 3}], molarMass: 84.007, difficulty: 'medium' },
+            { formula: 'H₂O₂', name: 'Vetnisperoxíð', elements: [{symbol: 'H', count: 2}, {symbol: 'O', count: 2}], molarMass: 34.015, difficulty: 'medium' },
             { formula: 'C₆H₁₂O₆', name: 'Glúkósi', elements: [{symbol: 'C', count: 6}, {symbol: 'H', count: 12}, {symbol: 'O', count: 6}], molarMass: 180.156, difficulty: 'medium' },
-            { formula: 'Ca(OH)₂', name: 'Kalsíumhýdroxíð', elements: [{symbol: 'Ca', count: 1}, {symbol: 'O', count: 2}, {symbol: 'H', count: 2}], molarMass: 74.093, difficulty: 'medium' },
-            { formula: 'Al₂O₃', name: 'Áloxíð', elements: [{symbol: 'Al', count: 2}, {symbol: 'O', count: 3}], molarMass: 101.961, difficulty: 'medium' },
-            { formula: 'HNO₃', name: 'Saltpéturssýra', elements: [{symbol: 'H', count: 1}, {symbol: 'N', count: 1}, {symbol: 'O', count: 3}], molarMass: 63.012, difficulty: 'medium' },
-            { formula: 'KNO₃', name: 'Kalíumnítrat', elements: [{symbol: 'K', count: 1}, {symbol: 'N', count: 1}, {symbol: 'O', count: 3}], molarMass: 101.103, difficulty: 'medium' },
+            { formula: 'H₂SO₄', name: 'Brennisteinssýra', elements: [{symbol: 'H', count: 2}, {symbol: 'S', count: 1}, {symbol: 'O', count: 4}], molarMass: 98.079, difficulty: 'medium' },
 
-            // Hard
+            // Hard - Complex molecules and hydrates
+            { formula: 'C₆H₅OH', name: 'Fenól', elements: [{symbol: 'C', count: 6}, {symbol: 'H', count: 6}, {symbol: 'O', count: 1}], molarMass: 94.113, difficulty: 'hard' },
+            { formula: 'C₁₂H₂₂O₁₁', name: 'Súkrósi/Sykur', elements: [{symbol: 'C', count: 12}, {symbol: 'H', count: 22}, {symbol: 'O', count: 11}], molarMass: 342.297, difficulty: 'hard' },
+            { formula: 'MgSO₄·7H₂O', name: 'Epsom salt hýdrat', elements: [{symbol: 'Mg', count: 1}, {symbol: 'S', count: 1}, {symbol: 'O', count: 11}, {symbol: 'H', count: 14}], molarMass: 246.475, difficulty: 'hard' },
+            { formula: 'Na₂CO₃·10H₂O', name: 'Vatnaglas hýdrat', elements: [{symbol: 'Na', count: 2}, {symbol: 'C', count: 1}, {symbol: 'O', count: 13}, {symbol: 'H', count: 20}], molarMass: 286.141, difficulty: 'hard' },
+            { formula: 'FeSO₄·7H₂O', name: 'Járnsúlfat hýdrat', elements: [{symbol: 'Fe', count: 1}, {symbol: 'S', count: 1}, {symbol: 'O', count: 11}, {symbol: 'H', count: 14}], molarMass: 278.015, difficulty: 'hard' },
+            { formula: '(NH₄)₃PO₄', name: 'Ammóníumfosfat', elements: [{symbol: 'N', count: 3}, {symbol: 'H', count: 12}, {symbol: 'P', count: 1}, {symbol: 'O', count: 4}], molarMass: 149.087, difficulty: 'hard' },
+            { formula: 'Al₂(SO₄)₃', name: 'Álsúlfat', elements: [{symbol: 'Al', count: 2}, {symbol: 'S', count: 3}, {symbol: 'O', count: 12}], molarMass: 342.151, difficulty: 'hard' },
             { formula: 'Ca₃(PO₄)₂', name: 'Kalsíumfosfat', elements: [{symbol: 'Ca', count: 3}, {symbol: 'P', count: 2}, {symbol: 'O', count: 8}], molarMass: 310.177, difficulty: 'hard' },
-            { formula: 'Al(OH)₃', name: 'Álhýdroxíð', elements: [{symbol: 'Al', count: 1}, {symbol: 'O', count: 3}, {symbol: 'H', count: 3}], molarMass: 78.004, difficulty: 'hard' },
-            { formula: '(NH₄)₂SO₄', name: 'Ammóníumsúlfat', elements: [{symbol: 'N', count: 2}, {symbol: 'H', count: 8}, {symbol: 'S', count: 1}, {symbol: 'O', count: 4}], molarMass: 132.140, difficulty: 'hard' },
-            { formula: 'Fe₂O₃', name: 'Járn(III)oxíð', elements: [{symbol: 'Fe', count: 2}, {symbol: 'O', count: 3}], molarMass: 159.688, difficulty: 'hard' },
             { formula: 'CuSO₄·5H₂O', name: 'Koparbrennisteinshýdrat', elements: [{symbol: 'Cu', count: 1}, {symbol: 'S', count: 1}, {symbol: 'O', count: 9}, {symbol: 'H', count: 10}], molarMass: 249.685, difficulty: 'hard' },
-            { formula: 'Mg(NO₃)₂', name: 'Magnesíumnítrat', elements: [{symbol: 'Mg', count: 1}, {symbol: 'N', count: 2}, {symbol: 'O', count: 6}], molarMass: 148.315, difficulty: 'hard' },
         ];
 
         const MolarMassChallenge = () => {
@@ -214,16 +290,344 @@
                 isPlaying: false,
                 gameOver: false,
                 difficulty: 'mixed',
+                gameMode: 'competition', // 'practice' or 'competition'
                 showFeedback: false,
                 lastAnswerCorrect: null,
                 streak: 0,
                 bestStreak: 0,
-                showPeriodicTable: false
+                showPeriodicTable: false,
+                inputValidation: { valid: true, error: '' },
+                calculationBreakdown: null,
+                contextualFeedback: '',
+                incorrectAttempts: 0,
+                showSolution: false,
+                // Part 3: Helper tools
+                showElementCounter: false,
+                hintsUsed: 0,
+                hintLevel: 0,
+                totalPointsDeducted: 0,
+                correctCompounds: [], // Track correctly answered compounds
+                // Part 3: Achievements
+                showAchievement: null,
+                recentAchievement: null,
+                // Part 4: Animations and UI
+                inputShake: false,
+                isPaused: false,
+                showKeyboardHelp: false
             });
 
             const [showInstructions, setShowInstructions] = useState(true);
+            const [showModeSelection, setShowModeSelection] = useState(false);
+            const [showStatsPage, setShowStatsPage] = useState(false);
+            const [periodicTableSearch, setPeriodicTableSearch] = useState('');
+            const [showFormulaReference, setShowFormulaReference] = useState(false);
+            const [progress, setProgress] = useState(loadProgress());
+            const [soundEnabled, setSoundEnabled] = useState(false);
             const inputRef = useRef(null);
             const timerRef = useRef(null);
+
+            // Input validation function
+            const validateInput = (value) => {
+                if (!value || value.trim() === '') {
+                    return { valid: true, error: '' };
+                }
+
+                // Handle scientific notation
+                const num = parseFloat(value);
+
+                if (isNaN(num)) {
+                    return { valid: false, error: 'Sláðu inn gilda tölu' };
+                }
+
+                if (num <= 0) {
+                    return { valid: false, error: 'Sláðu inn jákvæða tölu' };
+                }
+
+                if (num >= 1000) {
+                    return { valid: false, error: 'Sláðu inn tölu á milli 0 og 1000' };
+                }
+
+                return { valid: true, error: '' };
+            };
+
+            // Generate calculation breakdown
+            const generateCalculationBreakdown = (compound) => {
+                const breakdown = [];
+                const isHydrate = compound.formula.includes('·');
+
+                if (isHydrate) {
+                    // Handle hydrates separately
+                    const parts = compound.formula.split('·');
+                    const mainFormula = parts[0];
+                    const waterPart = parts[1];
+
+                    // Extract water multiplier (e.g., "5H₂O" -> 5)
+                    const waterMatch = waterPart.match(/^(\d+)/);
+                    const waterMultiplier = waterMatch ? parseInt(waterMatch[1]) : 1;
+
+                    breakdown.push({ type: 'section', label: `Aðalefni (${mainFormula}):` });
+
+                    // Get elements from main compound
+                    const mainElements = compound.elements.filter(el => {
+                        if (el.symbol === 'H' || el.symbol === 'O') {
+                            // For hydrates, we need to calculate which H and O belong to main compound
+                            return true; // We'll handle this in compound data
+                        }
+                        return true;
+                    });
+
+                    // For simplicity, we'll use the compound.elements data
+                    // Add non-water elements first
+                    compound.elements.forEach(el => {
+                        if (el.symbol !== 'H' && el.symbol !== 'O') {
+                            const element = elements.find(e => e.symbol === el.symbol);
+                            if (element) {
+                                breakdown.push({
+                                    type: 'calculation',
+                                    symbol: el.symbol,
+                                    count: el.count,
+                                    atomicMass: element.atomicMass,
+                                    total: el.count * element.atomicMass
+                                });
+                            }
+                        }
+                    });
+
+                    // Add O and H from main compound (need to calculate)
+                    const totalH = compound.elements.find(e => e.symbol === 'H')?.count || 0;
+                    const totalO = compound.elements.find(e => e.symbol === 'O')?.count || 0;
+                    const waterH = waterMultiplier * 2;
+                    const waterO = waterMultiplier * 1;
+                    const mainO = totalO - waterO;
+
+                    if (mainO > 0) {
+                        const oElement = elements.find(e => e.symbol === 'O');
+                        breakdown.push({
+                            type: 'calculation',
+                            symbol: 'O',
+                            count: mainO,
+                            atomicMass: oElement.atomicMass,
+                            total: mainO * oElement.atomicMass
+                        });
+                    }
+
+                    breakdown.push({ type: 'section', label: `Vatn (${waterMultiplier}H₂O):` });
+
+                    const hElement = elements.find(e => e.symbol === 'H');
+                    const oElement = elements.find(e => e.symbol === 'O');
+
+                    breakdown.push({
+                        type: 'calculation',
+                        symbol: 'H',
+                        count: waterH,
+                        atomicMass: hElement.atomicMass,
+                        total: waterH * hElement.atomicMass
+                    });
+
+                    breakdown.push({
+                        type: 'calculation',
+                        symbol: 'O',
+                        count: waterO,
+                        atomicMass: oElement.atomicMass,
+                        total: waterO * oElement.atomicMass
+                    });
+                } else {
+                    // Regular compound
+                    compound.elements.forEach(el => {
+                        const element = elements.find(e => e.symbol === el.symbol);
+                        if (element) {
+                            breakdown.push({
+                                type: 'calculation',
+                                symbol: el.symbol,
+                                count: el.count,
+                                atomicMass: element.atomicMass,
+                                total: el.count * element.atomicMass
+                            });
+                        }
+                    });
+                }
+
+                return breakdown;
+            };
+
+            // Generate contextual feedback based on error magnitude
+            const generateContextualFeedback = (userValue, correctValue) => {
+                const percentError = Math.abs((userValue - correctValue) / correctValue) * 100;
+
+                if (percentError > 50) {
+                    return 'Miklu of langt frá! Athugaðu hvort þú gleymdir frumefni';
+                } else if (percentError > 20) {
+                    return 'Ekki rétt. Athugaðu fjölda atóma';
+                } else if (percentError > 5) {
+                    return 'Nálægt en ekki alveg! Athugaðu aukastafi';
+                } else if (percentError > 1) {
+                    return 'Mjög nálægt! Athugaðu útreikning þinn vandlega';
+                }
+                return '';
+            };
+
+            // Parse chemical formula to extract element counts
+            // Handles: Ca(OH)₂, Ca₃(PO₄)₂, CuSO₄·5H₂O, etc.
+            const parseFormulaToElements = (formula) => {
+                const elementCounts = {};
+
+                // Handle hydrates separately
+                if (formula.includes('·')) {
+                    const parts = formula.split('·');
+                    const mainFormula = parts[0];
+                    const waterPart = parts[1];
+
+                    // Parse main formula
+                    const mainElements = parseSimpleFormula(mainFormula);
+                    Object.keys(mainElements).forEach(el => {
+                        elementCounts[el] = (elementCounts[el] || 0) + mainElements[el];
+                    });
+
+                    // Parse water part (e.g., "5H₂O")
+                    const waterMatch = waterPart.match(/^(\d+)/);
+                    const waterMultiplier = waterMatch ? parseInt(waterMatch[1]) : 1;
+                    elementCounts['H'] = (elementCounts['H'] || 0) + (waterMultiplier * 2);
+                    elementCounts['O'] = (elementCounts['O'] || 0) + (waterMultiplier * 1);
+                } else {
+                    const elements = parseSimpleFormula(formula);
+                    Object.keys(elements).forEach(el => {
+                        elementCounts[el] = elements[el];
+                    });
+                }
+
+                return elementCounts;
+            };
+
+            // Helper to parse formulas without hydrates
+            const parseSimpleFormula = (formula) => {
+                const elementCounts = {};
+                const stack = [{}];
+                let currentElement = '';
+                let currentNumber = '';
+
+                // Convert subscript numbers to regular numbers
+                const normalizeFormula = formula
+                    .replace(/₀/g, '0').replace(/₁/g, '1').replace(/₂/g, '2')
+                    .replace(/₃/g, '3').replace(/₄/g, '4').replace(/₅/g, '5')
+                    .replace(/₆/g, '6').replace(/₇/g, '7').replace(/₈/g, '8')
+                    .replace(/₉/g, '9');
+
+                for (let i = 0; i < normalizeFormula.length; i++) {
+                    const char = normalizeFormula[i];
+
+                    if (char === '(') {
+                        stack.push({});
+                    } else if (char === ')') {
+                        const group = stack.pop();
+                        let multiplier = '';
+                        i++;
+                        while (i < normalizeFormula.length && /\d/.test(normalizeFormula[i])) {
+                            multiplier += normalizeFormula[i];
+                            i++;
+                        }
+                        i--;
+
+                        const mult = parseInt(multiplier) || 1;
+                        Object.keys(group).forEach(el => {
+                            const top = stack[stack.length - 1];
+                            top[el] = (top[el] || 0) + (group[el] * mult);
+                        });
+                    } else if (/[A-Z]/.test(char)) {
+                        if (currentElement) {
+                            const count = parseInt(currentNumber) || 1;
+                            const top = stack[stack.length - 1];
+                            top[currentElement] = (top[currentElement] || 0) + count;
+                        }
+                        currentElement = char;
+                        currentNumber = '';
+                    } else if (/[a-z]/.test(char)) {
+                        currentElement += char;
+                    } else if (/\d/.test(char)) {
+                        currentNumber += char;
+                    }
+                }
+
+                if (currentElement) {
+                    const count = parseInt(currentNumber) || 1;
+                    const top = stack[stack.length - 1];
+                    top[currentElement] = (top[currentElement] || 0) + count;
+                }
+
+                return stack[0];
+            };
+
+            // Progress tracking functions
+            const loadProgress = () => {
+                try {
+                    const saved = localStorage.getItem('molmassiProgress');
+                    if (saved) {
+                        return JSON.parse(saved);
+                    }
+                } catch (e) {
+                    console.error('Failed to load progress:', e);
+                }
+
+                return {
+                    totalGames: 0,
+                    totalQuestionsAnswered: 0,
+                    totalCorrect: 0,
+                    byDifficulty: {
+                        easy: { games: 0, bestScore: 0, avgAccuracy: 0, questionsAnswered: 0, correct: 0 },
+                        medium: { games: 0, bestScore: 0, avgAccuracy: 0, questionsAnswered: 0, correct: 0 },
+                        hard: { games: 0, bestScore: 0, avgAccuracy: 0, questionsAnswered: 0, correct: 0 },
+                        mixed: { games: 0, bestScore: 0, avgAccuracy: 0, questionsAnswered: 0, correct: 0 }
+                    },
+                    compoundsMastered: [],
+                    compoundsSeen: [],
+                    streaks: { current: 0, best: 0 },
+                    lastPlayed: null
+                };
+            };
+
+            const saveProgress = (progressData) => {
+                try {
+                    localStorage.setItem('molmassiProgress', JSON.stringify(progressData));
+                } catch (e) {
+                    console.error('Failed to save progress:', e);
+                }
+            };
+
+            const updateProgress = (gameData) => {
+                const progress = loadProgress();
+
+                progress.totalGames++;
+                progress.totalQuestionsAnswered += gameData.questionsAnswered;
+                progress.totalCorrect += gameData.correctAnswers;
+                progress.lastPlayed = Date.now();
+
+                // Update difficulty-specific stats
+                const diffData = progress.byDifficulty[gameData.difficulty];
+                diffData.games++;
+                diffData.questionsAnswered += gameData.questionsAnswered;
+                diffData.correct += gameData.correctAnswers;
+                diffData.bestScore = Math.max(diffData.bestScore, gameData.score);
+                diffData.avgAccuracy = diffData.questionsAnswered > 0
+                    ? (diffData.correct / diffData.questionsAnswered) * 100
+                    : 0;
+
+                // Update streak
+                if (gameData.bestStreak > progress.streaks.best) {
+                    progress.streaks.best = gameData.bestStreak;
+                }
+
+                // Track mastered compounds (compounds answered correctly)
+                gameData.correctCompounds?.forEach(formula => {
+                    let compound = progress.compoundsMastered.find(c => c.formula === formula);
+                    if (!compound) {
+                        compound = { formula, timesCorrect: 0, firstCorrect: Date.now() };
+                        progress.compoundsMastered.push(compound);
+                    }
+                    compound.timesCorrect++;
+                });
+
+                saveProgress(progress);
+                return progress;
+            };
 
             const generateQuestion = (difficulty) => {
                 let availableCompounds;
@@ -268,36 +672,167 @@
                                    gameState.currentCompound.difficulty === 'medium' ? 15 : 20;
 
                 const streakBonus = gameState.streak >= 3 ? 5 : 0;
-                const timeBonus = gameState.timeRemaining > 60 ? 5 : gameState.timeRemaining > 30 ? 3 : 0;
+                const timeBonus = gameState.gameMode === 'competition' && gameState.timeRemaining > 60 ? 5 :
+                                  gameState.gameMode === 'competition' && gameState.timeRemaining > 30 ? 3 : 0;
+
+                // Generate calculation breakdown and contextual feedback
+                const breakdown = generateCalculationBreakdown(gameState.currentCompound);
+                const feedback = !isCorrect ? generateContextualFeedback(userValue, correctAnswer) : '';
+
+                const newIncorrectAttempts = isCorrect ? 0 : gameState.incorrectAttempts + 1;
+                const newStreak = isCorrect ? gameState.streak + 1 : 0;
+
+                // Check for achievements
+                let achievement = null;
+                if (isCorrect && newStreak === 3) achievement = { title: '3 í röð!', bonus: 5, emoji: '🔥' };
+                if (isCorrect && newStreak === 5) achievement = { title: '5 réttar!', bonus: 10, emoji: '🔥🔥' };
+                if (isCorrect && newStreak === 10) achievement = { title: '10 réttar!', bonus: 20, emoji: '🔥🔥🔥' };
+
+                const achievementBonus = achievement ? achievement.bonus : 0;
 
                 setGameState(prev => ({
                     ...prev,
-                    score: isCorrect ? prev.score + pointValue + streakBonus + timeBonus : prev.score,
-                    questionsAnswered: prev.questionsAnswered + 1,
+                    score: isCorrect ? prev.score + pointValue + streakBonus + timeBonus + achievementBonus : prev.score,
+                    questionsAnswered: isCorrect ? prev.questionsAnswered + 1 : prev.questionsAnswered,
                     correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
                     showFeedback: true,
                     lastAnswerCorrect: isCorrect,
-                    streak: isCorrect ? prev.streak + 1 : 0,
-                    bestStreak: isCorrect && prev.streak + 1 > prev.bestStreak ? prev.streak + 1 : prev.bestStreak
+                    streak: newStreak,
+                    bestStreak: isCorrect && newStreak > prev.bestStreak ? newStreak : prev.bestStreak,
+                    calculationBreakdown: breakdown,
+                    contextualFeedback: feedback,
+                    incorrectAttempts: newIncorrectAttempts,
+                    userAnswer: isCorrect ? prev.userAnswer : '',
+                    correctCompounds: isCorrect ? [...prev.correctCompounds, prev.currentCompound.formula] : prev.correctCompounds,
+                    showAchievement: achievement,
+                    recentAchievement: achievement,
+                    inputShake: !isCorrect
                 }));
 
-                setTimeout(() => {
-                    if (gameState.timeRemaining > 0) {
-                        const nextQuestion = generateQuestion(gameState.difficulty);
-                        setGameState(prev => ({
-                            ...prev,
-                            currentCompound: nextQuestion,
-                            userAnswer: '',
-                            showFeedback: false,
-                            lastAnswerCorrect: null
-                        }));
-                        if (inputRef.current) inputRef.current.focus();
+                // Clear shake animation after it completes
+                if (!isCorrect) {
+                    setTimeout(() => {
+                        setGameState(prev => ({ ...prev, inputShake: false }));
+                    }, 500);
+                }
+
+                // Show achievement popup briefly
+                if (achievement) {
+                    setTimeout(() => {
+                        setGameState(prev => ({ ...prev, showAchievement: null }));
+                    }, 2000);
+                }
+
+                // In competition mode, auto-advance after correct answer
+                // In practice mode, user manually clicks "Næsta"
+                if (isCorrect && gameState.gameMode === 'competition') {
+                    // Mark compound as seen
+                    if (!progress.compoundsSeen.includes(gameState.currentCompound.formula)) {
+                        const updatedProgress = { ...progress, compoundsSeen: [...progress.compoundsSeen, gameState.currentCompound.formula] };
+                        setProgress(updatedProgress);
+                        saveProgress(updatedProgress);
                     }
-                }, 1500);
+
+                    setTimeout(() => {
+                        if (gameState.timeRemaining > 0 || gameState.gameMode === 'practice') {
+                            const nextQuestion = generateQuestion(gameState.difficulty);
+                            setGameState(prev => ({
+                                ...prev,
+                                currentCompound: nextQuestion,
+                                userAnswer: '',
+                                showFeedback: false,
+                                lastAnswerCorrect: null,
+                                calculationBreakdown: null,
+                                contextualFeedback: '',
+                                inputValidation: { valid: true, error: '' },
+                                incorrectAttempts: 0,
+                                showSolution: false,
+                                showElementCounter: false,
+                                hintsUsed: 0,
+                                hintLevel: 0
+                            }));
+                            if (inputRef.current) inputRef.current.focus();
+                        }
+                    }, 1500);
+                }
+            };
+
+            const handleShowSolution = () => {
+                const breakdown = generateCalculationBreakdown(gameState.currentCompound);
+                const partialCredit = gameState.gameMode === 'competition' ? 3 : 0;
+
+                setGameState(prev => ({
+                    ...prev,
+                    showSolution: true,
+                    showFeedback: true,
+                    calculationBreakdown: breakdown,
+                    score: prev.score + partialCredit,
+                    questionsAnswered: prev.questionsAnswered + 1
+                }));
+            };
+
+            const handleNextQuestion = () => {
+                const nextQuestion = generateQuestion(gameState.difficulty);
+
+                // Mark current compound as seen
+                if (gameState.currentCompound && !progress.compoundsSeen.includes(gameState.currentCompound.formula)) {
+                    const updatedProgress = { ...progress, compoundsSeen: [...progress.compoundsSeen, gameState.currentCompound.formula] };
+                    setProgress(updatedProgress);
+                    saveProgress(updatedProgress);
+                }
+
+                setGameState(prev => ({
+                    ...prev,
+                    currentCompound: nextQuestion,
+                    userAnswer: '',
+                    showFeedback: false,
+                    lastAnswerCorrect: null,
+                    calculationBreakdown: null,
+                    contextualFeedback: '',
+                    inputValidation: { valid: true, error: '' },
+                    incorrectAttempts: 0,
+                    showSolution: false,
+                    showElementCounter: false,
+                    hintsUsed: 0,
+                    hintLevel: 0
+                }));
+                if (inputRef.current) inputRef.current.focus();
+            };
+
+            const handleElementCounter = () => {
+                const cost = gameState.gameMode === 'competition' ? 5 : 0;
+                setGameState(prev => ({
+                    ...prev,
+                    showElementCounter: !prev.showElementCounter,
+                    score: !prev.showElementCounter ? Math.max(0, prev.score - cost) : prev.score,
+                    totalPointsDeducted: !prev.showElementCounter ? prev.totalPointsDeducted + cost : prev.totalPointsDeducted
+                }));
+            };
+
+            const handleHint = (level) => {
+                const costs = [2, 3, 5];
+                const cost = gameState.gameMode === 'competition' ? costs[level - 1] : 0;
+
+                setGameState(prev => ({
+                    ...prev,
+                    hintLevel: level,
+                    hintsUsed: prev.hintsUsed + 1,
+                    score: Math.max(0, prev.score - cost),
+                    totalPointsDeducted: prev.totalPointsDeducted + cost
+                }));
+            };
+
+            const handleInputChange = (value) => {
+                const validation = validateInput(value);
+                setGameState(prev => ({
+                    ...prev,
+                    userAnswer: value,
+                    inputValidation: validation
+                }));
             };
 
             const handleKeyPress = (e) => {
-                if (e.key === 'Enter' && !gameState.showFeedback) {
+                if (e.key === 'Enter' && !gameState.showFeedback && gameState.inputValidation.valid && gameState.userAnswer.trim()) {
                     checkAnswer();
                 }
             };
@@ -321,7 +856,8 @@
             };
 
             useEffect(() => {
-                if (gameState.isPlaying && !gameState.gameOver && gameState.timeRemaining > 0) {
+                // Timer only runs in competition mode and when not paused
+                if (gameState.isPlaying && !gameState.gameOver && !gameState.isPaused && gameState.timeRemaining > 0 && gameState.gameMode === 'competition') {
                     timerRef.current = setInterval(() => {
                         setGameState(prev => {
                             if (prev.timeRemaining <= 1) {
@@ -335,13 +871,54 @@
                 return () => {
                     if (timerRef.current) clearInterval(timerRef.current);
                 };
-            }, [gameState.isPlaying, gameState.gameOver, gameState.timeRemaining]);
+            }, [gameState.isPlaying, gameState.gameOver, gameState.isPaused, gameState.timeRemaining, gameState.gameMode]);
 
             useEffect(() => {
                 if (gameState.isPlaying && !gameState.showFeedback && inputRef.current) {
                     inputRef.current.focus();
                 }
             }, [gameState.isPlaying, gameState.showFeedback, gameState.currentCompound]);
+
+            // Keyboard shortcuts
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    // Don't trigger shortcuts when typing in input fields
+                    if (e.target.tagName === 'INPUT') {
+                        if (e.key === 'Enter' && !gameState.showFeedback && gameState.inputValidation.valid && gameState.userAnswer.trim()) {
+                            checkAnswer();
+                        }
+                        if (e.key === 'Escape') {
+                            e.target.blur();
+                        }
+                        return;
+                    }
+
+                    // Global shortcuts
+                    if (gameState.isPlaying && !gameState.gameOver) {
+                        if (e.key === 'Escape' || e.key === ' ') {
+                            e.preventDefault();
+                            setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }));
+                        }
+                        if (e.key === '?' || e.key === 'h' || e.key === 'H') {
+                            e.preventDefault();
+                            setGameState(prev => ({ ...prev, showKeyboardHelp: !prev.showKeyboardHelp }));
+                        }
+                        if (e.key === 'p' || e.key === 'P') {
+                            e.preventDefault();
+                            setGameState(prev => ({ ...prev, showPeriodicTable: !prev.showPeriodicTable }));
+                        }
+                        if (e.key === 's' || e.key === 'S') {
+                            e.preventDefault();
+                            if (gameState.incorrectAttempts >= 2 || gameState.gameMode === 'practice') {
+                                handleShowSolution();
+                            }
+                        }
+                    }
+                };
+
+                document.addEventListener('keydown', handleKeyDown);
+                return () => document.removeEventListener('keydown', handleKeyDown);
+            }, [gameState.isPlaying, gameState.gameOver, gameState.showFeedback, gameState.inputValidation, gameState.userAnswer, gameState.showPeriodicTable, gameState.incorrectAttempts, gameState.gameMode]);
 
             if (showInstructions) {
                 return (
@@ -405,7 +982,7 @@
                             </div>
 
                             <button
-                                onClick={() => setShowInstructions(false)}
+                                onClick={() => setShowModeSelection(true) || setShowInstructions(false)}
                                 className="w-full mt-6 text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 text-lg"
                                 style={{backgroundColor: 'var(--kvenno-orange)'}}
                                 onMouseOver={(e) => e.target.style.backgroundColor = 'var(--kvenno-orange-dark)'}
@@ -418,7 +995,80 @@
                 );
             }
 
-            if (!gameState.isPlaying && !gameState.gameOver) {
+            // Mode selection screen
+            if (showModeSelection && !gameState.isPlaying && !gameState.gameOver) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 p-8">
+                        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+                            <h1 className="text-4xl font-bold text-center mb-6" style={{color: 'var(--kvenno-orange)'}}>
+                                ⚖️ Molmassi
+                            </h1>
+
+                            <div className="space-y-6">
+                                <div className="text-center">
+                                    <h2 className="text-2xl font-semibold mb-4" style={{color: 'var(--kvenno-orange)'}}>
+                                        Veldu stillingu:
+                                    </h2>
+                                </div>
+
+                                <div className="space-y-4">
+                                    {/* Practice Mode */}
+                                    <button
+                                        onClick={() => {
+                                            setGameState(prev => ({ ...prev, gameMode: 'practice' }));
+                                            setShowModeSelection(false);
+                                        }}
+                                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-6 px-6 rounded-xl transition-colors text-left"
+                                    >
+                                        <div className="flex items-start">
+                                            <div className="text-3xl mr-4">📚</div>
+                                            <div className="flex-1">
+                                                <div className="text-2xl mb-2">Æfingastilling</div>
+                                                <div className="text-sm opacity-90">
+                                                    Æfðu án tímaaðs og sjáðu alla útreikninga.<br/>
+                                                    Engin tímatakmörk • Sjáðu lausnir • Lærðu á þínum hraða
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </button>
+
+                                    {/* Competition Mode */}
+                                    <button
+                                        onClick={() => {
+                                            setGameState(prev => ({ ...prev, gameMode: 'competition' }));
+                                            setShowModeSelection(false);
+                                        }}
+                                        className="w-full text-white font-bold py-6 px-6 rounded-xl transition-colors text-left"
+                                        style={{backgroundColor: 'var(--kvenno-orange)'}}
+                                        onMouseOver={(e) => e.target.style.backgroundColor = 'var(--kvenno-orange-dark)'}
+                                        onMouseOut={(e) => e.target.style.backgroundColor = 'var(--kvenno-orange)'}
+                                    >
+                                        <div className="flex items-start">
+                                            <div className="text-3xl mr-4">🏆</div>
+                                            <div className="flex-1">
+                                                <div className="text-2xl mb-2">Keppnisstilling</div>
+                                                <div className="text-sm opacity-90">
+                                                    Keppu við tímann og fáðu stig.<br/>
+                                                    90 sekúndur • Stigagjöf • Hraðabónus
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={() => setShowInstructions(true) || setShowModeSelection(false)}
+                                    className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors"
+                                >
+                                    ← Til baka í leiðbeiningar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (!gameState.isPlaying && !gameState.gameOver && !showModeSelection) {
                 return (
                     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 p-8">
                         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
@@ -500,6 +1150,22 @@
                     ? ((gameState.correctAnswers / gameState.questionsAnswered) * 100).toFixed(1)
                     : '0';
 
+                // Save progress on game over
+                React.useEffect(() => {
+                    const updatedProgress = updateProgress({
+                        score: gameState.score,
+                        questionsAnswered: gameState.questionsAnswered,
+                        correctAnswers: gameState.correctAnswers,
+                        bestStreak: gameState.bestStreak,
+                        difficulty: gameState.difficulty,
+                        correctCompounds: gameState.correctCompounds
+                    });
+                    setProgress(updatedProgress);
+                }, []);
+
+                const personalBest = progress.byDifficulty[gameState.difficulty]?.bestScore || 0;
+                const isNewRecord = gameState.score > personalBest;
+
                 return (
                     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 p-8">
                         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
@@ -544,6 +1210,16 @@
                                          gameState.score >= 150 ? '💪 Góð byrjun!' :
                                          '📚 Æfðu meira!'}
                                     </h3>
+                                    {isNewRecord && personalBest > 0 && (
+                                        <div className="text-center mt-2 text-green-700 font-semibold">
+                                            🎉 Nýtt met! (Gamla met: {personalBest})
+                                        </div>
+                                    )}
+                                    {!isNewRecord && personalBest > 0 && (
+                                        <div className="text-center mt-2 text-gray-600 text-sm">
+                                            Persónulegt met: {personalBest} stig
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex gap-4">
@@ -569,24 +1245,117 @@
                 );
             }
 
+            const modeColor = gameState.gameMode === 'practice' ? '#3b82f6' : 'var(--kvenno-orange)';
+            const modeColorDark = gameState.gameMode === 'practice' ? '#2563eb' : 'var(--kvenno-orange-dark)';
+            const bgGradient = gameState.gameMode === 'practice'
+                ? 'from-blue-50 to-blue-100'
+                : 'from-orange-50 to-orange-100';
+
             return (
-                <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 p-4 md:p-8">
+                <div className={`min-h-screen bg-gradient-to-br ${bgGradient} p-4 md:p-8`}>
                     <div className="max-w-4xl mx-auto">
+                        {/* Pause Overlay */}
+                        {gameState.isPaused && (
+                            <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 slide-down">
+                                    <h2 className="text-3xl font-bold text-center mb-6" style={{color: modeColor}}>⏸️ Hlé</h2>
+                                    <div className="space-y-4">
+                                        <button
+                                            onClick={() => setGameState(prev => ({ ...prev, isPaused: false }))}
+                                            className="w-full text-white font-bold py-4 px-6 rounded-xl transition-colors mobile-btn"
+                                            style={{backgroundColor: modeColor}}
+                                            onMouseOver={(e) => e.target.style.backgroundColor = modeColorDark}
+                                            onMouseOut={(e) => e.target.style.backgroundColor = modeColor}
+                                            aria-label="Halda áfram að spila"
+                                        >
+                                            ▶️ Halda áfram
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setGameState(prev => ({ ...prev, isPaused: false, isPlaying: false, gameOver: true }));
+                                            }}
+                                            className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-xl transition-colors mobile-btn"
+                                            aria-label="Hætta leik"
+                                        >
+                                            🛑 Hætta
+                                        </button>
+                                    </div>
+                                    <div className="mt-6 text-center text-sm text-gray-600">
+                                        <p>Flýtilyklar: Esc eða Bilslá</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Keyboard Help Popup */}
+                        {gameState.showKeyboardHelp && (
+                            <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 slide-down">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-2xl font-bold" style={{color: modeColor}}>⌨️ Flýtilyklar</h2>
+                                        <button
+                                            onClick={() => setGameState(prev => ({ ...prev, showKeyboardHelp: false }))}
+                                            className="text-gray-500 hover:text-gray-700 font-bold text-2xl"
+                                            aria-label="Loka hjálp"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="space-y-3 text-sm">
+                                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <span className="font-semibold">Enter</span>
+                                            <span className="text-gray-600">Athuga svar</span>
+                                        </div>
+                                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <span className="font-semibold">Esc / Bilslá</span>
+                                            <span className="text-gray-600">Hlé / Halda áfram</span>
+                                        </div>
+                                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <span className="font-semibold">P</span>
+                                            <span className="text-gray-600">Sýna/fela lotukerfið</span>
+                                        </div>
+                                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <span className="font-semibold">S</span>
+                                            <span className="text-gray-600">Sýna lausn</span>
+                                        </div>
+                                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <span className="font-semibold">H / ?</span>
+                                            <span className="text-gray-600">Sýna þessa hjálp</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Header */}
                         <div className="bg-white rounded-2xl shadow-2xl p-6 mb-6">
                             <div className="flex justify-between items-center flex-wrap gap-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="text-center">
-                                        <div className="flex items-center gap-2 text-red-600 mb-1">
-                                            <span>⏰</span>
-                                            <span className="text-3xl font-bold">{gameState.timeRemaining}s</span>
+                                    {/* Timer - Only show in competition mode */}
+                                    {gameState.gameMode === 'competition' && (
+                                        <div className="text-center">
+                                            <div className={`flex items-center gap-2 mb-1 ${gameState.timeRemaining <= 10 ? 'text-red-600 animate-pulse' : 'text-red-600'}`}>
+                                                <span>⏰</span>
+                                                <span className="text-3xl font-bold">{gameState.timeRemaining}s</span>
+                                            </div>
+                                            <div className="text-xs text-gray-600">Tími eftir</div>
                                         </div>
-                                        <div className="text-xs text-gray-600">Tími eftir</div>
-                                    </div>
+                                    )}
+
+                                    {/* Mode indicator in practice mode */}
+                                    {gameState.gameMode === 'practice' && (
+                                        <div className="text-center">
+                                            <div className="flex items-center gap-2 mb-1 text-blue-600">
+                                                <span>📚</span>
+                                                <span className="text-lg font-bold">Æfingastilling</span>
+                                            </div>
+                                            <div className="text-xs text-gray-600">Engin tímatakmörk</div>
+                                        </div>
+                                    )}
 
                                     <div className="text-center">
-                                        <div className="flex items-center gap-2 mb-1" style={{color: 'var(--kvenno-orange)'}}>
-                                            <span>🏆</span>
+                                        <div className="flex items-center gap-2 mb-1" style={{color: modeColor}}>
+                                            <span>{gameState.gameMode === 'practice' ? '📖' : '🏆'}</span>
                                             <span className="text-3xl font-bold">{gameState.score}</span>
                                         </div>
                                         <div className="text-xs text-gray-600">Stig</div>
@@ -601,31 +1370,101 @@
                                         <div className="text-xs text-gray-600">Rétt</div>
                                     </div>
 
-                                    {gameState.streak >= 3 && (
+                                    {gameState.streak >= 3 && gameState.gameMode === 'competition' && (
                                         <div className="text-center animate-pulse">
-                                            <div className="flex items-center gap-1 mb-1" style={{color: 'var(--kvenno-orange)'}}>
+                                            <div className="flex items-center gap-1 mb-1" style={{color: modeColor}}>
                                                 <span>⚡</span>
                                                 <span className="text-2xl font-bold">{gameState.streak}</span>
                                             </div>
                                             <div className="text-xs text-gray-600">Röð!</div>
                                         </div>
                                     )}
+
+                                    {/* Control buttons */}
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setSoundEnabled(!soundEnabled)}
+                                            className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-3 rounded-lg mobile-btn"
+                                            aria-label={soundEnabled ? 'Slökkva á hljóði' : 'Kveikja á hljóði'}
+                                            title={soundEnabled ? 'Slökkva á hljóði' : 'Kveikja á hljóði'}
+                                        >
+                                            {soundEnabled ? '🔊' : '🔇'}
+                                        </button>
+                                        <button
+                                            onClick={() => setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }))}
+                                            className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-3 rounded-lg mobile-btn"
+                                            aria-label="Hlé"
+                                            title="Hlé (Esc/Bilslá)"
+                                        >
+                                            ⏸️
+                                        </button>
+                                        <button
+                                            onClick={() => setGameState(prev => ({ ...prev, showKeyboardHelp: !prev.showKeyboardHelp }))}
+                                            className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-3 rounded-lg mobile-btn"
+                                            aria-label="Flýtilyklar"
+                                            title="Flýtilyklar (?)"
+                                        >
+                                            ⌨️
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="mt-4 bg-gray-200 rounded-full h-2">
-                                <div
-                                    className="h-2 rounded-full transition-all duration-1000"
-                                    style={{
-                                        width: `${(gameState.timeRemaining / 90) * 100}%`,
-                                        background: 'linear-gradient(to right, var(--kvenno-orange), var(--kvenno-orange-dark))'
-                                    }}
-                                />
-                            </div>
+                            {/* Progress bar - Only show in competition mode */}
+                            {gameState.gameMode === 'competition' && (
+                                <div className="mt-4 bg-gray-200 rounded-full h-2">
+                                    <div
+                                        className="h-2 rounded-full transition-all duration-1000"
+                                        style={{
+                                            width: `${(gameState.timeRemaining / 90) * 100}%`,
+                                            background: `linear-gradient(to right, ${modeColor}, ${modeColorDark})`
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
 
+                        {/* Formula Reference Card - Floating */}
+                        {showFormulaReference && (
+                            <div className="fixed top-20 right-4 bg-white rounded-xl shadow-2xl p-4 max-w-xs border-2 border-blue-300 z-50">
+                                <div className="flex justify-between items-center mb-3">
+                                    <h4 className="font-bold text-lg">📐 Formúlur</h4>
+                                    <button
+                                        onClick={() => setShowFormulaReference(false)}
+                                        className="text-gray-500 hover:text-gray-700 font-bold"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                <div className="text-sm space-y-3">
+                                    <div>
+                                        <div className="font-semibold text-blue-600">Mólþyngd:</div>
+                                        <div className="text-gray-700">Summa (fjöldi × atómamassi)</div>
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-blue-600">Umreikningar:</div>
+                                        <div className="text-gray-700">1 g = 1000 mg</div>
+                                        <div className="text-gray-700">1 mol = mólþyngd (g)</div>
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-blue-600">Hýdröt:</div>
+                                        <div className="text-gray-700">·xH₂O = x vatnsameindir</div>
+                                        <div className="text-gray-700">Bættu við vatninu!</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Formula Reference Toggle Button */}
+                        <button
+                            onClick={() => setShowFormulaReference(!showFormulaReference)}
+                            className="fixed top-20 right-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg z-40"
+                        >
+                            📐 Formúlur
+                        </button>
+
                         {/* Game Area */}
-                        <div className="bg-white rounded-2xl shadow-2xl p-8">
+                        <div className="bg-white rounded-2xl shadow-2xl p-8 relative">
                             {gameState.currentCompound && (
                                 <>
                                     <div className="mb-6 text-center">
@@ -638,28 +1477,198 @@
                                         <div className="text-sm text-gray-500">
                                             Reiknaðu mólþyngd í g/mol
                                         </div>
+
+                                        {/* Educational tooltips */}
+                                        <div className="mt-4 flex flex-wrap gap-2 justify-center text-xs">
+                                            {gameState.currentCompound.formula.match(/[₀-₉]/) && (
+                                                <div className="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg" title="Hjálp">
+                                                    <span className="font-semibold">💡 Undirskrift:</span> H₂O þýðir 2 vetni + 1 súrefni
+                                                </div>
+                                            )}
+                                            {gameState.currentCompound.formula.includes('(') && (
+                                                <div className="bg-purple-50 border border-purple-200 text-purple-800 px-3 py-2 rounded-lg" title="Hjálp">
+                                                    <span className="font-semibold">💡 Svigi:</span> Ca(OH)₂ = Ca + 2×(O+H)
+                                                </div>
+                                            )}
+                                            {gameState.currentCompound.formula.includes('·') && (
+                                                <div className="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg" title="Hjálp">
+                                                    <span className="font-semibold">💡 Hýdröt:</span> ·5H₂O = bættu við 5 vatnsameindum
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    {/* Periodic Table Toggle */}
-                                    <div className="mb-4 text-center">
+                                    {/* Helper Tools */}
+                                    <div className="mb-4 text-center flex flex-wrap gap-2 justify-center">
                                         <button
                                             onClick={() => setGameState(prev => ({ ...prev, showPeriodicTable: !prev.showPeriodicTable }))}
-                                            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg text-sm"
+                                            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg text-sm mobile-btn"
+                                            aria-label={gameState.showPeriodicTable ? 'Fela lotukerfið' : 'Sýna lotukerfið'}
+                                            title="Flýtilykill: P"
                                         >
                                             {gameState.showPeriodicTable ? 'Fela lotukerfið' : 'Sýna lotukerfið'} 📊
                                         </button>
+
+                                        <button
+                                            onClick={handleElementCounter}
+                                            className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg text-sm mobile-btn"
+                                            aria-label={gameState.showElementCounter ? 'Fela atómatalning' : 'Telja atóm'}
+                                        >
+                                            {gameState.showElementCounter ? 'Fela' : 'Telja atóm'} 🧮 {gameState.gameMode === 'competition' && !gameState.showElementCounter && '(-5 stig)'}
+                                        </button>
+
+                                        {gameState.hintsUsed < 3 && !gameState.showFeedback && (
+                                            <button
+                                                onClick={() => handleHint(gameState.hintLevel + 1)}
+                                                className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg text-sm mobile-btn"
+                                                aria-label={`Fá vísbendingu ${gameState.hintLevel + 1} af 3`}
+                                            >
+                                                💡 Vísbending {gameState.hintLevel + 1}/3 {gameState.gameMode === 'competition' && `(-${[2, 3, 5][gameState.hintLevel]} stig)`}
+                                            </button>
+                                        )}
                                     </div>
 
+                                    {/* Achievement Popup */}
+                                    {gameState.showAchievement && (
+                                        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 animate-pulse">
+                                            <div className="bg-gradient-to-r from-orange-400 to-orange-600 text-white p-8 rounded-2xl shadow-2xl text-center border-4 border-yellow-400">
+                                                <div className="text-6xl mb-2">{gameState.showAchievement.emoji}</div>
+                                                <div className="text-3xl font-bold mb-2">{gameState.showAchievement.title}</div>
+                                                <div className="text-xl">+{gameState.showAchievement.bonus} bónus stig!</div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Element Counter Panel */}
+                                    {gameState.showElementCounter && gameState.currentCompound && (
+                                        <div className="mb-4 bg-purple-50 p-4 rounded-xl border-2 border-purple-300">
+                                            <h4 className="font-bold text-center mb-3 text-purple-800">🧮 Atómatalning</h4>
+                                            <div className="text-center mb-2 font-semibold">{gameState.currentCompound.formula} inniheldur:</div>
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                                {Object.entries(parseFormulaToElements(gameState.currentCompound.formula))
+                                                    .sort((a, b) => a[0].localeCompare(b[0]))
+                                                    .map(([symbol, count], idx) => (
+                                                        <div key={symbol} className={`p-3 rounded-lg text-center font-semibold ${
+                                                            idx % 3 === 0 ? 'bg-red-100 text-red-800' :
+                                                            idx % 3 === 1 ? 'bg-blue-100 text-blue-800' :
+                                                            'bg-green-100 text-green-800'
+                                                        }`}>
+                                                            {symbol}: {count} atóm
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                            <div className="text-xs text-center mt-3 text-gray-600">
+                                                (Atómaþyngdir eru í lotukerfinu)
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Hints Display */}
+                                    {gameState.hintLevel > 0 && gameState.currentCompound && (
+                                        <div className="mb-4 bg-yellow-50 p-4 rounded-xl border-2 border-yellow-300">
+                                            <h4 className="font-bold text-center mb-3 text-yellow-800">💡 Vísbendingar</h4>
+                                            {gameState.hintLevel >= 1 && (
+                                                <div className="mb-2 p-2 bg-yellow-100 rounded">
+                                                    <strong>Vísbending 1:</strong> Þetta samband hefur {Object.keys(parseFormulaToElements(gameState.currentCompound.formula)).length} mismunandi frumefni
+                                                </div>
+                                            )}
+                                            {gameState.hintLevel >= 2 && (
+                                                <div className="mb-2 p-2 bg-yellow-100 rounded">
+                                                    <strong>Vísbending 2:</strong> {Object.entries(parseFormulaToElements(gameState.currentCompound.formula))
+                                                        .map(([symbol, count]) => `${symbol}: ${count}`)
+                                                        .join(', ')}
+                                                </div>
+                                            )}
+                                            {gameState.hintLevel >= 3 && (
+                                                <div className="mb-2 p-2 bg-yellow-100 rounded">
+                                                    <strong>Vísbending 3:</strong> {(() => {
+                                                        const firstEl = gameState.currentCompound.elements[0];
+                                                        const element = elements.find(e => e.symbol === firstEl.symbol);
+                                                        return `${firstEl.symbol}: ${firstEl.count} × ${element.atomicMass} = ${(firstEl.count * element.atomicMass).toFixed(3)}`;
+                                                    })()}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* First-time compound indicator */}
+                                    {gameState.currentCompound && !progress.compoundsSeen.includes(gameState.currentCompound.formula) && (
+                                        <div className="mb-4 text-center">
+                                            <div className="inline-block bg-blue-100 border-2 border-blue-400 text-blue-800 px-4 py-2 rounded-full font-semibold text-sm">
+                                                🆕 Fyrstu ferð með þetta efni!
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {gameState.showPeriodicTable && (
-                                        <div className="mb-6 bg-blue-50 p-4 rounded-xl max-h-60 overflow-y-auto">
-                                            <h4 className="font-semibold mb-2 text-center">Lotukerfið</h4>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                                                {elements.map(el => (
-                                                    <div key={el.symbol} className="bg-white p-2 rounded border border-blue-200">
-                                                        <div className="font-bold">{el.symbol}</div>
-                                                        <div className="text-xs text-gray-600">{el.atomicMass.toFixed(3)}</div>
-                                                    </div>
-                                                ))}
+                                        <div className="mb-6 bg-blue-50 p-4 rounded-xl">
+                                            <h4 className="font-semibold mb-3 text-center text-lg">Lotukerfið</h4>
+
+                                            {/* Search box */}
+                                            <div className="mb-3">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Leita að frumefni..."
+                                                    value={periodicTableSearch}
+                                                    onChange={(e) => setPeriodicTableSearch(e.target.value)}
+                                                    className="w-full p-2 border-2 border-blue-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                                />
+                                            </div>
+
+                                            {/* Common elements section */}
+                                            <div className="mb-3">
+                                                <h5 className="font-semibold text-sm mb-2">Algeng frumefni:</h5>
+                                                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                                                    {['H', 'C', 'N', 'O', 'S', 'Cl'].map(symbol => {
+                                                        const el = elements.find(e => e.symbol === symbol);
+                                                        const isInCompound = gameState.currentCompound?.elements.some(e => e.symbol === symbol);
+                                                        return el ? (
+                                                            <div
+                                                                key={el.symbol}
+                                                                className={`p-2 rounded border-2 text-center ${
+                                                                    isInCompound
+                                                                        ? 'bg-yellow-100 border-yellow-400'
+                                                                        : 'bg-white border-blue-300'
+                                                                }`}
+                                                            >
+                                                                <div className="font-bold text-lg">{el.symbol}</div>
+                                                                <div className="text-xs text-gray-600">{el.name}</div>
+                                                                <div className="font-semibold text-sm">{el.atomicMass.toFixed(3)}</div>
+                                                            </div>
+                                                        ) : null;
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* All elements - scrollable */}
+                                            <div className="max-h-96 overflow-y-auto">
+                                                <h5 className="font-semibold text-sm mb-2">Öll frumefni:</h5>
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                    {elements
+                                                        .filter(el => {
+                                                            if (!periodicTableSearch) return true;
+                                                            const search = periodicTableSearch.toLowerCase();
+                                                            return el.symbol.toLowerCase().includes(search) ||
+                                                                   el.name.toLowerCase().includes(search);
+                                                        })
+                                                        .map(el => {
+                                                            const isInCompound = gameState.currentCompound?.elements.some(e => e.symbol === el.symbol);
+                                                            return (
+                                                                <div
+                                                                    key={el.symbol}
+                                                                    className={`p-2 rounded border-2 text-center ${
+                                                                        isInCompound
+                                                                            ? 'bg-yellow-100 border-yellow-400'
+                                                                            : 'bg-white border-blue-200'
+                                                                    }`}
+                                                                >
+                                                                    <div className="font-bold text-lg">{el.symbol}</div>
+                                                                    <div className="text-xs text-gray-600">{el.name}</div>
+                                                                    <div className="font-semibold text-sm">{el.atomicMass.toFixed(3)}</div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -668,40 +1677,66 @@
                                     <div className="max-w-md mx-auto">
                                         {!gameState.showFeedback ? (
                                             <div className="space-y-4">
-                                                <input
-                                                    ref={inputRef}
-                                                    type="number"
-                                                    step="0.001"
-                                                    value={gameState.userAnswer}
-                                                    onChange={(e) => setGameState(prev => ({ ...prev, userAnswer: e.target.value }))}
-                                                    onKeyPress={handleKeyPress}
-                                                    placeholder="Mólþyngd í g/mol"
-                                                    className="w-full p-4 text-2xl border-4 rounded-xl focus:outline-none text-center font-bold"
-                                                    style={{borderColor: 'var(--kvenno-orange)'}}
-                                                    onFocus={(e) => e.target.style.borderColor = 'var(--kvenno-orange-dark)'}
-                                                    onBlur={(e) => e.target.style.borderColor = 'var(--kvenno-orange)'}
-                                                    autoFocus
-                                                />
+                                                <div>
+                                                    <input
+                                                        ref={inputRef}
+                                                        type="number"
+                                                        inputMode="decimal"
+                                                        step="0.001"
+                                                        value={gameState.userAnswer}
+                                                        onChange={(e) => handleInputChange(e.target.value)}
+                                                        onKeyPress={handleKeyPress}
+                                                        placeholder="Mólþyngd í g/mol"
+                                                        className={`w-full p-4 text-2xl border-4 rounded-xl focus:outline-none text-center font-bold mobile-input ${gameState.inputShake ? 'shake' : ''}`}
+                                                        style={{
+                                                            borderColor: !gameState.inputValidation.valid ? '#ef4444' : modeColor
+                                                        }}
+                                                        onFocus={(e) => {
+                                                            if (gameState.inputValidation.valid) {
+                                                                e.target.style.borderColor = modeColorDark;
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            if (gameState.inputValidation.valid) {
+                                                                e.target.style.borderColor = modeColor;
+                                                            }
+                                                        }}
+                                                        aria-label="Sláðu inn mólþyngd í g/mol"
+                                                        autoFocus
+                                                    />
+                                                    {!gameState.inputValidation.valid && (
+                                                        <div className="text-red-600 text-sm mt-2 text-center font-semibold">
+                                                            {gameState.inputValidation.error}
+                                                        </div>
+                                                    )}
+                                                </div>
                                                 <button
                                                     onClick={checkAnswer}
-                                                    disabled={!gameState.userAnswer.trim()}
-                                                    className="w-full text-white font-bold py-4 px-6 rounded-xl transition-colors text-xl disabled:bg-gray-300"
-                                                    style={{backgroundColor: gameState.userAnswer.trim() ? 'var(--kvenno-orange)' : undefined}}
-                                                    onMouseOver={(e) => {if (gameState.userAnswer.trim()) e.target.style.backgroundColor = 'var(--kvenno-orange-dark)'}}
-                                                    onMouseOut={(e) => {if (gameState.userAnswer.trim()) e.target.style.backgroundColor = 'var(--kvenno-orange)'}}
+                                                    disabled={!gameState.userAnswer.trim() || !gameState.inputValidation.valid}
+                                                    className="w-full text-white font-bold py-4 px-6 rounded-xl transition-colors text-xl disabled:bg-gray-300 mobile-btn"
+                                                    style={{backgroundColor: (gameState.userAnswer.trim() && gameState.inputValidation.valid) ? modeColor : undefined}}
+                                                    onMouseOver={(e) => {if (gameState.userAnswer.trim() && gameState.inputValidation.valid) e.target.style.backgroundColor = modeColorDark}}
+                                                    onMouseOut={(e) => {if (gameState.userAnswer.trim() && gameState.inputValidation.valid) e.target.style.backgroundColor = modeColor}}
+                                                    aria-label="Athuga svar"
+                                                    title="Flýtilykill: Enter"
                                                 >
                                                     Athuga svar ✓
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className={`p-6 rounded-xl ${gameState.lastAnswerCorrect ? 'bg-green-50 border-4 border-green-300' : 'bg-red-50 border-4 border-red-300'}`}>
-                                                <div className="text-center">
+                                            <div className={`p-6 rounded-xl ${gameState.lastAnswerCorrect ? 'bg-green-50 border-4 border-green-300 glow' : 'bg-red-50 border-4 border-red-300'}`}>
+                                                <div className="text-center mb-4">
                                                     <div className="text-4xl mb-2">
                                                         {gameState.lastAnswerCorrect ? '✅' : '❌'}
                                                     </div>
                                                     <div className="text-2xl font-bold mb-2">
                                                         {gameState.lastAnswerCorrect ? 'Rétt!' : 'Rangt'}
                                                     </div>
+                                                    {!gameState.lastAnswerCorrect && gameState.contextualFeedback && (
+                                                        <div className="text-lg text-red-700 mb-3 font-semibold">
+                                                            {gameState.contextualFeedback}
+                                                        </div>
+                                                    )}
                                                     <div className="text-lg text-gray-700">
                                                         Rétt svar: <span className="font-bold">{gameState.currentCompound.molarMass.toFixed(3)} g/mol</span>
                                                     </div>
@@ -709,6 +1744,75 @@
                                                         <div className="text-sm text-gray-600 mt-2">
                                                             Þitt svar: {gameState.userAnswer} g/mol
                                                         </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Calculation Breakdown */}
+                                                {gameState.calculationBreakdown && (
+                                                    <div className={`text-left p-4 rounded-lg mb-4 ${gameState.lastAnswerCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
+                                                        <h4 className="font-bold text-center mb-2">Útreikningur:</h4>
+                                                        <div className="font-mono text-sm">
+                                                            {gameState.calculationBreakdown.map((item, idx) => {
+                                                                if (item.type === 'section') {
+                                                                    return (
+                                                                        <div key={idx} className="font-bold mt-2 mb-1">
+                                                                            {item.label}
+                                                                        </div>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <div key={idx}>
+                                                                            {item.symbol}: {item.count} × {item.atomicMass} = {item.total.toFixed(3)}
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            })}
+                                                            <div className="border-t-2 border-gray-400 mt-2 pt-2 font-bold">
+                                                                Samtals: {gameState.currentCompound.molarMass.toFixed(3)} g/mol
+                                                            </div>
+                                                        </div>
+                                                        {gameState.currentCompound.formula.includes('·') && (
+                                                            <div className="mt-3 text-xs text-blue-700 bg-blue-50 p-2 rounded">
+                                                                💡 <strong>Ábending um hýdröt:</strong> ·5H₂O þýðir 5 vatnsameindir. Reiknaðu 5 × (2×1.008 + 15.999)
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {/* Action Buttons */}
+                                                <div className="space-y-2 mt-4">
+                                                    {/* Show Solution Button - After 2 incorrect attempts or immediately in practice mode */}
+                                                    {!gameState.lastAnswerCorrect && !gameState.showSolution && (gameState.incorrectAttempts >= 2 || gameState.gameMode === 'practice') && (
+                                                        <button
+                                                            onClick={handleShowSolution}
+                                                            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl transition-colors mobile-btn"
+                                                            aria-label="Sýna lausn"
+                                                            title="Flýtilykill: S"
+                                                        >
+                                                            💡 Sýna lausn {gameState.gameMode === 'competition' && '(+3 stig)'}
+                                                        </button>
+                                                    )}
+
+                                                    {/* Next Question Button - In practice mode, after correct answer, or after showing solution */}
+                                                    {(gameState.gameMode === 'practice' || gameState.showSolution) && (
+                                                        <button
+                                                            onClick={handleNextQuestion}
+                                                            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition-colors mobile-btn"
+                                                            aria-label="Næsta spurning"
+                                                        >
+                                                            Næsta spurning →
+                                                        </button>
+                                                    )}
+
+                                                    {/* Try Again - When incorrect but not ready for solution */}
+                                                    {!gameState.lastAnswerCorrect && !gameState.showSolution && gameState.incorrectAttempts < 2 && gameState.gameMode === 'competition' && (
+                                                        <button
+                                                            onClick={() => setGameState(prev => ({ ...prev, showFeedback: false, userAnswer: '' }))}
+                                                            className="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl transition-colors mobile-btn"
+                                                            aria-label="Reyna aftur"
+                                                        >
+                                                            ↻ Reyna aftur
+                                                        </button>
                                                     )}
                                                 </div>
                                             </div>
