@@ -24,15 +24,6 @@
             background: #f9fafb;
         }
 
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
         .site-header {
             background: white;
             border-bottom: 2px solid #e5e7eb;
@@ -121,6 +112,72 @@
             max-width: 1200px;
             margin: 0 auto;
         }
+
+        .conversion-factor {
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .conversion-factor:active {
+            cursor: grabbing;
+        }
+
+        .conversion-factor.dragging {
+            opacity: 0.5;
+        }
+
+        .drop-zone {
+            min-height: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            background-color: #e0e7ff;
+            border-color: #6366f1;
+        }
+
+        .unit-strike {
+            text-decoration: line-through;
+            text-decoration-color: #ef4444;
+            text-decoration-thickness: 2px;
+            opacity: 0.6;
+        }
+
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .fraction > span {
+            display: block;
+            padding: 2px 8px;
+        }
+
+        .fraction > span:first-child {
+            border-bottom: 2px solid currentColor;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .pulse-success {
+            animation: pulse-success 0.5s;
+        }
+
+        @keyframes pulse-success {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
     </style>
 </head>
 <body>
@@ -154,31 +211,6 @@
         const { useState, useEffect, useRef } = React;
 
         // Icon components
-        const Timer = ({ size = 24 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="13" r="9"></circle>
-                <polyline points="12 7 12 13 15 15"></polyline>
-                <path d="M10 2h4"></path>
-            </svg>
-        );
-
-        const Zap = ({ size = 24 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-        );
-
-        const Trophy = ({ size = 24 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-                <path d="M4 22h16"></path>
-                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
-                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
-                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
-            </svg>
-        );
-
         const HelpCircle = ({ size = 24 }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -194,98 +226,196 @@
             </svg>
         );
 
-        const conversionTemplates = [
-            // Easy
-            { category: 'Massi / Mass', fromUnit: 'g', toUnit: 'kg', factor: 0.001, difficulty: 'easy' },
-            { category: 'Massi / Mass', fromUnit: 'kg', toUnit: 'g', factor: 1000, difficulty: 'easy' },
-            { category: 'Rúmmál / Volume', fromUnit: 'mL', toUnit: 'L', factor: 0.001, difficulty: 'easy' },
-            { category: 'Rúmmál / Volume', fromUnit: 'L', toUnit: 'mL', factor: 1000, difficulty: 'easy' },
-            { category: 'Hiti / Temperature', fromUnit: '°C', toUnit: 'K', factor: 1, difficulty: 'easy' },
-            { category: 'Lengd / Length', fromUnit: 'cm', toUnit: 'm', factor: 0.01, difficulty: 'easy' },
-            { category: 'Lengd / Length', fromUnit: 'm', toUnit: 'cm', factor: 100, difficulty: 'easy' },
-            
-            // Medium
-            { category: 'Massi / Mass', fromUnit: 'mg', toUnit: 'g', factor: 0.001, difficulty: 'medium' },
-            { category: 'Massi / Mass', fromUnit: 'g', toUnit: 'mg', factor: 1000, difficulty: 'medium' },
-            { category: 'Rúmmál / Volume', fromUnit: 'cm³', toUnit: 'mL', factor: 1, difficulty: 'medium' },
-            { category: 'Lengd / Length', fromUnit: 'mm', toUnit: 'cm', factor: 0.1, difficulty: 'medium' },
-            { category: 'Lengd / Length', fromUnit: 'nm', toUnit: 'μm', factor: 0.001, difficulty: 'medium' },
-            { category: 'Hiti / Temperature', fromUnit: 'K', toUnit: '°C', factor: 1, difficulty: 'medium' },
-            
-            // Hard
-            { category: 'Massi / Mass', fromUnit: 'μg', toUnit: 'kg', factor: 0.000000001, difficulty: 'hard', 
-                steps: ['μg → mg (÷1000)', 'mg → g (÷1000)', 'g → kg (÷1000)'] },
-            { category: 'Massi / Mass', fromUnit: 'kg', toUnit: 'mg', factor: 1000000, difficulty: 'hard',
-                steps: ['kg → g (×1000)', 'g → mg (×1000)'] },
-            { category: 'Rúmmál / Volume', fromUnit: 'μL', toUnit: 'L', factor: 0.000001, difficulty: 'hard',
-                steps: ['μL → mL (÷1000)', 'mL → L (÷1000)'] },
-            { category: 'Lengd / Length', fromUnit: 'nm', toUnit: 'm', factor: 0.000000001, difficulty: 'hard',
-                steps: ['nm → μm (÷1000)', 'μm → mm (÷1000)', 'mm → m (÷1000)'] },
-            { category: 'Rúmmál / Volume', fromUnit: 'cm³', toUnit: 'm³', factor: 0.000001, difficulty: 'hard',
-                steps: ['cm³ → m³ (÷1000000)'] },
+        const Trophy = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                <path d="M4 22h16"></path>
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+            </svg>
+        );
+
+        // Question templates with conversion factors
+        const questionTemplates = [
+            // Easy - single step conversions
+            {
+                startValue: 5000,
+                startUnit: 'g',
+                targetUnit: 'kg',
+                difficulty: 'easy',
+                correctFactors: [{ num: '1 kg', den: '1000 g' }],
+                availableFactors: [
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '1000 mL', den: '1 L' },
+                    { num: '100 cm', den: '1 m' },
+                    { num: '60 s', den: '1 mín' }
+                ]
+            },
+            {
+                startValue: 2.5,
+                startUnit: 'L',
+                targetUnit: 'mL',
+                difficulty: 'easy',
+                correctFactors: [{ num: '1000 mL', den: '1 L' }],
+                availableFactors: [
+                    { num: '1000 mL', den: '1 L' },
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '100 cm', den: '1 m' },
+                    { num: '1000 mm', den: '1 m' }
+                ]
+            },
+            {
+                startValue: 350,
+                startUnit: 'cm',
+                targetUnit: 'm',
+                difficulty: 'easy',
+                correctFactors: [{ num: '1 m', den: '100 cm' }],
+                availableFactors: [
+                    { num: '100 cm', den: '1 m' },
+                    { num: '1000 mm', den: '1 m' },
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '60 mín', den: '1 klst' }
+                ]
+            },
+            {
+                startValue: 7500,
+                startUnit: 'mL',
+                targetUnit: 'L',
+                difficulty: 'easy',
+                correctFactors: [{ num: '1 L', den: '1000 mL' }],
+                availableFactors: [
+                    { num: '1000 mL', den: '1 L' },
+                    { num: '1000 mg', den: '1 g' },
+                    { num: '100 cm', den: '1 m' },
+                    { num: '1000 g', den: '1 kg' }
+                ]
+            },
+            // Medium - two step conversions
+            {
+                startValue: 2500,
+                startUnit: 'mg',
+                targetUnit: 'kg',
+                difficulty: 'medium',
+                correctFactors: [
+                    { num: '1 g', den: '1000 mg' },
+                    { num: '1 kg', den: '1000 g' }
+                ],
+                availableFactors: [
+                    { num: '1000 mg', den: '1 g' },
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '1000 mL', den: '1 L' },
+                    { num: '100 cm', den: '1 m' },
+                    { num: '1000 mm', den: '1 m' }
+                ]
+            },
+            {
+                startValue: 3.2,
+                startUnit: 'm',
+                targetUnit: 'mm',
+                difficulty: 'medium',
+                correctFactors: [
+                    { num: '100 cm', den: '1 m' },
+                    { num: '10 mm', den: '1 cm' }
+                ],
+                availableFactors: [
+                    { num: '100 cm', den: '1 m' },
+                    { num: '10 mm', den: '1 cm' },
+                    { num: '1000 mm', den: '1 m' },
+                    { num: '1000 mg', den: '1 g' },
+                    { num: '1000 mL', den: '1 L' }
+                ]
+            },
+            {
+                startValue: 0.0045,
+                startUnit: 'kg',
+                targetUnit: 'mg',
+                difficulty: 'medium',
+                correctFactors: [
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '1000 mg', den: '1 g' }
+                ],
+                availableFactors: [
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '1000 mg', den: '1 g' },
+                    { num: '100 cm', den: '1 m' },
+                    { num: '1000 mL', den: '1 L' },
+                    { num: '1000 mm', den: '1 m' }
+                ]
+            },
+            // Hard - three step conversions
+            {
+                startValue: 15000,
+                startUnit: 'mm',
+                targetUnit: 'km',
+                difficulty: 'hard',
+                correctFactors: [
+                    { num: '1 cm', den: '10 mm' },
+                    { num: '1 m', den: '100 cm' },
+                    { num: '1 km', den: '1000 m' }
+                ],
+                availableFactors: [
+                    { num: '10 mm', den: '1 cm' },
+                    { num: '100 cm', den: '1 m' },
+                    { num: '1000 m', den: '1 km' },
+                    { num: '1000 mg', den: '1 g' },
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '1000 mL', den: '1 L' }
+                ]
+            },
+            {
+                startValue: 500000,
+                startUnit: 'µg',
+                targetUnit: 'g',
+                difficulty: 'hard',
+                correctFactors: [
+                    { num: '1 mg', den: '1000 µg' },
+                    { num: '1 g', den: '1000 mg' }
+                ],
+                availableFactors: [
+                    { num: '1000 µg', den: '1 mg' },
+                    { num: '1000 mg', den: '1 g' },
+                    { num: '1000 g', den: '1 kg' },
+                    { num: '1000 mL', den: '1 L' },
+                    { num: '100 cm', den: '1 m' },
+                    { num: '1000 mm', den: '1 m' }
+                ]
+            }
         ];
 
-        const UnitConversionRace = () => {
+        const DimensionalAnalysisGame = () => {
             const [gameState, setGameState] = useState({
                 currentQuestion: null,
-                userAnswer: '',
                 score: 0,
                 questionsAnswered: 0,
                 correctAnswers: 0,
-                timeRemaining: 60,
                 isPlaying: false,
                 gameOver: false,
                 difficulty: 'mixed',
-                showFeedback: false,
-                lastAnswerCorrect: null,
+                selectedFactors: [],
+                feedback: null,
                 streak: 0,
                 bestStreak: 0
             });
 
             const [showInstructions, setShowInstructions] = useState(true);
-            const inputRef = useRef(null);
-            const timerRef = useRef(null);
+            const [draggedFactor, setDraggedFactor] = useState(null);
 
             const generateQuestion = (difficulty) => {
-                let availableTemplates;
-                
+                let availableQuestions;
+
                 if (difficulty === 'mixed') {
-                    availableTemplates = conversionTemplates;
+                    availableQuestions = questionTemplates;
                 } else {
-                    availableTemplates = conversionTemplates.filter(t => t.difficulty === difficulty);
+                    availableQuestions = questionTemplates.filter(q => q.difficulty === difficulty);
                 }
 
-                const template = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
-                
-                let value;
-                if (template.difficulty === 'easy') {
-                    value = Math.floor(Math.random() * 900) + 100;
-                } else if (template.difficulty === 'medium') {
-                    value = Math.floor(Math.random() * 9000) + 1000;
-                } else {
-                    value = Math.floor(Math.random() * 90000) + 10000;
-                }
-
-                let answer;
-                if (template.fromUnit === '°C' && template.toUnit === 'K') {
-                    answer = parseFloat((value + 273.15).toFixed(2));
-                } else if (template.fromUnit === 'K' && template.toUnit === '°C') {
-                    answer = parseFloat((value - 273.15).toFixed(2));
-                } else {
-                    answer = parseFloat((value * template.factor).toFixed(6));
-                }
+                const template = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
 
                 return {
                     id: Math.random().toString(36).substr(2, 9),
-                    category: template.category,
-                    question: `${value} ${template.fromUnit} = ? ${template.toUnit}`,
-                    value,
-                    fromUnit: template.fromUnit,
-                    toUnit: template.toUnit,
-                    answer,
-                    conversionFactor: template.factor,
-                    difficulty: template.difficulty,
-                    steps: template.steps
+                    ...template
                 };
             };
 
@@ -294,166 +424,268 @@
                 setGameState(prev => ({
                     ...prev,
                     currentQuestion: firstQuestion,
-                    userAnswer: '',
+                    selectedFactors: [],
                     score: 0,
                     questionsAnswered: 0,
                     correctAnswers: 0,
-                    timeRemaining: 60,
                     isPlaying: true,
                     gameOver: false,
-                    showFeedback: false,
-                    lastAnswerCorrect: null,
+                    feedback: null,
                     streak: 0
                 }));
             };
 
-            const checkAnswer = () => {
-                if (!gameState.currentQuestion || !gameState.userAnswer.trim()) return;
+            const invertFactor = (factor) => {
+                return { num: factor.den, den: factor.num };
+            };
 
-                const userValue = parseFloat(gameState.userAnswer);
-                const correctAnswer = gameState.currentQuestion.answer;
-                
-                const tolerance = Math.abs(correctAnswer * 0.001) || 0.01;
-                const isCorrect = Math.abs(userValue - correctAnswer) <= tolerance;
+            const handleFactorClick = (factor) => {
+                if (!gameState.isPlaying || gameState.feedback) return;
 
-                const pointValue = gameState.currentQuestion.difficulty === 'easy' ? 10 : 
-                                gameState.currentQuestion.difficulty === 'medium' ? 15 : 20;
-                
-                const streakBonus = gameState.streak >= 3 ? 5 : 0;
-                const timeBonus = gameState.timeRemaining > 45 ? 5 : gameState.timeRemaining > 30 ? 3 : 0;
-
+                // Add factor to selected factors
                 setGameState(prev => ({
                     ...prev,
-                    score: isCorrect ? prev.score + pointValue + streakBonus + timeBonus : prev.score,
-                    questionsAnswered: prev.questionsAnswered + 1,
-                    correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
-                    showFeedback: true,
-                    lastAnswerCorrect: isCorrect,
-                    streak: isCorrect ? prev.streak + 1 : 0,
-                    bestStreak: isCorrect && prev.streak + 1 > prev.bestStreak ? prev.streak + 1 : prev.bestStreak
+                    selectedFactors: [...prev.selectedFactors, factor]
                 }));
+            };
 
-                setTimeout(() => {
-                    if (gameState.timeRemaining > 0) {
+            const handleInvertClick = (index, e) => {
+                e.stopPropagation();
+                setGameState(prev => {
+                    const newFactors = [...prev.selectedFactors];
+                    newFactors[index] = invertFactor(newFactors[index]);
+                    return { ...prev, selectedFactors: newFactors };
+                });
+            };
+
+            const handleRemoveFactor = (index) => {
+                setGameState(prev => {
+                    const newFactors = [...prev.selectedFactors];
+                    newFactors.splice(index, 1);
+                    return { ...prev, selectedFactors: newFactors };
+                });
+            };
+
+            const parseUnit = (unitString) => {
+                // Extract units from strings like "1000 mg" -> "mg"
+                const match = unitString.match(/[a-zA-Zµ°]+/);
+                return match ? match[0] : unitString;
+            };
+
+            const calculateResult = () => {
+                if (!gameState.currentQuestion || gameState.selectedFactors.length === 0) {
+                    return { value: gameState.currentQuestion?.startValue, unit: gameState.currentQuestion?.startUnit };
+                }
+
+                let currentValue = gameState.currentQuestion.startValue;
+                let currentUnit = gameState.currentQuestion.startUnit;
+
+                // Apply each conversion factor
+                for (const factor of gameState.selectedFactors) {
+                    const numParts = factor.num.split(' ');
+                    const denParts = factor.den.split(' ');
+
+                    const numValue = parseFloat(numParts[0]);
+                    const numUnit = parseUnit(numParts.slice(1).join(' '));
+                    const denValue = parseFloat(denParts[0]);
+                    const denUnit = parseUnit(denParts.slice(1).join(' '));
+
+                    // Check if units cancel
+                    if (denUnit === currentUnit) {
+                        currentValue = (currentValue * numValue) / denValue;
+                        currentUnit = numUnit;
+                    } else {
+                        // Units don't cancel
+                        return { value: currentValue, unit: currentUnit, error: true };
+                    }
+                }
+
+                return { value: currentValue, unit: currentUnit };
+            };
+
+            const checkAnswer = () => {
+                const result = calculateResult();
+                const targetUnit = gameState.currentQuestion.targetUnit;
+
+                const isCorrect = result.unit === targetUnit && !result.error;
+
+                const pointValue = gameState.currentQuestion.difficulty === 'easy' ? 10 :
+                                gameState.currentQuestion.difficulty === 'medium' ? 20 : 30;
+
+                const streakBonus = gameState.streak >= 3 ? 10 : 0;
+
+                if (isCorrect) {
+                    setGameState(prev => ({
+                        ...prev,
+                        score: prev.score + pointValue + streakBonus,
+                        questionsAnswered: prev.questionsAnswered + 1,
+                        correctAnswers: prev.correctAnswers + 1,
+                        feedback: 'correct',
+                        streak: prev.streak + 1,
+                        bestStreak: prev.streak + 1 > prev.bestStreak ? prev.streak + 1 : prev.bestStreak
+                    }));
+
+                    setTimeout(() => {
                         const nextQuestion = generateQuestion(gameState.difficulty);
                         setGameState(prev => ({
                             ...prev,
                             currentQuestion: nextQuestion,
-                            userAnswer: '',
-                            showFeedback: false,
-                            lastAnswerCorrect: null
+                            selectedFactors: [],
+                            feedback: null
                         }));
-                        inputRef.current?.focus();
-                    }
-                }, 1500);
-            };
+                    }, 2000);
+                } else {
+                    const needsMoreFactors = result.unit !== targetUnit && !result.error &&
+                                           gameState.selectedFactors.length < gameState.currentQuestion.correctFactors.length;
 
-            const handleKeyPress = (e) => {
-                if (e.key === 'Enter' && !gameState.showFeedback) {
-                    checkAnswer();
+                    setGameState(prev => ({
+                        ...prev,
+                        feedback: needsMoreFactors ? 'continue' : 'incorrect',
+                        streak: needsMoreFactors ? prev.streak : 0
+                    }));
+
+                    if (!needsMoreFactors) {
+                        setTimeout(() => {
+                            setGameState(prev => ({ ...prev, feedback: null }));
+                        }, 2000);
+                    }
                 }
             };
 
             const resetGame = () => {
-                if (timerRef.current) clearInterval(timerRef.current);
                 setGameState(prev => ({
                     ...prev,
                     currentQuestion: null,
-                    userAnswer: '',
+                    selectedFactors: [],
                     score: 0,
                     questionsAnswered: 0,
                     correctAnswers: 0,
-                    timeRemaining: 60,
                     isPlaying: false,
                     gameOver: false,
-                    showFeedback: false,
-                    lastAnswerCorrect: null,
+                    feedback: null,
                     streak: 0
                 }));
             };
 
-            useEffect(() => {
-                if (gameState.isPlaying && !gameState.gameOver && gameState.timeRemaining > 0) {
-                    timerRef.current = setInterval(() => {
-                        setGameState(prev => {
-                            if (prev.timeRemaining <= 1) {
-                                return { ...prev, timeRemaining: 0, isPlaying: false, gameOver: true };
-                            }
-                            return { ...prev, timeRemaining: prev.timeRemaining - 1 };
-                        });
-                    }, 1000);
+            const endGame = () => {
+                setGameState(prev => ({
+                    ...prev,
+                    isPlaying: false,
+                    gameOver: true
+                }));
+            };
+
+            const renderUnitCancellation = () => {
+                if (!gameState.currentQuestion || gameState.selectedFactors.length === 0) return null;
+
+                let currentUnit = gameState.currentQuestion.startUnit;
+                const steps = [{ value: gameState.currentQuestion.startValue, unit: currentUnit, cancelled: false }];
+
+                for (let i = 0; i < gameState.selectedFactors.length; i++) {
+                    const factor = gameState.selectedFactors[i];
+                    const denUnit = parseUnit(factor.den.split(' ').slice(1).join(' '));
+                    const numUnit = parseUnit(factor.num.split(' ').slice(1).join(' '));
+
+                    const cancelled = denUnit === currentUnit;
+                    steps.push({
+                        factor: factor,
+                        cancelled: cancelled,
+                        denUnit: denUnit,
+                        numUnit: numUnit
+                    });
+
+                    if (cancelled) {
+                        currentUnit = numUnit;
+                    }
                 }
 
-                return () => {
-                    if (timerRef.current) clearInterval(timerRef.current);
-                };
-            }, [gameState.isPlaying, gameState.gameOver, gameState.timeRemaining]);
+                return (
+                    <div className="flex items-center flex-wrap gap-2 text-lg justify-center">
+                        <span className="font-bold">
+                            {gameState.currentQuestion.startValue}
+                            <span className="ml-1">{gameState.currentQuestion.startUnit}</span>
+                        </span>
+                        {gameState.selectedFactors.map((factor, idx) => {
+                            const denUnit = parseUnit(factor.den.split(' ').slice(1).join(' '));
+                            const numUnit = parseUnit(factor.num.split(' ').slice(1).join(' '));
+                            const previousUnit = idx === 0 ? gameState.currentQuestion.startUnit :
+                                               parseUnit(gameState.selectedFactors[idx-1].num.split(' ').slice(1).join(' '));
+                            const cancelled = denUnit === previousUnit;
 
-            useEffect(() => {
-                if (gameState.isPlaying && !gameState.showFeedback) {
-                    inputRef.current?.focus();
-                }
-            }, [gameState.isPlaying, gameState.showFeedback, gameState.currentQuestion]);
+                            return (
+                                <React.Fragment key={idx}>
+                                    <span>×</span>
+                                    <div className="inline-flex flex-col border-2 border-purple-300 rounded px-2 py-1">
+                                        <span className={cancelled ? 'unit-strike' : ''}>{factor.num}</span>
+                                        <div className="border-t-2 border-gray-400"></div>
+                                        <span className={cancelled ? 'unit-strike' : ''}>{factor.den}</span>
+                                    </div>
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
+                );
+            };
 
             if (showInstructions) {
                 return (
-                    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-8">
-                        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-8">
+                        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
                             <h1 className="text-4xl font-bold text-center mb-6 text-purple-600">
-                                ⚡ Unit Conversion Race
+                                🔬 Einingagreining - Dimensional Analysis
                             </h1>
-                            
+
                             <div className="space-y-4 text-gray-700">
                                 <h2 className="text-2xl font-semibold text-purple-500">Leiðbeiningar / Instructions</h2>
-                                
+
                                 <div className="bg-purple-50 p-4 rounded-lg">
                                     <h3 className="font-semibold mb-2">Markmið / Goal:</h3>
-                                    <p>Umbreyttu einingum eins hratt og þú getur á 60 sekúndum!</p>
-                                    <p className="text-sm italic">Convert units as fast as you can in 60 seconds!</p>
+                                    <p>Notaðu umbreytingarstuðla til að umbreyta úr einni einingu í aðra!</p>
+                                    <p className="text-sm italic">Use conversion factors to convert from one unit to another!</p>
                                 </div>
 
                                 <div className="bg-blue-50 p-4 rounded-lg">
                                     <h3 className="font-semibold mb-2">Hvernig á að spila / How to play:</h3>
                                     <ol className="list-decimal list-inside space-y-2">
-                                        <li>Veldu erfiðleikastig / Choose difficulty level</li>
-                                        <li>Lestu spurninguna og reiknaðu / Read the question and calculate</li>
-                                        <li>Sláðu inn svarið / Type your answer</li>
-                                        <li>Ýttu á Enter eða "Athuga" / Press Enter or "Check"</li>
-                                        <li>Haltu áfram þar til tíminn rennur út! / Keep going until time runs out!</li>
+                                        <li>Þú færð upphafsgildi með einingu (t.d. 5000 g)</li>
+                                        <li>Þú þarft að komast í markeiningu (t.d. kg)</li>
+                                        <li>Smelltu á umbreytingarstuðul til að bæta honum við</li>
+                                        <li>Smelltu á "⇅" til að snúa stuðlinum við (t.d. 1000g/1kg → 1kg/1000g)</li>
+                                        <li>Þegar einingar falla út sérðu þær með yfirstrikun</li>
+                                        <li>Þegar þú ert kominn í rétta einingu, smelltu á "Athuga svar"</li>
                                     </ol>
                                 </div>
 
                                 <div className="bg-green-50 p-4 rounded-lg">
-                                    <h3 className="font-semibold mb-2">Stigagjöf / Scoring:</h3>
-                                    <ul className="space-y-1">
-                                        <li><strong>Auðvelt/Easy:</strong> 10 stig á spurning</li>
-                                        <li><strong>Miðlungs/Medium:</strong> 15 stig á spurning</li>
-                                        <li><strong>Erfitt/Hard:</strong> 20 stig á spurning</li>
-                                        <li><strong>Röð bónus/Streak bonus:</strong> +5 stig eftir 3 í röð rétt</li>
-                                        <li><strong>Tíma bónus/Time bonus:</strong> +3-5 stig fyrir hraða svör</li>
-                                    </ul>
+                                    <h3 className="font-semibold mb-2">Dæmi / Example:</h3>
+                                    <div className="bg-white p-3 rounded border-2 border-green-200">
+                                        <p className="font-semibold mb-2">Spurning: 5000 g → kg</p>
+                                        <div className="text-sm space-y-1">
+                                            <p>1. Veldu: <span className="font-mono bg-gray-100 px-2 py-1 rounded">1000 g / 1 kg</span></p>
+                                            <p>2. Snúðu við: <span className="font-mono bg-gray-100 px-2 py-1 rounded">1 kg / 1000 g</span></p>
+                                            <p>3. Einingin "g" fellur út og þú færð 5 kg!</p>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="bg-yellow-50 p-4 rounded-lg">
-                                    <h3 className="font-semibold mb-2">Ábendingar / Tips:</h3>
-                                    <ul className="list-disc list-inside space-y-1 text-sm">
-                                        <li>Fyrir °C → K: bættu við 273.15</li>
-                                        <li>Fyrir K → °C: dragðu frá 273.15</li>
-                                        <li>Fyrir aðrar umbreytingar: margfaldaðu eða deildu</li>
-                                        <li>Notaðu vísindalega rithætti fyrir mjög litlar/stórar tölur</li>
+                                    <h3 className="font-semibold mb-2">Stigagjöf / Scoring:</h3>
+                                    <ul className="space-y-1">
+                                        <li><strong>Auðvelt/Easy:</strong> 10 stig (1 skref)</li>
+                                        <li><strong>Miðlungs/Medium:</strong> 20 stig (2 skref)</li>
+                                        <li><strong>Erfitt/Hard:</strong> 30 stig (3 skref)</li>
+                                        <li><strong>Röð bónus/Streak bonus:</strong> +10 stig eftir 3 í röð rétt</li>
                                     </ul>
                                 </div>
 
                                 <div className="bg-pink-50 p-4 rounded-lg">
-                                    <h3 className="font-semibold mb-2">Algengar umbreytingar / Common conversions:</h3>
-                                    <div className="text-sm grid grid-cols-2 gap-2">
-                                        <div>1 kg = 1000 g</div>
-                                        <div>1 L = 1000 mL</div>
-                                        <div>1 m = 100 cm</div>
-                                        <div>1 g = 1000 mg</div>
-                                        <div>1 cm³ = 1 mL</div>
-                                        <div>1 m = 1000 mm</div>
-                                    </div>
+                                    <h3 className="font-semibold mb-2">Ábendingar / Tips:</h3>
+                                    <ul className="list-disc list-inside space-y-1">
+                                        <li>Passaðu að einingin í nefnara (neðst) falli út með núverandi einingu</li>
+                                        <li>Teljari (efst) verður ný einingin þín</li>
+                                        <li>Fyrir erfið dæmi þarftu oft fleiri en eitt skref</li>
+                                        <li>Þú getur fjarlægt stuðul með því að smella á "×" hnappinn</li>
+                                    </ul>
                                 </div>
                             </div>
 
@@ -470,10 +702,10 @@
 
             if (!gameState.isPlaying && !gameState.gameOver) {
                 return (
-                    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-8">
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-8">
                         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
                             <h1 className="text-4xl font-bold text-center mb-6 text-purple-600">
-                                ⚡ Unit Conversion Race
+                                🔬 Einingagreining
                             </h1>
 
                             <div className="space-y-6">
@@ -494,7 +726,7 @@
                                         <div className="text-2xl mb-2">😊</div>
                                         <div className="text-xl">Auðvelt</div>
                                         <div className="text-sm opacity-90">Easy</div>
-                                        <div className="text-xs mt-2">Einfaldar umbreytingar</div>
+                                        <div className="text-xs mt-2">1 umbreytingarskref</div>
                                     </button>
 
                                     <button
@@ -507,7 +739,7 @@
                                         <div className="text-2xl mb-2">🤔</div>
                                         <div className="text-xl">Miðlungs</div>
                                         <div className="text-sm opacity-90">Medium</div>
-                                        <div className="text-xs mt-2">Fleiri decimals</div>
+                                        <div className="text-xs mt-2">2 umbreytingarskref</div>
                                     </button>
 
                                     <button
@@ -520,7 +752,7 @@
                                         <div className="text-2xl mb-2">😰</div>
                                         <div className="text-xl">Erfitt</div>
                                         <div className="text-sm opacity-90">Hard</div>
-                                        <div className="text-xs mt-2">Margþrepa umbreytingar</div>
+                                        <div className="text-xs mt-2">3 umbreytingarskref</div>
                                     </button>
 
                                     <button
@@ -550,12 +782,12 @@
             }
 
             if (gameState.gameOver) {
-                const accuracy = gameState.questionsAnswered > 0 
+                const accuracy = gameState.questionsAnswered > 0
                     ? ((gameState.correctAnswers / gameState.questionsAnswered) * 100).toFixed(1)
                     : '0';
 
                 return (
-                    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-8">
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-8">
                         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
                             <h1 className="text-4xl font-bold text-center mb-6 text-purple-600">
                                 🏁 Leik lokið / Game Over!
@@ -593,15 +825,15 @@
 
                                 <div className="bg-purple-50 p-4 rounded-xl">
                                     <h3 className="font-semibold text-center mb-2">
-                                        {gameState.score >= 300 ? '🌟 Frábært! / Excellent!' :
-                                        gameState.score >= 200 ? '👍 Vel gert! / Well done!' :
-                                        gameState.score >= 100 ? '💪 Góð byrjun! / Good start!' :
+                                        {gameState.score >= 150 ? '🌟 Frábært! / Excellent!' :
+                                        gameState.score >= 100 ? '👍 Vel gert! / Well done!' :
+                                        gameState.score >= 50 ? '💪 Góð byrjun! / Good start!' :
                                         '📚 Æfðu meira! / Keep practicing!'}
                                     </h3>
                                     <p className="text-center text-sm text-gray-700">
-                                        {gameState.score >= 300 ? 'Þú ert snillingur í einingaumbreytingum!' :
-                                        gameState.score >= 200 ? 'Þú ert að fara vel með þetta!' :
-                                        gameState.score >= 100 ? 'Haltu áfram að æfa!' :
+                                        {gameState.score >= 150 ? 'Þú ert snillingur í einingaumbreytingum!' :
+                                        gameState.score >= 100 ? 'Þú ert að fara vel með þetta!' :
+                                        gameState.score >= 50 ? 'Haltu áfram að æfa!' :
                                         'Prófaðu að byrja á auðveldu stigi!'}
                                     </p>
                                 </div>
@@ -628,20 +860,16 @@
                 );
             }
 
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-4 md:p-8">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="bg-white rounded-2xl shadow-2xl p-6 mb-6">
-                            <div className="flex justify-between items-center flex-wrap gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="text-center">
-                                        <div className="flex items-center gap-2 text-red-600 mb-1">
-                                            <Timer size={24} />
-                                            <span className="text-3xl font-bold">{gameState.timeRemaining}s</span>
-                                        </div>
-                                        <div className="text-xs text-gray-600">Tími eftir / Time left</div>
-                                    </div>
+            // Main game interface
+            const result = calculateResult();
 
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-4 md:p-8">
+                    <div className="max-w-5xl mx-auto">
+                        {/* Score and Stats Bar */}
+                        <div className="bg-white rounded-2xl shadow-xl p-4 mb-6">
+                            <div className="flex justify-between items-center flex-wrap gap-4">
+                                <div className="flex items-center gap-6">
                                     <div className="text-center">
                                         <div className="flex items-center gap-2 text-purple-600 mb-1">
                                             <Trophy size={24} />
@@ -649,9 +877,7 @@
                                         </div>
                                         <div className="text-xs text-gray-600">Stig / Score</div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center gap-4">
                                     <div className="text-center">
                                         <div className="text-2xl font-bold text-green-600">
                                             {gameState.correctAnswers}/{gameState.questionsAnswered}
@@ -661,99 +887,156 @@
 
                                     {gameState.streak >= 3 && (
                                         <div className="text-center animate-pulse">
-                                            <div className="flex items-center gap-1 text-orange-600 mb-1">
-                                                <Zap size={20} />
-                                                <span className="text-2xl font-bold">{gameState.streak}</span>
+                                            <div className="text-2xl font-bold text-orange-600">
+                                                🔥 {gameState.streak}
                                             </div>
-                                            <div className="text-xs text-gray-600">Streak! 🔥</div>
+                                            <div className="text-xs text-gray-600">Streak!</div>
                                         </div>
                                     )}
                                 </div>
-                            </div>
 
-                            <div className="mt-4 bg-gray-200 rounded-full h-2">
-                                <div 
-                                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-1000"
-                                    style={{ width: `${(gameState.timeRemaining / 60) * 100}%` }}
-                                />
+                                <button
+                                    onClick={endGame}
+                                    className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
+                                >
+                                    Ljúka leik / End Game
+                                </button>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-2xl p-8">
-                            {gameState.currentQuestion && (
-                                <>
-                                    <div className="mb-6">
-                                        <div className="inline-block bg-purple-100 px-4 py-2 rounded-full text-sm font-semibold text-purple-700 mb-4">
-                                            {gameState.currentQuestion.category}
-                                        </div>
-                                        
-                                        <div className="text-center">
-                                            <div className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
-                                                {gameState.currentQuestion.value} {gameState.currentQuestion.fromUnit}
-                                            </div>
-                                            <div className="text-3xl text-purple-600 mb-2">=</div>
-                                            <div className="text-4xl md:text-5xl font-bold text-gray-800">
-                                                ? {gameState.currentQuestion.toUnit}
-                                            </div>
-                                        </div>
+                        {/* Question Display */}
+                        <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                            <div className="text-center mb-6">
+                                <div className="inline-block bg-purple-100 px-4 py-2 rounded-full text-sm font-semibold text-purple-700 mb-4">
+                                    {gameState.currentQuestion?.difficulty === 'easy' ? 'Auðvelt / Easy' :
+                                     gameState.currentQuestion?.difficulty === 'medium' ? 'Miðlungs / Medium' :
+                                     'Erfitt / Hard'}
+                                </div>
+
+                                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                                    Umbreyttu / Convert:
+                                </h2>
+                                <div className="text-5xl font-bold text-purple-600 mb-2">
+                                    {gameState.currentQuestion?.startValue} {gameState.currentQuestion?.startUnit}
+                                </div>
+                                <div className="text-2xl text-gray-600 mb-2">→</div>
+                                <div className="text-4xl font-bold text-gray-800">
+                                    ? {gameState.currentQuestion?.targetUnit}
+                                </div>
+                            </div>
+
+                            {/* Conversion Chain Visualization */}
+                            {gameState.selectedFactors.length > 0 && (
+                                <div className="mb-6 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 text-center">
+                                        Þín umbreyting / Your conversion:
+                                    </h3>
+                                    {renderUnitCancellation()}
+                                    <div className="mt-3 text-center">
+                                        <span className="text-xl font-bold text-purple-600">
+                                            = {result.value.toFixed(6)} {result.unit}
+                                        </span>
                                     </div>
+                                </div>
+                            )}
 
-                                    {gameState.currentQuestion.steps && (
-                                        <div className="mb-4 bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-                                            <div className="text-xs font-semibold text-yellow-800 mb-1">Skref / Steps:</div>
-                                            <div className="text-xs text-yellow-700">
-                                                {gameState.currentQuestion.steps.join(' → ')}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="max-w-md mx-auto">
-                                        {!gameState.showFeedback ? (
-                                            <div className="space-y-4">
-                                                <input
-                                                    ref={inputRef}
-                                                    type="number"
-                                                    step="any"
-                                                    value={gameState.userAnswer}
-                                                    onChange={(e) => setGameState(prev => ({ ...prev, userAnswer: e.target.value }))}
-                                                    onKeyPress={handleKeyPress}
-                                                    placeholder="Sláðu inn svar / Enter answer"
-                                                    className="w-full p-4 text-2xl border-4 border-purple-300 rounded-xl focus:border-purple-500 focus:outline-none text-center font-bold"
-                                                    autoFocus
-                                                />
+                            {/* Selected Factors with Remove and Invert */}
+                            {gameState.selectedFactors.length > 0 && (
+                                <div className="mb-6">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                                        Valdir stuðlar / Selected factors:
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {gameState.selectedFactors.map((factor, idx) => (
+                                            <div key={idx} className="inline-flex items-center gap-2 bg-purple-100 border-2 border-purple-300 rounded-lg px-3 py-2">
+                                                <div className="flex flex-col text-center">
+                                                    <span className="font-semibold">{factor.num}</span>
+                                                    <div className="border-t-2 border-purple-400"></div>
+                                                    <span className="font-semibold">{factor.den}</span>
+                                                </div>
                                                 <button
-                                                    onClick={checkAnswer}
-                                                    disabled={!gameState.userAnswer.trim()}
-                                                    className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-colors text-xl"
+                                                    onClick={(e) => handleInvertClick(idx, e)}
+                                                    className="bg-purple-500 hover:bg-purple-600 text-white rounded px-2 py-1 text-xs font-bold"
+                                                    title="Snúa við / Invert"
                                                 >
-                                                    Athuga svar / Check Answer ✓
+                                                    ⇅
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRemoveFactor(idx)}
+                                                    className="bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
+                                                    title="Fjarlægja / Remove"
+                                                >
+                                                    ×
                                                 </button>
                                             </div>
-                                        ) : (
-                                            <div className={`p-6 rounded-xl ${gameState.lastAnswerCorrect ? 'bg-green-50 border-4 border-green-300' : 'bg-red-50 border-4 border-red-300'}`}>
-                                                <div className="text-center">
-                                                    <div className="text-4xl mb-2">
-                                                        {gameState.lastAnswerCorrect ? '✅' : '❌'}
-                                                    </div>
-                                                    <div className="text-2xl font-bold mb-2">
-                                                        {gameState.lastAnswerCorrect ? 'Rétt! / Correct!' : 'Rangt / Incorrect'}
-                                                    </div>
-                                                    <div className="text-lg text-gray-700">
-                                                        Rétt svar / Correct answer: <span className="font-bold">{gameState.currentQuestion.answer}</span>
-                                                    </div>
-                                                    {!gameState.lastAnswerCorrect && (
-                                                        <div className="text-sm text-gray-600 mt-2">
-                                                            Þitt svar / Your answer: {gameState.userAnswer}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
+                                        ))}
                                     </div>
-                                </>
+                                </div>
+                            )}
+
+                            {/* Feedback Messages */}
+                            {gameState.feedback === 'correct' && (
+                                <div className="mb-4 p-4 bg-green-100 border-2 border-green-400 rounded-xl text-center pulse-success">
+                                    <div className="text-4xl mb-2">✅</div>
+                                    <div className="text-2xl font-bold text-green-700">Rétt! / Correct!</div>
+                                    <div className="text-sm text-green-600 mt-1">Að hlaða næstu spurningu...</div>
+                                </div>
+                            )}
+
+                            {gameState.feedback === 'continue' && (
+                                <div className="mb-4 p-4 bg-yellow-100 border-2 border-yellow-400 rounded-xl text-center">
+                                    <div className="text-3xl mb-2">👍</div>
+                                    <div className="text-xl font-bold text-yellow-700">Á réttri leið! / On the right track!</div>
+                                    <div className="text-sm text-yellow-600 mt-1">Bættu við fleiri umbreytingarstuðlum</div>
+                                </div>
+                            )}
+
+                            {gameState.feedback === 'incorrect' && (
+                                <div className="mb-4 p-4 bg-red-100 border-2 border-red-400 rounded-xl text-center shake">
+                                    <div className="text-4xl mb-2">❌</div>
+                                    <div className="text-2xl font-bold text-red-700">Rangt / Incorrect</div>
+                                    <div className="text-sm text-red-600 mt-1">Prófaðu að snúa við stuðli eða veldu annan</div>
+                                </div>
+                            )}
+
+                            {/* Check Answer Button */}
+                            {!gameState.feedback && gameState.selectedFactors.length > 0 && (
+                                <button
+                                    onClick={checkAnswer}
+                                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-colors text-xl"
+                                >
+                                    Athuga svar / Check Answer ✓
+                                </button>
                             )}
                         </div>
 
+                        {/* Available Conversion Factors */}
+                        <div className="bg-white rounded-2xl shadow-xl p-6">
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                                Tiltækir umbreytingarstuðlar / Available conversion factors:
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                {gameState.currentQuestion?.availableFactors.map((factor, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleFactorClick(factor)}
+                                        disabled={gameState.feedback === 'correct'}
+                                        className="conversion-factor bg-gradient-to-br from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-400 text-white font-semibold p-4 rounded-xl transition-all shadow-md hover:shadow-lg disabled:cursor-not-allowed"
+                                    >
+                                        <div className="flex flex-col text-center">
+                                            <span className="text-lg">{factor.num}</span>
+                                            <div className="border-t-2 border-white my-1"></div>
+                                            <span className="text-lg">{factor.den}</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="mt-4 text-center text-sm text-gray-600">
+                                Smelltu á stuðul til að bæta honum við · Smelltu á "⇅" til að snúa við
+                            </div>
+                        </div>
+
+                        {/* Help Button */}
                         <div className="mt-6 flex gap-4 justify-center">
                             <button
                                 onClick={() => setShowInstructions(true)}
@@ -768,7 +1051,7 @@
             );
         };
 
-        ReactDOM.render(<UnitConversionRace />, document.getElementById('root'));
+        ReactDOM.render(<DimensionalAnalysisGame />, document.getElementById('root'));
     </script>
 </body>
 </html>
