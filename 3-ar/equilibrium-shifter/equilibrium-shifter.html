@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equilibrium Shifter - Kvenno Efnafræði</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Kvenno Brand Colors */
+        :root {
+            --kvenno-orange: #f36b22;
+            --kvenno-orange-dark: #d95a1a;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: #f9fafb;
+        }
+
+        /* Header Styles */
+        .site-header {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--kvenno-orange);
+            text-decoration: none;
+        }
+
+        .site-logo:hover {
+            color: var(--kvenno-orange-dark);
+        }
+
+        .header-btn {
+            background: white;
+            border: 2px solid var(--kvenno-orange);
+            color: var(--kvenno-orange);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .header-btn:hover {
+            background: var(--kvenno-orange);
+            color: white;
+        }
+
+        /* Back Button */
+        .back-btn {
+            background: white;
+            border: 2px solid var(--kvenno-orange);
+            color: var(--kvenno-orange);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin: 0 1rem 1rem 1rem;
+        }
+
+        .back-btn:hover {
+            background: var(--kvenno-orange);
+            color: white;
+        }
+
+        /* Equilibrium Arrow Styles */
+        .equilibrium-arrows {
+            font-size: 3rem;
+            transition: all 0.5s ease;
+        }
+
+        .equilibrium-arrows.shift-right {
+            color: #22c55e;
+            transform: scale(1.2);
+        }
+
+        .equilibrium-arrows.shift-left {
+            color: #22c55e;
+            transform: scale(1.2) scaleX(-1);
+        }
+
+        .equilibrium-arrows.no-shift {
+            color: #eab308;
+            animation: shake 0.5s ease;
+        }
+
+        /* Molecule Container */
+        .molecule-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.5s ease;
+        }
+
+        .molecule {
+            font-size: 2rem;
+            transition: all 0.3s ease;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .reactants-side {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        }
+
+        .products-side {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+        }
+
+        .reactants-side.glowing {
+            background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+
+        .products-side.glowing {
+            background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+
+        /* Thermodynamics Indicator */
+        .thermo-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .thermo-indicator.exothermic {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            color: #7f1d1d;
+        }
+
+        .thermo-indicator.endothermic {
+            background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+            color: #1e3a8a;
+        }
+
+        /* Stress Buttons */
+        .stress-btn {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .stress-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .stress-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stress-btn.selected {
+            background: linear-gradient(135deg, #eab308 0%, #f59e0b 100%);
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
+        }
+
+        /* Prediction Buttons */
+        .predict-btn {
+            flex: 1;
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .predict-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .predict-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .predict-btn.left {
+            background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+            color: #1e3a8a;
+        }
+
+        .predict-btn.none {
+            background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+            color: #78350f;
+        }
+
+        .predict-btn.right {
+            background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+            color: #14532d;
+        }
+
+        .predict-btn.correct {
+            border-color: #22c55e;
+            animation: pulse-success 0.6s ease-in-out;
+        }
+
+        .predict-btn.incorrect {
+            border-color: #ef4444;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Animations */
+        @keyframes pulse-success {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-10px) rotate(-2deg); }
+            75% { transform: translateX(10px) rotate(2deg); }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        /* Explanation Box */
+        .explanation-box {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-left: 4px solid #6366f1;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .explanation-box.correct {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-left-color: #22c55e;
+        }
+
+        .explanation-box.incorrect {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left-color: #ef4444;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .molecule {
+                font-size: 1.5rem;
+            }
+
+            .equilibrium-arrows {
+                font-size: 2rem;
+            }
+
+            .predict-btn {
+                padding: 15px;
+                font-size: 1rem;
+            }
+
+            .stress-btn {
+                font-size: 0.75rem;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ============================================
+        // CONFIGURATION & CONSTANTS
+        // ============================================
+
+        const TRANSLATIONS = {
+            learningMode: "Lærdómshamur",
+            challengeMode: "Keppnishamur",
+            equilibrium: "Jafnvægi",
+            stress: "Álag",
+            predict: "Forspá",
+            shiftLeft: "Hliðrun til vinstri",
+            shiftRight: "Hliðrun til hægri",
+            noShift: "Engin hliðrun",
+            addReactant: "Bæta við hvarfefni",
+            addProduct: "Bæta við afurð",
+            removeReactant: "Fjarlægja hvarfefni",
+            removeProduct: "Fjarlægja afurð",
+            heat: "Hita",
+            cool: "Kæla",
+            increasePressure: "Auka þrýsting",
+            decreasePressure: "Minnka þrýsting",
+            addCatalyst: "Bæta við hvata",
+            correct: "Rétt!",
+            incorrect: "Rangt",
+            explanation: "Útskýring",
+            exothermic: "Varmalosandi",
+            endothermic: "Varmabindandi",
+            back: "Til baka",
+            nextEquilibrium: "Næsta jafnvægi",
+            instructions: "Leiðbeiningar",
+            tryAgain: "Reyndu aftur",
+        };
+
+        // ============================================
+        // LE CHATELIER LOGIC ENGINE
+        // ============================================
+
+        const calculateShift = (equilibrium, stressType, stressTarget) => {
+            let shift = 'none';
+            let explanation = '';
+            let explanationIs = '';
+
+            switch(stressType) {
+                case 'add-reactant':
+                    shift = 'right';
+                    explanation = `Adding ${stressTarget} (a reactant) increases reactant concentration. The system shifts RIGHT toward products to consume the added ${stressTarget}.`;
+                    explanationIs = `Bæta við ${stressTarget} (hvarfefni) eykur styrk hvarfefna. Kerfið hliðrast TIL HÆGRI í átt að afurðum til að neyta viðbætts ${stressTarget}.`;
+                    break;
+
+                case 'add-product':
+                    shift = 'left';
+                    explanation = `Adding ${stressTarget} (a product) increases product concentration. The system shifts LEFT toward reactants to consume the added ${stressTarget}.`;
+                    explanationIs = `Bæta við ${stressTarget} (afurð) eykur styrk afurða. Kerfið hliðrast TIL VINSTRI í átt að hvarfefnum til að neyta viðbætts ${stressTarget}.`;
+                    break;
+
+                case 'remove-reactant':
+                    shift = 'left';
+                    explanation = `Removing ${stressTarget} (a reactant) decreases reactant concentration. The system shifts LEFT to produce more ${stressTarget}.`;
+                    explanationIs = `Fjarlægja ${stressTarget} (hvarfefni) minnkar styrk hvarfefna. Kerfið hliðrast TIL VINSTRI til að framleiða meira ${stressTarget}.`;
+                    break;
+
+                case 'remove-product':
+                    shift = 'right';
+                    explanation = `Removing ${stressTarget} (a product) decreases product concentration. The system shifts RIGHT to produce more ${stressTarget}.`;
+                    explanationIs = `Fjarlægja ${stressTarget} (afurð) minnkar styrk afurða. Kerfið hliðrast TIL HÆGRI til að framleiða meira ${stressTarget}.`;
+                    break;
+
+                case 'increase-temp':
+                    if (equilibrium.deltaH > 0) {
+                        shift = 'right';
+                        explanation = 'This is an ENDOTHERMIC reaction (ΔH > 0), so heat is a REACTANT. Adding heat shifts the equilibrium RIGHT toward products.';
+                        explanationIs = 'Þetta er VARMABINDANDI hvarf (ΔH > 0), þannig að varmi er HVARFEFNI. Að bæta við hita hliðrar jafnvæginu TIL HÆGRI í átt að afurðum.';
+                    } else {
+                        shift = 'left';
+                        explanation = 'This is an EXOTHERMIC reaction (ΔH < 0), so heat is a PRODUCT. Adding heat shifts the equilibrium LEFT toward reactants.';
+                        explanationIs = 'Þetta er VARMALOSANDI hvarf (ΔH < 0), þannig að varmi er AFURÐ. Að bæta við hita hliðrar jafnvæginu TIL VINSTRI í átt að hvarfefnum.';
+                    }
+                    break;
+
+                case 'decrease-temp':
+                    if (equilibrium.deltaH > 0) {
+                        shift = 'left';
+                        explanation = 'This is an ENDOTHERMIC reaction (ΔH > 0). Removing heat shifts the equilibrium LEFT toward the side that releases heat.';
+                        explanationIs = 'Þetta er VARMABINDANDI hvarf (ΔH > 0). Að fjarlægja hita hliðrar jafnvæginu TIL VINSTRI í átt að þeirri hlið sem losar hita.';
+                    } else {
+                        shift = 'right';
+                        explanation = 'This is an EXOTHERMIC reaction (ΔH < 0). Removing heat shifts the equilibrium RIGHT toward the side that produces heat.';
+                        explanationIs = 'Þetta er VARMALOSANDI hvarf (ΔH < 0). Að fjarlægja hita hliðrar jafnvæginu TIL HÆGRI í átt að þeirri hlið sem framleiðir hita.';
+                    }
+                    break;
+
+                case 'increase-pressure':
+                    const reactantMoles = equilibrium.totalGasMoles.reactants;
+                    const productMoles = equilibrium.totalGasMoles.products;
+
+                    if (reactantMoles > productMoles) {
+                        shift = 'right';
+                        explanation = `Increasing pressure shifts toward the side with FEWER gas moles. Reactants: ${reactantMoles} moles, Products: ${productMoles} moles. Shifts RIGHT.`;
+                        explanationIs = `Að auka þrýsting hliðrar í átt að þeirri hlið með FÆRRI gasmólum. Hvarfefni: ${reactantMoles} mól, Afurðir: ${productMoles} mól. Hliðrast TIL HÆGRI.`;
+                    } else if (reactantMoles < productMoles) {
+                        shift = 'left';
+                        explanation = `Increasing pressure shifts toward the side with FEWER gas moles. Reactants: ${reactantMoles} moles, Products: ${productMoles} moles. Shifts LEFT.`;
+                        explanationIs = `Að auka þrýsting hliðrar í átt að þeirri hlið með FÆRRI gasmólum. Hvarfefni: ${reactantMoles} mól, Afurðir: ${productMoles} mól. Hliðrast TIL VINSTRI.`;
+                    } else {
+                        shift = 'none';
+                        explanation = `Equal gas moles on both sides (${reactantMoles} moles each). Pressure change has NO EFFECT on equilibrium position.`;
+                        explanationIs = `Jafn fjöldi gasmóla á báðum hliðum (${reactantMoles} mól hvor). Þrýstingsbreyting hefur ENGIN ÁHRIF á jafnvægisstöðu.`;
+                    }
+                    break;
+
+                case 'decrease-pressure':
+                    const rMoles = equilibrium.totalGasMoles.reactants;
+                    const pMoles = equilibrium.totalGasMoles.products;
+
+                    if (rMoles < pMoles) {
+                        shift = 'right';
+                        explanation = `Decreasing pressure shifts toward the side with MORE gas moles. Reactants: ${rMoles} moles, Products: ${pMoles} moles. Shifts RIGHT.`;
+                        explanationIs = `Að minnka þrýsting hliðrar í átt að þeirri hlið með FLEIRI gasmólum. Hvarfefni: ${rMoles} mól, Afurðir: ${pMoles} mól. Hliðrast TIL HÆGRI.`;
+                    } else if (rMoles > pMoles) {
+                        shift = 'left';
+                        explanation = `Decreasing pressure shifts toward the side with MORE gas moles. Reactants: ${rMoles} moles, Products: ${pMoles} moles. Shifts LEFT.`;
+                        explanationIs = `Að minnka þrýsting hliðrar í átt að þeirri hlið með FLEIRI gasmólum. Hvarfefni: ${rMoles} mól, Afurðir: ${pMoles} mól. Hliðrast TIL VINSTRI.`;
+                    } else {
+                        shift = 'none';
+                        explanation = `Equal gas moles on both sides (${rMoles} moles each). Pressure change has NO EFFECT on equilibrium position.`;
+                        explanationIs = `Jafn fjöldi gasmóla á báðum hliðum (${rMoles} mól hvor). Þrýstingsbreyting hefur ENGIN ÁHRIF á jafnvægisstöðu.`;
+                    }
+                    break;
+
+                case 'add-catalyst':
+                    shift = 'none';
+                    explanation = 'A catalyst speeds up BOTH the forward and reverse reactions equally. It helps the system reach equilibrium FASTER but does NOT change the equilibrium position. K remains unchanged.';
+                    explanationIs = 'Hvati flýtir fyrir BÁÐUM framhvarfi og bakreferð jafnt. Það hjálpar kerfinu að ná jafnvægi HRAÐAR en breytir EKKI jafnvægisstöðunni. K helst óbreytt.';
+                    break;
+            }
+
+            return { shift, explanation, explanationIs };
+        };
+
+        // ============================================
+        // EQUILIBRIUM DATA
+        // ============================================
+
+        const EQUILIBRIUM_BANK = [
+            {
+                id: 1,
+                equation: 'N₂(g) + 3H₂(g) ⇌ 2NH₃(g)',
+                name: 'Haber Process',
+                nameIs: 'Haber-aðferð',
+                difficulty: 'intermediate',
+
+                reactants: [
+                    { formula: 'N₂', coefficient: 1, phase: 'g', display: '🔵🔵' },
+                    { formula: 'H₂', coefficient: 3, phase: 'g', display: '⚪⚪' }
+                ],
+
+                products: [
+                    { formula: 'NH₃', coefficient: 2, phase: 'g', display: '🔷' }
+                ],
+
+                deltaH: -92,
+
+                totalGasMoles: {
+                    reactants: 4,
+                    products: 2
+                },
+
+                description: 'Industrial ammonia synthesis for fertilizers.',
+                descriptionIs: 'Iðnaðarframleiðsla á ammóníaki fyrir áburð.',
+
+                possibleStresses: [
+                    { type: 'add-reactant', target: 'N₂' },
+                    { type: 'add-reactant', target: 'H₂' },
+                    { type: 'add-product', target: 'NH₃' },
+                    { type: 'remove-reactant', target: 'N₂' },
+                    { type: 'remove-product', target: 'NH₃' },
+                    { type: 'increase-temp', target: null },
+                    { type: 'decrease-temp', target: null },
+                    { type: 'increase-pressure', target: null },
+                    { type: 'decrease-pressure', target: null },
+                    { type: 'add-catalyst', target: null }
+                ]
+            },
+            {
+                id: 2,
+                equation: 'N₂O₄(g) ⇌ 2NO₂(g)',
+                name: 'Dinitrogen Tetroxide',
+                nameIs: 'Díköfnunarefnisoxíð',
+                difficulty: 'beginner',
+
+                reactants: [
+                    { formula: 'N₂O₄', coefficient: 1, phase: 'g', display: '⚫' }
+                ],
+
+                products: [
+                    { formula: 'NO₂', coefficient: 2, phase: 'g', display: '🟤' }
+                ],
+
+                deltaH: 58,
+
+                totalGasMoles: {
+                    reactants: 1,
+                    products: 2
+                },
+
+                description: 'Colorless N₂O₄ gas converts to brown NO₂ gas when heated.',
+                descriptionIs: 'Litlaust N₂O₄ gas breytist í brúnt NO₂ gas við upphitun.',
+
+                possibleStresses: [
+                    { type: 'add-reactant', target: 'N₂O₄' },
+                    { type: 'add-product', target: 'NO₂' },
+                    { type: 'remove-reactant', target: 'N₂O₄' },
+                    { type: 'remove-product', target: 'NO₂' },
+                    { type: 'increase-temp', target: null },
+                    { type: 'decrease-temp', target: null },
+                    { type: 'increase-pressure', target: null },
+                    { type: 'decrease-pressure', target: null },
+                    { type: 'add-catalyst', target: null }
+                ]
+            },
+            {
+                id: 3,
+                equation: '2SO₂(g) + O₂(g) ⇌ 2SO₃(g)',
+                name: 'Contact Process',
+                nameIs: 'Snertiaðferð',
+                difficulty: 'intermediate',
+
+                reactants: [
+                    { formula: 'SO₂', coefficient: 2, phase: 'g', display: '💛' },
+                    { formula: 'O₂', coefficient: 1, phase: 'g', display: '🔴🔴' }
+                ],
+
+                products: [
+                    { formula: 'SO₃', coefficient: 2, phase: 'g', display: '🟡' }
+                ],
+
+                deltaH: -198,
+
+                totalGasMoles: {
+                    reactants: 3,
+                    products: 2
+                },
+
+                description: 'Sulfuric acid production in industry.',
+                descriptionIs: 'Brennisteinssýruframleiðsla í iðnaði.',
+
+                possibleStresses: [
+                    { type: 'add-reactant', target: 'SO₂' },
+                    { type: 'add-reactant', target: 'O₂' },
+                    { type: 'add-product', target: 'SO₃' },
+                    { type: 'remove-reactant', target: 'SO₂' },
+                    { type: 'remove-product', target: 'SO₃' },
+                    { type: 'increase-temp', target: null },
+                    { type: 'decrease-temp', target: null },
+                    { type: 'increase-pressure', target: null },
+                    { type: 'decrease-pressure', target: null },
+                    { type: 'add-catalyst', target: null }
+                ]
+            },
+            {
+                id: 4,
+                equation: 'H₂(g) + I₂(g) ⇌ 2HI(g)',
+                name: 'Hydrogen Iodide Formation',
+                nameIs: 'Vetnisjóðíðmyndun',
+                difficulty: 'beginner',
+
+                reactants: [
+                    { formula: 'H₂', coefficient: 1, phase: 'g', display: '⚪⚪' },
+                    { formula: 'I₂', coefficient: 1, phase: 'g', display: '🟣🟣' }
+                ],
+
+                products: [
+                    { formula: 'HI', coefficient: 2, phase: 'g', display: '⚪🟣' }
+                ],
+
+                deltaH: 53,
+
+                totalGasMoles: {
+                    reactants: 2,
+                    products: 2
+                },
+
+                description: 'Simple formation reaction used to teach equilibrium constants.',
+                descriptionIs: 'Einfalt myndunarhvarf sem notað er til að kenna jafnvægisfasta.',
+
+                possibleStresses: [
+                    { type: 'add-reactant', target: 'H₂' },
+                    { type: 'add-reactant', target: 'I₂' },
+                    { type: 'add-product', target: 'HI' },
+                    { type: 'remove-reactant', target: 'H₂' },
+                    { type: 'remove-product', target: 'HI' },
+                    { type: 'increase-temp', target: null },
+                    { type: 'decrease-temp', target: null },
+                    { type: 'increase-pressure', target: null },
+                    { type: 'add-catalyst', target: null }
+                ]
+            },
+            {
+                id: 5,
+                equation: 'CO(g) + 2H₂(g) ⇌ CH₃OH(g)',
+                name: 'Methanol Synthesis',
+                nameIs: 'Metanólsamsetning',
+                difficulty: 'beginner',
+
+                reactants: [
+                    { formula: 'CO', coefficient: 1, phase: 'g', display: '⚫🔴' },
+                    { formula: 'H₂', coefficient: 2, phase: 'g', display: '⚪⚪' }
+                ],
+
+                products: [
+                    { formula: 'CH₃OH', coefficient: 1, phase: 'g', display: '🧪' }
+                ],
+
+                deltaH: -91,
+
+                totalGasMoles: {
+                    reactants: 3,
+                    products: 1
+                },
+
+                description: 'Industrial production of methanol for fuel and chemicals.',
+                descriptionIs: 'Iðnaðarframleiðsla á metanóli sem eldsneyti og efni.',
+
+                possibleStresses: [
+                    { type: 'add-reactant', target: 'CO' },
+                    { type: 'add-reactant', target: 'H₂' },
+                    { type: 'add-product', target: 'CH₃OH' },
+                    { type: 'remove-reactant', target: 'CO' },
+                    { type: 'remove-product', target: 'CH₃OH' },
+                    { type: 'increase-temp', target: null },
+                    { type: 'decrease-temp', target: null },
+                    { type: 'increase-pressure', target: null },
+                    { type: 'decrease-pressure', target: null },
+                    { type: 'add-catalyst', target: null }
+                ]
+            }
+        ];
+
+        // ============================================
+        // MAIN GAME COMPONENT
+        // ============================================
+
+        const EquilibriumShifter = () => {
+            const [gameState, setGameState] = useState({
+                screen: 'menu',
+                mode: null,
+                currentEquilibriumIndex: 0,
+                appliedStress: null,
+                userPrediction: null,
+                correctShift: null,
+                showExplanation: false,
+                animationState: 'balanced',
+                feedbackClass: '',
+            });
+
+            const currentEquilibrium = EQUILIBRIUM_BANK[gameState.currentEquilibriumIndex];
+
+            const startGame = (mode) => {
+                setGameState({
+                    screen: 'playing',
+                    mode: mode,
+                    currentEquilibriumIndex: 0,
+                    appliedStress: null,
+                    userPrediction: null,
+                    correctShift: null,
+                    showExplanation: false,
+                    animationState: 'balanced',
+                    feedbackClass: '',
+                });
+            };
+
+            const applyStress = (stressType, stressTarget) => {
+                setGameState(prev => ({
+                    ...prev,
+                    appliedStress: { type: stressType, target: stressTarget },
+                    userPrediction: null,
+                    showExplanation: false,
+                    animationState: 'balanced',
+                    feedbackClass: '',
+                }));
+            };
+
+            const makePrediction = (prediction) => {
+                const result = calculateShift(
+                    currentEquilibrium,
+                    gameState.appliedStress.type,
+                    gameState.appliedStress.target
+                );
+
+                const isCorrect = result.shift === prediction;
+
+                setGameState(prev => ({
+                    ...prev,
+                    userPrediction: prediction,
+                    correctShift: result,
+                    showExplanation: true,
+                    animationState: result.shift === 'left' ? 'shifting-left' :
+                                   result.shift === 'right' ? 'shifting-right' : 'no-shift',
+                    feedbackClass: isCorrect ? 'correct' : 'incorrect',
+                }));
+            };
+
+            const nextEquilibrium = () => {
+                setGameState(prev => ({
+                    ...prev,
+                    currentEquilibriumIndex: (prev.currentEquilibriumIndex + 1) % EQUILIBRIUM_BANK.length,
+                    appliedStress: null,
+                    userPrediction: null,
+                    correctShift: null,
+                    showExplanation: false,
+                    animationState: 'balanced',
+                    feedbackClass: '',
+                }));
+            };
+
+            const tryAgain = () => {
+                setGameState(prev => ({
+                    ...prev,
+                    userPrediction: null,
+                    showExplanation: false,
+                    animationState: 'balanced',
+                    feedbackClass: '',
+                }));
+            };
+
+            const backToMenu = () => {
+                setGameState({
+                    screen: 'menu',
+                    mode: null,
+                    currentEquilibriumIndex: 0,
+                    appliedStress: null,
+                    userPrediction: null,
+                    correctShift: null,
+                    showExplanation: false,
+                    animationState: 'balanced',
+                    feedbackClass: '',
+                });
+            };
+
+            const showInstructions = () => {
+                alert(`Le Chatelier's Principle - Jafnvægisspil
+
+Leiðbeiningar / Instructions:
+
+1. Veldu álag (stress) til að beita á jafnvægi
+2. Forspáðu hvernig jafnvægið mun hliðrast
+3. Fáðu útskýringu á niðurstöðunni
+
+Le Chatelier reglan:
+Þegar álag er beitt á kerfi í jafnvægi, hliðrast kerfið til að draga úr álaginu.
+
+When stress is applied to a system at equilibrium, the system shifts to relieve that stress.`);
+            };
+
+            // ============================================
+            // RENDER: Menu Screen
+            // ============================================
+
+            if (gameState.screen === 'menu') {
+                return (
+                    <div>
+                        <header className="site-header">
+                            <div className="header-content">
+                                <a href="https://kvenno.app" className="site-logo">Kvenno.app</a>
+                                <div>
+                                    <button className="header-btn" onClick={showInstructions}>
+                                        {TRANSLATIONS.instructions}
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
+
+                        <nav className="nav-container">
+                            <a href="https://kvenno.app/games" className="back-btn">
+                                ← {TRANSLATIONS.back}
+                            </a>
+                        </nav>
+
+                        <div className="max-w-4xl mx-auto px-4 py-8">
+                            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+                                <h1 className="text-4xl md:text-5xl font-bold mb-4"
+                                    style={{color: 'var(--kvenno-orange)'}}>
+                                    Equilibrium Shifter
+                                </h1>
+                                <h2 className="text-2xl text-gray-600 mb-8">
+                                    Le Chatelier - Jafnvægishliðrun
+                                </h2>
+
+                                <div className="text-6xl mb-6">⚖️🧪⇌</div>
+
+                                <p className="text-lg text-gray-700 mb-4 max-w-2xl mx-auto">
+                                    Læra um Le Chatelier's principle með gagnvirkum jafnvægisspilum.
+                                    Forspá hvernig jafnvægi hliðrast þegar álag er beitt!
+                                </p>
+
+                                <p className="text-base text-gray-600 mb-8">
+                                    Learn Le Chatelier's principle with interactive equilibrium games.
+                                    Predict how equilibrium shifts when stress is applied!
+                                </p>
+
+                                <div className="max-w-md mx-auto">
+                                    <button
+                                        onClick={() => startGame('learning')}
+                                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-xl text-xl transition-all transform hover:scale-105 mb-4">
+                                        📚 {TRANSLATIONS.learningMode}
+                                        <div className="text-sm mt-2 opacity-90">
+                                            Ótímatakmörkuð • Útskýringar • Æfa
+                                        </div>
+                                    </button>
+
+                                    <p className="text-sm text-gray-500 italic">
+                                        (Keppnishamur kemur í framhaldinum!)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ============================================
+            // RENDER: Playing Screen
+            // ============================================
+
+            if (gameState.screen === 'playing') {
+                const eq = currentEquilibrium;
+                const isCorrect = gameState.feedbackClass === 'correct';
+
+                return (
+                    <div>
+                        <header className="site-header">
+                            <div className="header-content">
+                                <a href="https://kvenno.app" className="site-logo">Kvenno.app</a>
+                                <div className="flex items-center gap-4">
+                                    <button className="header-btn" onClick={showInstructions}>
+                                        {TRANSLATIONS.instructions}
+                                    </button>
+                                    <button className="header-btn" onClick={backToMenu}>
+                                        {TRANSLATIONS.back}
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div className="max-w-6xl mx-auto px-4 py-8">
+                            {/* Chemical Equation */}
+                            <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                                <div className="text-center mb-4">
+                                    <div className="text-sm text-gray-500 mb-2">
+                                        Jafnvægi {gameState.currentEquilibriumIndex + 1} af {EQUILIBRIUM_BANK.length}
+                                    </div>
+                                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                                        {eq.nameIs} / {eq.name}
+                                    </h2>
+                                    <div className="text-3xl font-bold text-gray-900 mb-4">
+                                        {eq.equation}
+                                    </div>
+                                    <div className={`thermo-indicator ${eq.deltaH < 0 ? 'exothermic' : 'endothermic'}`}>
+                                        {eq.deltaH < 0 ? '🔥' : '❄️'}
+                                        ΔH = {eq.deltaH > 0 ? '+' : ''}{eq.deltaH} kJ
+                                        <span className="ml-2">
+                                            ({eq.deltaH < 0 ? TRANSLATIONS.exothermic : TRANSLATIONS.endothermic})
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 mt-3">
+                                        {eq.descriptionIs}
+                                    </p>
+                                </div>
+
+                                {/* Visual Equilibrium Display */}
+                                <div className="grid md:grid-cols-3 gap-4 items-center mt-6">
+                                    <div className={`molecule-container reactants-side ${gameState.animationState === 'shifting-left' ? 'glowing' : ''}`}>
+                                        {eq.reactants.map((reactant, idx) => (
+                                            <div key={idx} className="text-center">
+                                                <div className="molecule">{reactant.display}</div>
+                                                <div className="text-sm font-semibold">{reactant.formula}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="text-center">
+                                        <div className={`equilibrium-arrows ${gameState.animationState === 'shifting-right' ? 'shift-right' : gameState.animationState === 'shifting-left' ? 'shift-left' : gameState.animationState === 'no-shift' ? 'no-shift' : ''}`}>
+                                            ⇌
+                                        </div>
+                                    </div>
+
+                                    <div className={`molecule-container products-side ${gameState.animationState === 'shifting-right' ? 'glowing' : ''}`}>
+                                        {eq.products.map((product, idx) => (
+                                            <div key={idx} className="text-center">
+                                                <div className="molecule">{product.display}</div>
+                                                <div className="text-sm font-semibold">{product.formula}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Stress Selection & Prediction */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {/* Stress Buttons */}
+                                <div className="bg-white rounded-2xl shadow-xl p-6">
+                                    <h3 className="text-lg font-bold mb-4">{TRANSLATIONS.stress}:</h3>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {eq.possibleStresses.map((stress, idx) => {
+                                            const isSelected = gameState.appliedStress &&
+                                                             gameState.appliedStress.type === stress.type &&
+                                                             gameState.appliedStress.target === stress.target;
+
+                                            const label = stress.type === 'add-reactant' ? `➕ Bæta við ${stress.target}` :
+                                                         stress.type === 'add-product' ? `➕ Bæta við ${stress.target}` :
+                                                         stress.type === 'remove-reactant' ? `➖ Fjarlægja ${stress.target}` :
+                                                         stress.type === 'remove-product' ? `➖ Fjarlægja ${stress.target}` :
+                                                         stress.type === 'increase-temp' ? `🔥 ${TRANSLATIONS.heat}` :
+                                                         stress.type === 'decrease-temp' ? `❄️ ${TRANSLATIONS.cool}` :
+                                                         stress.type === 'increase-pressure' ? `⬆️ ${TRANSLATIONS.increasePressure}` :
+                                                         stress.type === 'decrease-pressure' ? `⬇️ ${TRANSLATIONS.decreasePressure}` :
+                                                         stress.type === 'add-catalyst' ? `⚗️ ${TRANSLATIONS.addCatalyst}` : '';
+
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    className={`stress-btn ${isSelected ? 'selected' : ''}`}
+                                                    onClick={() => applyStress(stress.type, stress.target)}
+                                                    disabled={gameState.userPrediction !== null}
+                                                >
+                                                    {label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Prediction Buttons */}
+                                <div className="bg-white rounded-2xl shadow-xl p-6">
+                                    <h3 className="text-lg font-bold mb-4">{TRANSLATIONS.predict}:</h3>
+                                    {!gameState.appliedStress ? (
+                                        <div className="text-center py-12 text-gray-500">
+                                            Veldu álag fyrst / Select a stress first
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col gap-4">
+                                            <button
+                                                className={`predict-btn left ${gameState.userPrediction === 'left' ? gameState.feedbackClass : ''}`}
+                                                onClick={() => makePrediction('left')}
+                                                disabled={gameState.userPrediction !== null}
+                                            >
+                                                ← {TRANSLATIONS.shiftLeft}
+                                            </button>
+                                            <button
+                                                className={`predict-btn none ${gameState.userPrediction === 'none' ? gameState.feedbackClass : ''}`}
+                                                onClick={() => makePrediction('none')}
+                                                disabled={gameState.userPrediction !== null}
+                                            >
+                                                ⚖️ {TRANSLATIONS.noShift}
+                                            </button>
+                                            <button
+                                                className={`predict-btn right ${gameState.userPrediction === 'right' ? gameState.feedbackClass : ''}`}
+                                                onClick={() => makePrediction('right')}
+                                                disabled={gameState.userPrediction !== null}
+                                            >
+                                                {TRANSLATIONS.shiftRight} →
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Explanation */}
+                            {gameState.showExplanation && (
+                                <div className={`explanation-box ${gameState.feedbackClass} slide-in-right`}>
+                                    <h3 className="text-2xl font-bold mb-4">
+                                        {isCorrect ? '✓ ' + TRANSLATIONS.correct : '✗ ' + TRANSLATIONS.incorrect}
+                                    </h3>
+
+                                    <div className="mb-4">
+                                        <h4 className="font-bold text-lg mb-2">Le Chatelier's Principle:</h4>
+                                        <p className="mb-3">{gameState.correctShift.explanationIs}</p>
+                                        <p className="text-sm opacity-90">{gameState.correctShift.explanation}</p>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <p className="font-bold">
+                                            Rétt svar / Correct answer:
+                                            <span className="ml-2 text-xl">
+                                                {gameState.correctShift.shift === 'left' ? '← ' + TRANSLATIONS.shiftLeft :
+                                                 gameState.correctShift.shift === 'right' ? TRANSLATIONS.shiftRight + ' →' :
+                                                 '⚖️ ' + TRANSLATIONS.noShift}
+                                            </span>
+                                        </p>
+                                    </div>
+
+                                    <div className="flex gap-4 mt-6">
+                                        {!isCorrect && (
+                                            <button
+                                                onClick={tryAgain}
+                                                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all"
+                                            >
+                                                {TRANSLATIONS.tryAgain}
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={nextEquilibrium}
+                                            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-all"
+                                        >
+                                            {TRANSLATIONS.nextEquilibrium} →
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        };
+
+        // ============================================
+        // RENDER APP
+        // ============================================
+
+        ReactDOM.render(<EquilibriumShifter />, document.getElementById('root'));
+    </script>
+</body>
+</html>
