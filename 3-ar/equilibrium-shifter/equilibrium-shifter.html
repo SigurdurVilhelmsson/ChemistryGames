@@ -358,6 +358,11 @@
             nextEquilibrium: "Næsta jafnvægi",
             instructions: "Leiðbeiningar",
             tryAgain: "Reyndu aftur",
+            // Challenge Mode translations
+            question: "Spurning",
+            nextQuestion: "Næsta spurning",
+            showResults: "Sýna úrslit",
+            appliedStress: "Beitt álag",
         };
 
         // ============================================
@@ -1628,22 +1633,163 @@
                 showExplanation: false,
                 animationState: 'balanced',
                 feedbackClass: '',
+                // Challenge Mode states
+                score: 0,
+                streak: 0,
+                questionNumber: 0,
+                totalQuestions: 10,
+                timeLeft: 20,
+                questionStartTime: null,
+                correctCount: 0,
+                incorrectCount: 0,
+                bestStreak: 0,
+                questionHistory: [],
             });
+
+            const [timerInterval, setTimerInterval] = useState(null);
 
             const currentEquilibrium = EQUILIBRIUM_BANK[gameState.currentEquilibriumIndex];
 
+            // ============================================
+            // CHALLENGE MODE: Timer Management
+            // ============================================
+
+            useEffect(() => {
+                if (gameState.mode === 'challenge' && gameState.screen === 'playing' &&
+                    gameState.appliedStress && !gameState.userPrediction && gameState.timeLeft > 0) {
+
+                    const interval = setInterval(() => {
+                        setGameState(prev => {
+                            if (prev.timeLeft <= 1) {
+                                // Time's up! Auto-submit as timeout
+                                handleTimeout();
+                                return prev;
+                            }
+                            return {
+                                ...prev,
+                                timeLeft: prev.timeLeft - 1
+                            };
+                        });
+                    }, 1000);
+
+                    setTimerInterval(interval);
+                    return () => clearInterval(interval);
+                }
+            }, [gameState.mode, gameState.screen, gameState.appliedStress, gameState.userPrediction, gameState.timeLeft]);
+
+            const handleTimeout = () => {
+                // Calculate correct answer
+                const result = calculateShift(
+                    currentEquilibrium,
+                    gameState.appliedStress.type,
+                    gameState.appliedStress.target
+                );
+
+                setGameState(prev => ({
+                    ...prev,
+                    userPrediction: 'timeout',
+                    correctShift: result,
+                    showExplanation: true,
+                    animationState: result.shift === 'left' ? 'shifting-left' :
+                                   result.shift === 'right' ? 'shifting-right' : 'no-shift',
+                    feedbackClass: 'incorrect',
+                    streak: 0, // Reset streak on timeout
+                    incorrectCount: prev.incorrectCount + 1,
+                    questionHistory: [...prev.questionHistory, {
+                        equilibrium: currentEquilibrium.name,
+                        correct: false,
+                        timeout: true,
+                        timeSpent: 20
+                    }]
+                }));
+            };
+
+            // ============================================
+            // CHALLENGE MODE: Random Selection
+            // ============================================
+
+            const selectRandomEquilibrium = () => {
+                return Math.floor(Math.random() * EQUILIBRIUM_BANK.length);
+            };
+
+            const selectRandomStress = (equilibrium) => {
+                const stresses = equilibrium.possibleStresses;
+                const randomStress = stresses[Math.floor(Math.random() * stresses.length)];
+                return randomStress;
+            };
+
+            // ============================================
+            // CHALLENGE MODE: Scoring
+            // ============================================
+
+            const calculatePoints = (difficulty, timeSpent, streak) => {
+                let basePoints = 0;
+                if (difficulty === 'beginner') basePoints = 10;
+                else if (difficulty === 'intermediate') basePoints = 20;
+                else if (difficulty === 'advanced') basePoints = 30;
+
+                // Speed bonus if answered in < 10 seconds
+                const speedBonus = timeSpent < 10 ? 5 : 0;
+
+                // Streak bonus: +5, +10, +15, +20, +25 (max)
+                const streakBonus = Math.min(streak * 5, 25);
+
+                return basePoints + speedBonus + streakBonus;
+            };
+
             const startGame = (mode) => {
-                setGameState({
-                    screen: 'playing',
-                    mode: mode,
-                    currentEquilibriumIndex: 0,
-                    appliedStress: null,
-                    userPrediction: null,
-                    correctShift: null,
-                    showExplanation: false,
-                    animationState: 'balanced',
-                    feedbackClass: '',
-                });
+                if (mode === 'challenge') {
+                    // Challenge Mode: Start with random equilibrium and auto-apply stress
+                    const randomIndex = selectRandomEquilibrium();
+                    const randomEq = EQUILIBRIUM_BANK[randomIndex];
+                    const randomStress = selectRandomStress(randomEq);
+
+                    setGameState({
+                        screen: 'playing',
+                        mode: mode,
+                        currentEquilibriumIndex: randomIndex,
+                        appliedStress: { type: randomStress.type, target: randomStress.target },
+                        userPrediction: null,
+                        correctShift: null,
+                        showExplanation: false,
+                        animationState: 'balanced',
+                        feedbackClass: '',
+                        // Challenge Mode specific
+                        score: 0,
+                        streak: 0,
+                        questionNumber: 1,
+                        totalQuestions: 10,
+                        timeLeft: 20,
+                        questionStartTime: Date.now(),
+                        correctCount: 0,
+                        incorrectCount: 0,
+                        bestStreak: 0,
+                        questionHistory: [],
+                    });
+                } else {
+                    // Learning Mode: No timer, no auto-stress
+                    setGameState({
+                        screen: 'playing',
+                        mode: mode,
+                        currentEquilibriumIndex: 0,
+                        appliedStress: null,
+                        userPrediction: null,
+                        correctShift: null,
+                        showExplanation: false,
+                        animationState: 'balanced',
+                        feedbackClass: '',
+                        score: 0,
+                        streak: 0,
+                        questionNumber: 0,
+                        totalQuestions: 10,
+                        timeLeft: 20,
+                        questionStartTime: null,
+                        correctCount: 0,
+                        incorrectCount: 0,
+                        bestStreak: 0,
+                        questionHistory: [],
+                    });
+                }
             };
 
             const applyStress = (stressType, stressTarget) => {
@@ -1666,28 +1812,97 @@
 
                 const isCorrect = result.shift === prediction;
 
-                setGameState(prev => ({
-                    ...prev,
-                    userPrediction: prediction,
-                    correctShift: result,
-                    showExplanation: true,
-                    animationState: result.shift === 'left' ? 'shifting-left' :
-                                   result.shift === 'right' ? 'shifting-right' : 'no-shift',
-                    feedbackClass: isCorrect ? 'correct' : 'incorrect',
-                }));
+                if (gameState.mode === 'challenge') {
+                    // Challenge Mode: Calculate score and update statistics
+                    const timeSpent = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
+                    const newStreak = isCorrect ? gameState.streak + 1 : 0;
+                    const newBestStreak = Math.max(gameState.bestStreak, newStreak);
+
+                    let pointsEarned = 0;
+                    if (isCorrect) {
+                        pointsEarned = calculatePoints(currentEquilibrium.difficulty, timeSpent, gameState.streak);
+                    } else {
+                        pointsEarned = -5; // Penalty for wrong answer
+                    }
+
+                    setGameState(prev => ({
+                        ...prev,
+                        userPrediction: prediction,
+                        correctShift: result,
+                        showExplanation: true,
+                        animationState: result.shift === 'left' ? 'shifting-left' :
+                                       result.shift === 'right' ? 'shifting-right' : 'no-shift',
+                        feedbackClass: isCorrect ? 'correct' : 'incorrect',
+                        score: prev.score + pointsEarned,
+                        streak: newStreak,
+                        bestStreak: newBestStreak,
+                        correctCount: prev.correctCount + (isCorrect ? 1 : 0),
+                        incorrectCount: prev.incorrectCount + (isCorrect ? 0 : 1),
+                        questionHistory: [...prev.questionHistory, {
+                            equilibrium: currentEquilibrium.name,
+                            correct: isCorrect,
+                            timeout: false,
+                            timeSpent: timeSpent,
+                            pointsEarned: pointsEarned
+                        }]
+                    }));
+                } else {
+                    // Learning Mode: Just show result
+                    setGameState(prev => ({
+                        ...prev,
+                        userPrediction: prediction,
+                        correctShift: result,
+                        showExplanation: true,
+                        animationState: result.shift === 'left' ? 'shifting-left' :
+                                       result.shift === 'right' ? 'shifting-right' : 'no-shift',
+                        feedbackClass: isCorrect ? 'correct' : 'incorrect',
+                    }));
+                }
             };
 
             const nextEquilibrium = () => {
-                setGameState(prev => ({
-                    ...prev,
-                    currentEquilibriumIndex: (prev.currentEquilibriumIndex + 1) % EQUILIBRIUM_BANK.length,
-                    appliedStress: null,
-                    userPrediction: null,
-                    correctShift: null,
-                    showExplanation: false,
-                    animationState: 'balanced',
-                    feedbackClass: '',
-                }));
+                if (gameState.mode === 'challenge') {
+                    // Check if we've completed all questions
+                    if (gameState.questionNumber >= gameState.totalQuestions) {
+                        // Game over! Show results
+                        setGameState(prev => ({
+                            ...prev,
+                            screen: 'results'
+                        }));
+                        return;
+                    }
+
+                    // Move to next question
+                    const randomIndex = selectRandomEquilibrium();
+                    const randomEq = EQUILIBRIUM_BANK[randomIndex];
+                    const randomStress = selectRandomStress(randomEq);
+
+                    setGameState(prev => ({
+                        ...prev,
+                        currentEquilibriumIndex: randomIndex,
+                        appliedStress: { type: randomStress.type, target: randomStress.target },
+                        userPrediction: null,
+                        correctShift: null,
+                        showExplanation: false,
+                        animationState: 'balanced',
+                        feedbackClass: '',
+                        questionNumber: prev.questionNumber + 1,
+                        timeLeft: 20,
+                        questionStartTime: Date.now(),
+                    }));
+                } else {
+                    // Learning Mode: Just move to next equilibrium
+                    setGameState(prev => ({
+                        ...prev,
+                        currentEquilibriumIndex: (prev.currentEquilibriumIndex + 1) % EQUILIBRIUM_BANK.length,
+                        appliedStress: null,
+                        userPrediction: null,
+                        correctShift: null,
+                        showExplanation: false,
+                        animationState: 'balanced',
+                        feedbackClass: '',
+                    }));
+                }
             };
 
             const tryAgain = () => {
@@ -1775,19 +1990,24 @@ When stress is applied to a system at equilibrium, the system shifts to relieve 
                                     Predict how equilibrium shifts when stress is applied!
                                 </p>
 
-                                <div className="max-w-md mx-auto">
+                                <div className="max-w-md mx-auto space-y-4">
                                     <button
                                         onClick={() => startGame('learning')}
-                                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-xl text-xl transition-all transform hover:scale-105 mb-4">
+                                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-xl text-xl transition-all transform hover:scale-105">
                                         📚 {TRANSLATIONS.learningMode}
                                         <div className="text-sm mt-2 opacity-90">
                                             Ótímatakmörkuð • Útskýringar • Æfa
                                         </div>
                                     </button>
 
-                                    <p className="text-sm text-gray-500 italic">
-                                        (Keppnishamur kemur í framhaldinum!)
-                                    </p>
+                                    <button
+                                        onClick={() => startGame('challenge')}
+                                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-6 px-8 rounded-xl text-xl transition-all transform hover:scale-105">
+                                        🏆 {TRANSLATIONS.challengeMode}
+                                        <div className="text-sm mt-2 opacity-90">
+                                            10 spurningar • 20 sek • Stigakerfi
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1820,11 +2040,45 @@ When stress is applied to a system at equilibrium, the system shifts to relieve 
                         </header>
 
                         <div className="max-w-6xl mx-auto px-4 py-8">
+                            {/* Challenge Mode: Timer and Score Display */}
+                            {gameState.mode === 'challenge' && (
+                                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl shadow-xl p-6 mb-6 text-white">
+                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+                                        <div>
+                                            <div className="text-3xl font-bold">{gameState.questionNumber}/{gameState.totalQuestions}</div>
+                                            <div className="text-sm opacity-90">Spurning / Question</div>
+                                        </div>
+                                        <div>
+                                            <div className={`text-3xl font-bold ${gameState.timeLeft <= 5 ? 'animate-pulse' : ''}`}>
+                                                {gameState.timeLeft}s
+                                            </div>
+                                            <div className="text-sm opacity-90">Tími / Time</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-3xl font-bold">{gameState.score}</div>
+                                            <div className="text-sm opacity-90">Stig / Points</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-3xl font-bold">🔥 {gameState.streak}</div>
+                                            <div className="text-sm opacity-90">Rás / Streak</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-3xl font-bold">{gameState.correctCount}/{gameState.questionNumber - 1}</div>
+                                            <div className="text-sm opacity-90">Rétt / Correct</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Chemical Equation */}
                             <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
                                 <div className="text-center mb-4">
                                     <div className="text-sm text-gray-500 mb-2">
-                                        Jafnvægi {gameState.currentEquilibriumIndex + 1} af {EQUILIBRIUM_BANK.length}
+                                        {gameState.mode === 'challenge' ? (
+                                            `${TRANSLATIONS.question} ${gameState.questionNumber}`
+                                        ) : (
+                                            `Jafnvægi ${gameState.currentEquilibriumIndex + 1} af ${EQUILIBRIUM_BANK.length}`
+                                        )}
                                     </div>
                                     <h2 className="text-xl font-bold text-gray-800 mb-2">
                                         {eq.nameIs} / {eq.name}
@@ -1873,10 +2127,11 @@ When stress is applied to a system at equilibrium, the system shifts to relieve 
                             </div>
 
                             {/* Stress Selection & Prediction */}
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {/* Stress Buttons */}
-                                <div className="bg-white rounded-2xl shadow-xl p-6">
-                                    <h3 className="text-lg font-bold mb-4">{TRANSLATIONS.stress}:</h3>
+                            <div className={`grid ${gameState.mode === 'challenge' ? 'md:grid-cols-1' : 'md:grid-cols-2'} gap-6`}>
+                                {/* Stress Buttons - Hidden in Challenge Mode */}
+                                {gameState.mode !== 'challenge' && (
+                                    <div className="bg-white rounded-2xl shadow-xl p-6">
+                                        <h3 className="text-lg font-bold mb-4">{TRANSLATIONS.stress}:</h3>
                                     <div className="grid grid-cols-1 gap-3">
                                         {eq.possibleStresses.map((stress, idx) => {
                                             const isSelected = gameState.appliedStress &&
@@ -1905,10 +2160,27 @@ When stress is applied to a system at equilibrium, the system shifts to relieve 
                                             );
                                         })}
                                     </div>
-                                </div>
+                                    </div>
+                                )}
 
                                 {/* Prediction Buttons */}
                                 <div className="bg-white rounded-2xl shadow-xl p-6">
+                                    {gameState.mode === 'challenge' && gameState.appliedStress && (
+                                        <div className="mb-4 p-4 bg-orange-100 rounded-lg border-2 border-orange-300">
+                                            <h4 className="font-bold text-orange-900 mb-2">{TRANSLATIONS.appliedStress}:</h4>
+                                            <p className="text-lg text-orange-800">
+                                                {gameState.appliedStress.type === 'add-reactant' ? `➕ Bæta við ${gameState.appliedStress.target}` :
+                                                 gameState.appliedStress.type === 'add-product' ? `➕ Bæta við ${gameState.appliedStress.target}` :
+                                                 gameState.appliedStress.type === 'remove-reactant' ? `➖ Fjarlægja ${gameState.appliedStress.target}` :
+                                                 gameState.appliedStress.type === 'remove-product' ? `➖ Fjarlægja ${gameState.appliedStress.target}` :
+                                                 gameState.appliedStress.type === 'increase-temp' ? `🔥 ${TRANSLATIONS.heat}` :
+                                                 gameState.appliedStress.type === 'decrease-temp' ? `❄️ ${TRANSLATIONS.cool}` :
+                                                 gameState.appliedStress.type === 'increase-pressure' ? `⬆️ ${TRANSLATIONS.increasePressure}` :
+                                                 gameState.appliedStress.type === 'decrease-pressure' ? `⬇️ ${TRANSLATIONS.decreasePressure}` :
+                                                 gameState.appliedStress.type === 'add-catalyst' ? `⚗️ ${TRANSLATIONS.addCatalyst}` : ''}
+                                            </p>
+                                        </div>
+                                    )}
                                     <h3 className="text-lg font-bold mb-4">{TRANSLATIONS.predict}:</h3>
                                     {!gameState.appliedStress ? (
                                         <div className="text-center py-12 text-gray-500">
@@ -1966,8 +2238,30 @@ When stress is applied to a system at equilibrium, the system shifts to relieve 
                                         </p>
                                     </div>
 
+                                    {gameState.mode === 'challenge' && gameState.userPrediction && gameState.userPrediction !== 'timeout' && (
+                                        <div className="p-4 bg-blue-100 rounded-lg mb-4">
+                                            <p className="font-bold text-blue-900">
+                                                {isCorrect ? '🎉 +' : '❌ '}
+                                                {gameState.questionHistory[gameState.questionHistory.length - 1]?.pointsEarned || 0} stig
+                                            </p>
+                                            {isCorrect && gameState.streak > 1 && (
+                                                <p className="text-sm text-blue-800">
+                                                    🔥 Rás: {gameState.streak} rétt í röð!
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {gameState.mode === 'challenge' && gameState.userPrediction === 'timeout' && (
+                                        <div className="p-4 bg-red-100 rounded-lg mb-4">
+                                            <p className="font-bold text-red-900">
+                                                ⏱️ Tíminn rann út! Rás endurstillt.
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="flex gap-4 mt-6">
-                                        {!isCorrect && (
+                                        {!isCorrect && gameState.mode !== 'challenge' && (
                                             <button
                                                 onClick={tryAgain}
                                                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all"
@@ -1979,11 +2273,154 @@ When stress is applied to a system at equilibrium, the system shifts to relieve 
                                             onClick={nextEquilibrium}
                                             className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-all"
                                         >
-                                            {TRANSLATIONS.nextEquilibrium} →
+                                            {gameState.mode === 'challenge' ?
+                                                (gameState.questionNumber >= gameState.totalQuestions ?
+                                                    TRANSLATIONS.showResults :
+                                                    TRANSLATIONS.nextQuestion + ' →')
+                                                :
+                                                TRANSLATIONS.nextEquilibrium + ' →'
+                                            }
                                         </button>
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                );
+            }
+
+            // ============================================
+            // RENDER: Results Screen
+            // ============================================
+
+            if (gameState.screen === 'results') {
+                const totalTime = gameState.questionHistory.reduce((sum, q) => sum + q.timeSpent, 0);
+                const avgTime = totalTime / gameState.totalQuestions;
+                const accuracy = Math.round((gameState.correctCount / gameState.totalQuestions) * 100);
+
+                return (
+                    <div>
+                        <header className="site-header">
+                            <div className="header-content">
+                                <a href="https://kvenno.app" className="site-logo">Kvenno.app</a>
+                                <div>
+                                    <button className="header-btn" onClick={backToMenu}>
+                                        {TRANSLATIONS.back}
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div className="max-w-4xl mx-auto px-4 py-8">
+                            <div className="bg-white rounded-2xl shadow-xl p-8">
+                                <div className="text-center mb-8">
+                                    <h1 className="text-4xl font-bold mb-2" style={{color: 'var(--kvenno-orange)'}}>
+                                        🏆 Lokaúrslit / Final Results
+                                    </h1>
+                                    <p className="text-gray-600">Challenge Mode lokið!</p>
+                                </div>
+
+                                {/* Main Score Display */}
+                                <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl p-8 mb-8 text-center">
+                                    <div className="text-6xl font-bold mb-2">{gameState.score}</div>
+                                    <div className="text-2xl opacity-90">Heildarst ig / Total Points</div>
+                                </div>
+
+                                {/* Statistics Grid */}
+                                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                                    <div className="bg-green-100 rounded-xl p-6 text-center">
+                                        <div className="text-4xl font-bold text-green-800 mb-2">
+                                            {gameState.correctCount}/{gameState.totalQuestions}
+                                        </div>
+                                        <div className="text-green-700 font-semibold">Réttar / Correct</div>
+                                        <div className="text-green-600 text-sm mt-2">{accuracy}% nákvæmni</div>
+                                    </div>
+
+                                    <div className="bg-orange-100 rounded-xl p-6 text-center">
+                                        <div className="text-4xl font-bold text-orange-800 mb-2">
+                                            🔥 {gameState.bestStreak}
+                                        </div>
+                                        <div className="text-orange-700 font-semibold">Besta rás / Best Streak</div>
+                                        <div className="text-orange-600 text-sm mt-2">Í röð</div>
+                                    </div>
+
+                                    <div className="bg-blue-100 rounded-xl p-6 text-center">
+                                        <div className="text-4xl font-bold text-blue-800 mb-2">
+                                            {avgTime.toFixed(1)}s
+                                        </div>
+                                        <div className="text-blue-700 font-semibold">Meðaltími / Avg Time</div>
+                                        <div className="text-blue-600 text-sm mt-2">Per question</div>
+                                    </div>
+                                </div>
+
+                                {/* Performance Message */}
+                                <div className="bg-gray-50 rounded-xl p-6 mb-8 text-center">
+                                    <div className="text-2xl font-bold mb-2">
+                                        {accuracy >= 90 ? '🌟 Frábært! / Excellent!' :
+                                         accuracy >= 70 ? '👍 Vel gert! / Well Done!' :
+                                         accuracy >= 50 ? '💪 Góð tilraun! / Good Effort!' :
+                                         '📚 Haltu áfram að æfa! / Keep Practicing!'}
+                                    </div>
+                                    <p className="text-gray-700">
+                                        {accuracy >= 90 ? 'Þú hefur náð tökum á Le Chatelier\'s Principle!' :
+                                         accuracy >= 70 ? 'Mjög góð frammistaða! Haltu áfram!' :
+                                         accuracy >= 50 ? 'Þú ert á réttri leið! Prófaðu aftur!' :
+                                         'Lestu leiðbeiningarnar og reyndu aftur!'}
+                                    </p>
+                                </div>
+
+                                {/* Question History */}
+                                <div className="mb-8">
+                                    <h3 className="text-xl font-bold mb-4 text-center">
+                                        Spurningayfirlit / Question History
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {gameState.questionHistory.map((question, idx) => (
+                                            <div key={idx} className={`p-4 rounded-lg flex items-center justify-between ${
+                                                question.correct ? 'bg-green-50 border-2 border-green-200' :
+                                                question.timeout ? 'bg-gray-100 border-2 border-gray-300' :
+                                                'bg-red-50 border-2 border-red-200'
+                                            }`}>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="text-2xl">
+                                                        {question.correct ? '✓' : question.timeout ? '⏱️' : '✗'}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-semibold">{idx + 1}. {question.equilibrium}</div>
+                                                        <div className="text-sm text-gray-600">
+                                                            {question.timeSpent}s
+                                                            {question.timeout && ' (Timeout)'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className={`font-bold text-lg ${
+                                                    question.pointsEarned > 0 ? 'text-green-700' :
+                                                    question.pointsEarned < 0 ? 'text-red-700' :
+                                                    'text-gray-600'
+                                                }`}>
+                                                    {question.pointsEarned > 0 ? '+' : ''}{question.pointsEarned}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => startGame('challenge')}
+                                        className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all transform hover:scale-105"
+                                    >
+                                        🔄 Spila aftur / Play Again
+                                    </button>
+                                    <button
+                                        onClick={backToMenu}
+                                        className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all"
+                                    >
+                                        🏠 Aðalvalmynd / Main Menu
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
