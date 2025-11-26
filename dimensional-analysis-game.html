@@ -116,7 +116,9 @@
                     { text: '50 cm / 1 m', correct: false }
                 ],
                 multiSelect: true,
-                explanationRequired: false
+                explanationRequired: false,
+                hint: 'Umbreytingarstuðull jafngildir 1 þegar teljari og nefnari tákna sama magn. T.d. 1000 mL = 1 L, svo 1000 mL / 1 L = 1.',
+                points: 8
             },
             {
                 id: 'L1-2',
@@ -129,7 +131,9 @@
                     { text: 'Vegna þess að g strikast út og kg verður eftir', correct: true },
                     { text: 'Vegna þess að kg er stærra', correct: false },
                     { text: 'Vegna þess að talan minnkar', correct: false }
-                ]
+                ],
+                hint: 'Þegar g er bæði í upphafsgildinu og í nefnara stuðulsins, strikast g út. Það sem eftir er kemur úr teljara stuðulsins.',
+                points: 8
             },
             {
                 id: 'L1-3',
@@ -143,7 +147,9 @@
                     { text: 'Vegna þess að mL þarf að vera í nefnara til að strikast út', correct: true },
                     { text: 'Vegna þess að L er stærri eining', correct: false },
                     { text: 'Vegna þess að þetta er einfaldara', correct: false }
-                ]
+                ],
+                hint: 'Upphafseiningin (mL) þarf að vera í nefnara stuðulsins til að strikast út við upphafsgildið.',
+                points: 8
             },
             {
                 id: 'L1-4',
@@ -157,7 +163,9 @@
                 ],
                 correct: 1,
                 correctText: 'Stuðullinn er rangur snúinn - mg þarf að vera í nefnara',
-                visualization: 'Útkoman yrði 5000000 mg²/g í stað 5 g'
+                visualization: 'Útkoman yrði 5000000 mg²/g í stað 5 g',
+                hint: 'Skoðaðu hvar mg einingin er í stuðlinum. Strikast hún út við upphafs mg?',
+                points: 8
             },
             {
                 id: 'L1-5',
@@ -169,7 +177,9 @@
                     'Vegna þess að umbreyting breytir efninu',
                     'Talan breytist ekki'
                 ],
-                correct: 1
+                correct: 1,
+                hint: 'Hugsaðu um að mæla sömu fjarlægð í sentímetrum og metrum. Þarftu fleiri sentimetra eða fleiri metra?',
+                points: 8
             },
             {
                 id: 'L1-6',
@@ -182,7 +192,9 @@
                     { text: '24 klst / 1 dagur', correct: true },
                     { text: '100 g / 1 kg', correct: false }
                 ],
-                multiSelect: true
+                multiSelect: true,
+                hint: 'Athugaðu hvort teljari og nefnari tákna sama magn. T.d. 100 cm = 1 m, en 100 g ≠ 1 kg.',
+                points: 8
             },
             {
                 id: 'L1-7',
@@ -195,7 +207,9 @@
                     { text: 'Vegna þess að mL strikast út og L verður eftir', correct: true },
                     { text: 'Vegna þess að við deildum með 1000', correct: false },
                     { text: 'Vegna þess að L er í teljaranum', correct: false }
-                ]
+                ],
+                hint: 'mL í upphafsgildinu strikast út við mL í nefnara. Hvað verður eftir í teljara?',
+                points: 8
             },
             {
                 id: 'L1-8',
@@ -209,7 +223,9 @@
                     { text: 'Vegna þess að km þarf að vera í nefnara til að strikast út', correct: true },
                     { text: 'Vegna þess að 1000 er stærri tala', correct: false },
                     { text: 'Vegna þess að m er minni eining', correct: false }
-                ]
+                ],
+                hint: 'Þú ert að byrja með km. Hvar þarf km að vera í stuðlinum til að strikast út?',
+                points: 8
             },
             {
                 id: 'L1-9',
@@ -223,7 +239,9 @@
                 ],
                 correct: 1,
                 correctText: 'Stuðullinn er rangur snúinn - L þarf að vera í nefnara',
-                visualization: 'Útkoman yrði 0.002 L²/mL í stað 2000 mL'
+                visualization: 'Útkoman yrði 0.002 L²/mL í stað 2000 mL',
+                hint: 'L er upphafseiningin. Strikast L út í þessari uppsetningu stuðulsins?',
+                points: 8
             },
             {
                 id: 'L1-10',
@@ -235,7 +253,9 @@
                     'Hann gerir tölurnar stærri',
                     'Hann eyðir einingunum'
                 ],
-                correct: 1
+                correct: 1,
+                hint: 'Hvað gerist þegar þú margfaldar með 1? Breytist gildið?',
+                points: 8
             }
         ];
 
@@ -410,6 +430,36 @@
                 targetUnit: 'kg/L',
                 correctPath: ['1 kg / 1000 g', '1000 mL / 1 L'],
                 scaffoldingLevel: 1
+            },
+            {
+                id: 'L2-16',
+                difficulty: 'expert',
+                context: 'Frjáls æfing: Breyttu lengd úr mm í m.',
+                startValue: 2500,
+                startUnit: 'mm',
+                targetUnit: 'm',
+                correctPath: ['1 m / 1000 mm'],
+                scaffoldingLevel: 0
+            },
+            {
+                id: 'L2-17',
+                difficulty: 'expert',
+                context: 'Frjáls æfing: Breyttu massa úr mg í g.',
+                startValue: 750,
+                startUnit: 'mg',
+                targetUnit: 'g',
+                correctPath: ['1 g / 1000 mg'],
+                scaffoldingLevel: 0
+            },
+            {
+                id: 'L2-18',
+                difficulty: 'expert',
+                context: 'Frjáls æfing: Breyttu hraða úr m/s í km/klst.',
+                startValue: 15,
+                startUnit: 'm/s',
+                targetUnit: 'km/klst',
+                correctPath: ['1 km / 1000 m', '3600 s / 1 klst'],
+                scaffoldingLevel: 0
             }
         ];
 
@@ -574,14 +624,15 @@
         };
 
         const checkLevel1Mastery = (level1Data) => {
-            const { questionsCorrect, questionsAnswered, explanationScores } = level1Data;
+            const { questionsCorrect, questionsAnswered, explanationScores, pointsEarned } = level1Data;
             if (questionsAnswered < 10) return false;
 
             const avgExplanation = explanationScores.length > 0
                 ? explanationScores.reduce((a, b) => a + b, 0) / explanationScores.length
                 : 1;
 
-            return questionsCorrect >= 8 && avgExplanation >= 0.7;
+            // Require 64+ points (80%) AND 8/10 correct with explanations
+            return (pointsEarned || 0) >= 64 && questionsCorrect >= 8 && avgExplanation >= 0.7;
         };
 
         const checkLevel2Mastery = (level2Data) => {
@@ -858,6 +909,59 @@
             const [selectedExplanation, setSelectedExplanation] = useState(null);
             const [showFeedback, setShowFeedback] = useState(false);
             const [isCorrect, setIsCorrect] = useState(false);
+            const [showHint, setShowHint] = useState(false);
+            const [hintUsed, setHintUsed] = useState(false);
+
+            // Keyboard shortcuts
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    if (showFeedback) {
+                        if (e.key === 'Enter') {
+                            handleContinue();
+                        }
+                        return;
+                    }
+
+                    // Number keys to select options
+                    if (e.key >= '1' && e.key <= '9') {
+                        const index = parseInt(e.key) - 1;
+                        if (question.multiSelect) {
+                            if (index < question.options.length) {
+                                toggleOption(index);
+                            }
+                        } else {
+                            const maxOptions = question.type === 'factor_selection'
+                                ? question.factors.length
+                                : question.options.length;
+                            if (index < maxOptions) {
+                                setSelectedAnswer(index);
+                            }
+                        }
+                    }
+
+                    // H for hint
+                    if (e.key === 'h' || e.key === 'H') {
+                        if (question.hint && !showHint) {
+                            handleHint();
+                        }
+                    }
+
+                    // Enter to submit
+                    if (e.key === 'Enter') {
+                        if (canSubmit()) {
+                            handleSubmit();
+                        }
+                    }
+
+                    // Escape to go back
+                    if (e.key === 'Escape') {
+                        onBack();
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            }, [showFeedback, selectedAnswer, selectedOptions, selectedExplanation, showHint]);
 
             const handleSubmit = () => {
                 let correct = false;
@@ -888,7 +992,13 @@
             };
 
             const handleContinue = () => {
-                onAnswer(isCorrect, question.explanationRequired ? (selectedExplanation !== null && question.explanationOptions[selectedExplanation]?.correct) : true);
+                const explanationCorrect = question.explanationRequired ? (selectedExplanation !== null && question.explanationOptions[selectedExplanation]?.correct) : true;
+                onAnswer(isCorrect, explanationCorrect, hintUsed);
+            };
+
+            const handleHint = () => {
+                setShowHint(true);
+                setHintUsed(true);
             };
 
             const toggleOption = (idx) => {
@@ -916,6 +1026,7 @@
                             <button
                                 onClick={onBack}
                                 className="text-gray-600 hover:text-gray-800 flex items-center gap-2"
+                                aria-label="Til baka"
                             >
                                 ← Til baka
                             </button>
@@ -925,7 +1036,32 @@
                         </div>
 
                         <div className="bg-white rounded-lg shadow-lg p-6">
-                            <h2 className="text-2xl font-bold mb-6">{question.prompt}</h2>
+                            <div className="flex justify-between items-start mb-6">
+                                <h2 className="text-2xl font-bold flex-1">{question.prompt}</h2>
+                                <div className="ml-4 text-right">
+                                    <div className="text-sm font-semibold text-gray-600">
+                                        Stig: <span className="text-primary-orange">{hintUsed ? 0 : question.points}</span>/{question.points}
+                                    </div>
+                                    {question.hint && !showFeedback && (
+                                        <button
+                                            onClick={handleHint}
+                                            disabled={showHint}
+                                            className="mt-2 text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                            aria-label="Sýna vísbendingu"
+                                        >
+                                            💡 Vísbending (H)
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {showHint && question.hint && (
+                                <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400" role="alert">
+                                    <p className="font-semibold text-yellow-800 mb-2">💡 Vísbending:</p>
+                                    <p className="text-yellow-900">{question.hint}</p>
+                                    <p className="text-sm text-yellow-700 mt-2 italic">⚠️ Þú færð 0 stig fyrir þessa spurningu vegna þess að þú notaðir vísbendingu.</p>
+                                </div>
+                            )}
 
                             {question.type === 'error_identification' && question.visualization && (
                                 <div className="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
@@ -1147,6 +1283,14 @@
             const [selectedPath, setSelectedPath] = useState(null);
             const [explanation, setExplanation] = useState('');
             const [showFeedback, setShowFeedback] = useState(false);
+            // Structured explanation fields
+            const [explStartUnit, setExplStartUnit] = useState('');
+            const [explFirstUnit, setExplFirstUnit] = useState('');
+            const [explFirstFactor, setExplFirstFactor] = useState('');
+            const [explSecondUnit, setExplSecondUnit] = useState('');
+            const [explSecondFactor, setExplSecondFactor] = useState('');
+            const [explStepCount, setExplStepCount] = useState('');
+            const [explReason, setExplReason] = useState('');
             const [scores, setScores] = useState(null);
 
             const problem = level3Challenges[currentProblemIndex];
@@ -1157,15 +1301,59 @@
                     setSelectedOption(null);
                     setSelectedPath(null);
                     setExplanation('');
+                    setExplStartUnit('');
+                    setExplFirstUnit('');
+                    setExplFirstFactor('');
+                    setExplSecondUnit('');
+                    setExplSecondFactor('');
+                    setExplStepCount('');
+                    setExplReason('');
                     setShowFeedback(false);
                     setScores(null);
                 }
             }, [currentProblemIndex]);
 
+            const validateStructuredExplanation = (startUnit, firstUnit, firstFactor, secondUnit, secondFactor, stepCount, reason, problem) => {
+                let score = 0;
+
+                // Check if all required fields are filled (0.4 points)
+                if (startUnit && firstUnit && firstFactor.trim() && stepCount && reason) {
+                    score += 0.4;
+                }
+
+                // Check if units match problem context (0.3 points)
+                if (problem.startUnit && startUnit.toLowerCase().includes(problem.startUnit.toLowerCase().replace('/', '').substring(0, 2))) {
+                    score += 0.15;
+                }
+                if (problem.targetUnit && (secondUnit || firstUnit).toLowerCase().includes(problem.targetUnit.toLowerCase().replace('/', '').substring(0, 2))) {
+                    score += 0.15;
+                }
+
+                // Check if factor contains key conversion terms (0.2 points)
+                const factorLower = (firstFactor + ' ' + secondFactor).toLowerCase();
+                if (factorLower.includes('1000') || factorLower.includes('100') || factorLower.includes('60') || factorLower.includes('3600')) {
+                    score += 0.1;
+                }
+                if (factorLower.includes('/')) {
+                    score += 0.1;
+                }
+
+                // Check if step count is reasonable (0.1 points)
+                const steps = parseInt(stepCount);
+                if (steps >= 1 && steps <= 3) {
+                    score += 0.1;
+                }
+
+                return Math.min(score, 1); // Cap at 1.0
+            };
+
             const handleSubmit = () => {
+                // Build explanation from structured fields
+                const builtExplanation = `Ég byrjaði á ${explStartUnit} og breytti fyrst í ${explFirstUnit} með stuðlinum ${explFirstFactor}.${explSecondUnit ? ` Síðan breytti ég í ${explSecondUnit} með stuðlinum ${explSecondFactor}.` : ''} Þetta þurfti ${explStepCount} skref vegna þess að ${explReason}.`;
+
                 let answerScore = 0;
                 let methodScore = 0;
-                let explanationScore = explanation.trim().length > 10 ? 1 : 0;
+                let explanationScore = validateStructuredExplanation(explStartUnit, explFirstUnit, explFirstFactor, explSecondUnit, explSecondFactor, explStepCount, explReason, problem);
                 let efficiencyScore = 0;
 
                 // Score based on problem type
@@ -1377,22 +1565,158 @@
                                         )}
                                     </div>
 
-                                    <div>
-                                        <label className="block font-semibold mb-2">
-                                            Útskýring (hvernig leystir þú þetta?):
+                                    <div className="bg-blue-50 p-4 rounded-lg">
+                                        <label className="block font-semibold mb-3">
+                                            Útskýring (fylltu í eyðurnar):
                                         </label>
-                                        <textarea
-                                            value={explanation}
-                                            onChange={(e) => setExplanation(e.target.value)}
-                                            placeholder="Útskýrðu aðferðina þína..."
-                                            className="w-full p-3 border-2 border-gray-300 rounded-lg h-24"
-                                        />
+
+                                        <div className="space-y-4">
+                                            <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base">
+                                                <span>Ég byrjaði á</span>
+                                                <select
+                                                    value={explStartUnit}
+                                                    onChange={(e) => setExplStartUnit(e.target.value)}
+                                                    className="p-2 border-2 border-gray-300 rounded bg-white"
+                                                    aria-label="Upphafseining"
+                                                >
+                                                    <option value="">-- veldu --</option>
+                                                    <option value="mg">mg</option>
+                                                    <option value="g">g</option>
+                                                    <option value="kg">kg</option>
+                                                    <option value="mL">mL</option>
+                                                    <option value="L">L</option>
+                                                    <option value="mm">mm</option>
+                                                    <option value="cm">cm</option>
+                                                    <option value="m">m</option>
+                                                    <option value="km">km</option>
+                                                    <option value="s">s</option>
+                                                    <option value="mín">mín</option>
+                                                    <option value="klst">klst</option>
+                                                    <option value="km/klst">km/klst</option>
+                                                    <option value="m/s">m/s</option>
+                                                    <option value="g/mL">g/mL</option>
+                                                    <option value="kg/L">kg/L</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base">
+                                                <span>og breytti fyrst í</span>
+                                                <select
+                                                    value={explFirstUnit}
+                                                    onChange={(e) => setExplFirstUnit(e.target.value)}
+                                                    className="p-2 border-2 border-gray-300 rounded bg-white"
+                                                    aria-label="Fyrsta eining"
+                                                >
+                                                    <option value="">-- veldu --</option>
+                                                    <option value="mg">mg</option>
+                                                    <option value="g">g</option>
+                                                    <option value="kg">kg</option>
+                                                    <option value="mL">mL</option>
+                                                    <option value="L">L</option>
+                                                    <option value="mm">mm</option>
+                                                    <option value="cm">cm</option>
+                                                    <option value="m">m</option>
+                                                    <option value="km">km</option>
+                                                    <option value="s">s</option>
+                                                    <option value="mín">mín</option>
+                                                    <option value="klst">klst</option>
+                                                    <option value="km/klst">km/klst</option>
+                                                    <option value="m/s">m/s</option>
+                                                    <option value="g/mL">g/mL</option>
+                                                    <option value="kg/L">kg/L</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base">
+                                                <span>með stuðlinum</span>
+                                                <input
+                                                    type="text"
+                                                    value={explFirstFactor}
+                                                    onChange={(e) => setExplFirstFactor(e.target.value)}
+                                                    placeholder="t.d. 1 kg / 1000 g"
+                                                    className="p-2 border-2 border-gray-300 rounded bg-white flex-1 min-w-[200px]"
+                                                    aria-label="Fyrsti stuðull"
+                                                />
+                                            </div>
+
+                                            {/* Optional second step */}
+                                            <div className="border-t pt-3 space-y-3">
+                                                <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base">
+                                                    <span>Síðan breytti ég í</span>
+                                                    <select
+                                                        value={explSecondUnit}
+                                                        onChange={(e) => setExplSecondUnit(e.target.value)}
+                                                        className="p-2 border-2 border-gray-300 rounded bg-white"
+                                                        aria-label="Önnur eining"
+                                                    >
+                                                        <option value="">-- veldu (ef við á) --</option>
+                                                        <option value="mg">mg</option>
+                                                        <option value="g">g</option>
+                                                        <option value="kg">kg</option>
+                                                        <option value="mL">mL</option>
+                                                        <option value="L">L</option>
+                                                        <option value="mm">mm</option>
+                                                        <option value="cm">cm</option>
+                                                        <option value="m">m</option>
+                                                        <option value="km">km</option>
+                                                        <option value="s">s</option>
+                                                        <option value="mín">mín</option>
+                                                        <option value="klst">klst</option>
+                                                        <option value="km/klst">km/klst</option>
+                                                        <option value="m/s">m/s</option>
+                                                    </select>
+                                                </div>
+
+                                                {explSecondUnit && (
+                                                    <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base">
+                                                        <span>með stuðlinum</span>
+                                                        <input
+                                                            type="text"
+                                                            value={explSecondFactor}
+                                                            onChange={(e) => setExplSecondFactor(e.target.value)}
+                                                            placeholder="t.d. 1 L / 1000 mL"
+                                                            className="p-2 border-2 border-gray-300 rounded bg-white flex-1 min-w-[200px]"
+                                                            aria-label="Annar stuðull"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base">
+                                                <span>Þetta þurfti</span>
+                                                <input
+                                                    type="number"
+                                                    value={explStepCount}
+                                                    onChange={(e) => setExplStepCount(e.target.value)}
+                                                    placeholder="1, 2, 3..."
+                                                    className="p-2 border-2 border-gray-300 rounded bg-white w-20"
+                                                    min="1"
+                                                    max="10"
+                                                    aria-label="Fjöldi skrefa"
+                                                />
+                                                <span>skref vegna þess að</span>
+                                            </div>
+
+                                            <select
+                                                value={explReason}
+                                                onChange={(e) => setExplReason(e.target.value)}
+                                                className="w-full p-2 border-2 border-gray-300 rounded bg-white"
+                                                aria-label="Ástæða"
+                                            >
+                                                <option value="">-- veldu ástæðu --</option>
+                                                <option value="direct">það er bein umbreyting milli eininganna</option>
+                                                <option value="multiple">þurfti að fara í gegnum millieiningu</option>
+                                                <option value="compound">einingin er samsett (t.d. km/klst)</option>
+                                                <option value="complex">þetta er flókið vandamál með mörgum umbreytingum</option>
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <button
                                         onClick={handleSubmit}
-                                        disabled={!userAnswer.trim() || !explanation.trim()}
+                                        disabled={!userAnswer.trim() || !explStartUnit || !explFirstUnit || !explFirstFactor.trim() || !explStepCount || !explReason}
                                         className="w-full bg-primary-orange text-white py-3 rounded-lg font-bold hover:bg-dark-orange disabled:bg-gray-300"
+                                        aria-label="Senda inn svar"
                                     >
                                         Senda inn
                                     </button>
@@ -1408,7 +1732,7 @@
                                             {scores.composite >= 0.75 ? '✓ Vel gert!' : '○ Þú getur gert betur'}
                                         </h3>
 
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                                             <div>
                                                 <p className="text-sm text-gray-600">Svar</p>
                                                 <p className="text-2xl font-bold">{Math.round(scores.answer * 100)}%</p>
@@ -1454,7 +1778,7 @@
                         {progress.achievements.length > 0 && (
                             <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
                                 <h3 className="text-xl font-bold mb-4">🏆 Afrek</h3>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {progress.achievements.map((achievement) => (
                                         <div key={achievement.id} className="p-4 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg">
                                             <p className="font-bold">{achievement.name}</p>
@@ -1639,7 +1963,7 @@
                                 <>
                                     <div className="mb-6">
                                         <p className="font-semibold mb-3">Veldu umbreytingarstuðul:</p>
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             {getAvailableFactors().map((factor, idx) => (
                                                 <button
                                                     key={idx}
@@ -1722,6 +2046,8 @@
                     questionsAnswered: 0,
                     questionsCorrect: 0,
                     explanationScores: [],
+                    pointsEarned: 0,
+                    hintsUsed: 0,
                     mastered: false
                 }
             );
@@ -1745,12 +2071,15 @@
                 saveProgress(saved);
             };
 
-            const answerQuestion = (correct, explanationCorrect) => {
+            const answerQuestion = (correct, explanationCorrect, hintUsed = false) => {
+                const pointsEarned = (correct && !hintUsed) ? level1Questions[currentQuestion].points : 0;
                 const newProgress = {
                     ...progress,
                     questionsAnswered: progress.questionsAnswered + 1,
                     questionsCorrect: progress.questionsCorrect + (correct ? 1 : 0),
-                    explanationScores: [...progress.explanationScores, explanationCorrect ? 1 : 0]
+                    explanationScores: [...progress.explanationScores, explanationCorrect ? 1 : 0],
+                    pointsEarned: (progress.pointsEarned || 0) + pointsEarned,
+                    hintsUsed: (progress.hintsUsed || 0) + (hintUsed ? 1 : 0)
                 };
 
                 setProgress(newProgress);
@@ -1798,6 +2127,8 @@
             const level1Progress = progress?.levelProgress?.level1 || {
                 questionsAnswered: 0,
                 questionsCorrect: 0,
+                pointsEarned: 0,
+                hintsUsed: 0,
                 mastered: false
             };
 
@@ -1817,8 +2148,10 @@
                 mastered: false
             };
 
+            const level1Points = level1Progress.pointsEarned || 0;
+            const level1MaxPoints = 80;
             const level1Percentage = level1Progress.questionsAnswered > 0
-                ? Math.round((level1Progress.questionsCorrect / 10) * 100)
+                ? Math.round((level1Points / level1MaxPoints) * 100)
                 : 0;
 
             const level2Percentage = level2Progress.problemsCompleted > 0
@@ -1861,12 +2194,17 @@
                                     </div>
                                 </div>
                                 <p className="text-gray-600">
-                                    {level1Progress.questionsCorrect}/10 rétt
+                                    <span className="font-semibold text-primary-orange">{level1Points}/{level1MaxPoints} stig</span> · {level1Progress.questionsCorrect}/10 rétt
                                     {level1Progress.mastered && <span className="ml-2 text-green-600 font-bold">✓ Námsmarkmið náð!</span>}
                                 </p>
                                 <p className="text-sm text-gray-500 mt-2">
-                                    Þarfnast: 8/10 rétt með útskýringum
+                                    Þarfnast: 64+ stig (8/10 rétt með útskýringum, án vísbendinga)
                                 </p>
+                                {level1Progress.hintsUsed > 0 && (
+                                    <p className="text-sm text-yellow-600 mt-1">
+                                        💡 {level1Progress.hintsUsed} vísbending{level1Progress.hintsUsed > 1 ? 'ar' : ''} notaðar
+                                    </p>
+                                )}
                             </div>
 
                             {/* Level 2 */}
@@ -1984,7 +2322,9 @@
             const level1Progress = progress?.levelProgress?.level1 || {
                 questionsAnswered: 0,
                 questionsCorrect: 0,
-                explanationScores: []
+                explanationScores: [],
+                pointsEarned: 0,
+                hintsUsed: 0
             };
 
             const level2Progress = progress?.levelProgress?.level2 || {
@@ -1993,6 +2333,13 @@
                 predictionsCorrect: 0,
                 finalAnswersCorrect: 0,
                 mastered: false
+            };
+
+            const level3Progress = progress?.levelProgress?.level3 || {
+                problemsCompleted: 0,
+                compositeScores: [],
+                totalSteps: 0,
+                achievements: []
             };
 
             const explanationAvg = level1Progress.explanationScores.length > 0
@@ -2007,23 +2354,98 @@
                 ? Math.round((level2Progress.finalAnswersCorrect / level2Progress.problemsCompleted) * 100)
                 : 0;
 
+            const level3Avg = level3Progress.compositeScores.length > 0
+                ? Math.round((level3Progress.compositeScores.reduce((a, b) => a + b, 0) / level3Progress.compositeScores.length) * 100)
+                : 0;
+
+            const exportToJSON = () => {
+                const exportData = {
+                    timestamp: new Date().toISOString(),
+                    studentId: '', // Teacher can add this later
+                    progress: progress
+                };
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `einingagreining-progress-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            const exportToCSV = () => {
+                const csv = [
+                    ['Dagsetning', new Date().toISOString()],
+                    [''],
+                    ['Level 1: Skilningur'],
+                    ['Spurningar svaraðar', level1Progress.questionsAnswered],
+                    ['Rétt svör', level1Progress.questionsCorrect],
+                    ['Stig unnin', level1Progress.pointsEarned || 0],
+                    ['Vísbendingar notaðar', level1Progress.hintsUsed || 0],
+                    ['Útskýringar (%)', explanationAvg],
+                    ['Námsmarkmið náð', level1Progress.mastered ? 'Já' : 'Nei'],
+                    [''],
+                    ['Level 2: Beiting'],
+                    ['Vandamál leyst', level2Progress.problemsCompleted],
+                    ['Spár gerðar', level2Progress.predictionsMade],
+                    ['Spár réttar', level2Progress.predictionsCorrect],
+                    ['Spágæði (%)', predictionAccuracy],
+                    ['Rétt svör', level2Progress.finalAnswersCorrect],
+                    ['Nákvæmni (%)', answerAccuracy],
+                    ['Námsmarkmið náð', level2Progress.mastered ? 'Já' : 'Nei'],
+                    [''],
+                    ['Level 3: Greining'],
+                    ['Vandamál leyst', level3Progress.problemsCompleted],
+                    ['Meðaleinkunn (%)', level3Avg],
+                    ['Heildarskref', level3Progress.totalSteps],
+                    ['Verðlaun', level3Progress.achievements.map(a => a.name).join(', ')]
+                ].map(row => row.join(',')).join('\n');
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `einingagreining-progress-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
             return (
                 <div className="min-h-screen bg-gray-50 p-4">
                     <div className="max-w-4xl mx-auto">
                         <button
                             onClick={onBack}
                             className="mb-4 text-gray-600 hover:text-gray-800 flex items-center gap-2"
+                            aria-label="Til baka"
                         >
                             ← Til baka
                         </button>
 
                         <div className="bg-white rounded-lg shadow-lg p-6">
-                            <h2 className="text-2xl font-bold mb-6">Tölfræði</h2>
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                                <h2 className="text-2xl font-bold">Tölfræði</h2>
+                                <div className="flex gap-2 flex-wrap">
+                                    <button
+                                        onClick={exportToJSON}
+                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2"
+                                        aria-label="Sækja sem JSON"
+                                    >
+                                        📄 Sækja JSON
+                                    </button>
+                                    <button
+                                        onClick={exportToCSV}
+                                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2"
+                                        aria-label="Sækja sem CSV"
+                                    >
+                                        📊 Sækja CSV
+                                    </button>
+                                </div>
+                            </div>
 
                             <div className="space-y-6">
                                 <div>
                                     <h3 className="text-xl font-semibold mb-3 primary-orange">Level 1: Skilningur</h3>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="p-4 bg-gray-50 rounded">
                                             <p className="text-sm text-gray-600">Spurningar svaraðar</p>
                                             <p className="text-2xl font-bold">{level1Progress.questionsAnswered}/10</p>
@@ -2061,7 +2483,7 @@
                                     <>
                                         <div className="border-t pt-6">
                                             <h3 className="text-xl font-semibold mb-3 primary-orange">Level 2: Beiting</h3>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="p-4 bg-gray-50 rounded">
                                                     <p className="text-sm text-gray-600">Vandamál leyst</p>
                                                     <p className="text-2xl font-bold">{level2Progress.problemsCompleted}/15</p>
@@ -2104,7 +2526,7 @@
                                     <>
                                         <div className="border-t pt-6">
                                             <h3 className="text-xl font-semibold mb-3 primary-orange">Level 3: Greining</h3>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="p-4 bg-gray-50 rounded">
                                                     <p className="text-sm text-gray-600">Áskoranir kláraðar</p>
                                                     <p className="text-2xl font-bold">{progress.levelProgress.level3.problemsCompleted}/10</p>
