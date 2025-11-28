@@ -112,10 +112,27 @@ This document tracks the migration of all chemistry games to the new monorepo ar
 
 ## Year 3 Games (3-ar)
 
-### 🔄 ph-titration-practice.html (1324 lines)
-**Status**: IN PROGRESS
+### ✅ ph-titration-practice.html (1324 lines)
+**Status**: COMPLETED
+**Location**: `/games/3-ar/ph-titration-practice/`
+**Output**: `ph-titration-practice.html` (179KB)
 **Complexity**: Medium
 **Topic**: pH and titrations
+
+**Features Migrated**:
+- 4 titration types (strong-strong, weak-strong, strong-weak, weak-weak)
+- Interactive virtual laboratory with burette, Erlenmeyer flask, and pH meter
+- Real-time pH calculations for all titration types
+- Canvas-based titration curve plotting with helper lines
+- Universal indicator color changes based on pH
+- Animated dripping effect and stirring bar
+- Setup screen with preset configurations (typical, dilute, concentrated)
+- 5 weak acids and 4 weak bases with Ka/Kb values
+- Keyboard shortcuts for precise titrant addition
+- Data export to CSV functionality
+- Equivalence point detection and notification
+- pKa/pKb visualization on titration curve
+- Complete TypeScript type safety
 
 ### ⏳ ph-titration-master/ (2375 lines)
 **Status**: PENDING  
