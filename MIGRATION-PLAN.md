@@ -112,9 +112,9 @@ This document tracks the migration of all chemistry games to the new monorepo ar
 
 ## Year 3 Games (3-ar)
 
-### ⏳ ph-titration-practice.html (1324 lines)
-**Status**: PENDING  
-**Complexity**: Medium  
+### 🔄 ph-titration-practice.html (1324 lines)
+**Status**: IN PROGRESS
+**Complexity**: Medium
 **Topic**: pH and titrations
 
 ### ⏳ ph-titration-master/ (2375 lines)
