@@ -132,10 +132,27 @@ This document tracks the migration of all chemistry games to the new monorepo ar
 **Complexity**: High  
 **Topic**: Chemical equilibrium
 
-### ⏳ thermodynamics-predictor.html (1221 lines)
-**Status**: PENDING  
-**Complexity**: Medium  
+### ✅ thermodynamics-predictor.html (1221 lines)
+**Status**: COMPLETED
+**Location**: `/games/3-ar/thermodynamics-predictor/`
+**Output**: `thermodynamics-predictor.html` (180KB)
+**Complexity**: Medium
 **Topic**: Thermodynamics
+
+**Features Migrated**:
+- 30 thermodynamics problems across three difficulty levels (beginner: 10, intermediate: 12, advanced: 8)
+- Two game modes: Learning (untimed) and Challenge (90s timer with scoring)
+- Gibbs free energy calculations (ΔG = ΔH - TΔS)
+- Interactive temperature slider (200-1200 K)
+- Real-time ΔG vs Temperature graph with canvas rendering
+- Spontaneity prediction (spontaneous, equilibrium, non-spontaneous)
+- Entropy visualization with animated particles (ordered vs. disordered)
+- Four thermodynamic scenarios with color-coded badges
+- Detailed step-by-step solution breakdowns
+- Streak system with point bonuses
+- Crossover temperature hints
+- Formula reference card
+- Complete TypeScript type safety
 
 ### ⏳ buffer-recipe-creator/ (1516 lines)
 **Status**: PENDING  
