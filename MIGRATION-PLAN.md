@@ -171,10 +171,29 @@ This document tracks the migration of all chemistry games to the new monorepo ar
 - Formula reference card
 - Complete TypeScript type safety
 
-### ⏳ buffer-recipe-creator/ (1516 lines)
-**Status**: PENDING  
-**Complexity**: Medium  
+### ✅ buffer-recipe-creator.html (1516 lines)
+**Status**: COMPLETED
+**Location**: `/games/3-ar/buffer-recipe-creator/`
+**Output**: `buffer-recipe-creator.html` (185KB)
+**Complexity**: Medium
 **Topic**: Buffer solutions
+
+**Features Migrated**:
+- 30 buffer recipe problems across three difficulty levels (beginner: 10, intermediate: 12, advanced: 8)
+- Henderson-Hasselbalch equation calculator
+- Interactive flask visualization with fill and swirl animations
+- pH scale with animated marker
+- Difficulty filter system (all, beginner, intermediate, advanced)
+- Step-by-step solution breakdowns (5 calculation steps)
+- Special problem types: stock solutions, pH adjustment, buffer range questions
+- Context scenarios for each problem (lab, medical, industrial applications)
+- 5% tolerance checking for answers
+- Scoring system with difficulty-based points (100/150/200)
+- Statistics tracking (score, problems solved, attempts, accuracy)
+- Instructions toggle with Henderson-Hasselbalch guide
+- Random problem generator
+- Flask color changes based on pH
+- Complete TypeScript type safety
 
 ## Template Files
 
