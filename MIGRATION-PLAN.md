@@ -276,7 +276,11 @@ This document tracks the migration of all chemistry games to the new monorepo ar
   - Updated README.md with all 12 migrated games
   - Created comprehensive shared/README.md
   - Updated migration status tables
-- [ ] Add migration guides
+- [x] Add migration guides (COMPLETED ✅)
+  - Created comprehensive MIGRATION-GUIDE.md (1000+ lines)
+  - Step-by-step migration process
+  - Before/after code examples
+  - Common patterns and troubleshooting
 - [ ] Create development workflows
 - [ ] Set up debugging tools
 
