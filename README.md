@@ -81,48 +81,89 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 
 #### ✅ Einingagreining (Dimensional Analysis) - **MIGRATED**
 - **Topics**: Unit conversion, dimensional analysis, factor-label method
-- **Levels**: 3 progressive difficulty levels
-- **Features**: Interactive lessons, scaffolded practice, advanced challenges
+- **Levels**: 3 progressive difficulty levels (lessons, practice, challenges)
+- **Features**: 35 interactive questions, scaffolded practice, complete scoring system
 - **Source**: `games/1-ar/dimensional-analysis/`
 - **Build**: `dimensional-analysis-game-new.html` (168KB)
 
-#### ⏳ Mólmassi (Molar Mass Challenge)
-- **Topics**: Molar mass calculations, chemical formulas
-- **Format**: Timed speed quiz (90 seconds)
-- **Status**: Pending migration
-- **Original**: `1-ar/molmassi.html` (1833 lines)
+#### ✅ Einingagreining Einföld (Dimensional Analysis Simple) - **MIGRATED**
+- **Topics**: Unit conversion fundamentals
+- **Format**: Tutorial + sandbox + quiz
+- **Features**: Worked examples, interactive playground, progress tracking
+- **Source**: `games/1-ar/dimensional-analysis-simple/`
+- **Build**: `dimensional-analysis-simple.html` (190KB)
 
-#### ⏳ Nafnakerfið (Compound Name Matchmaker)
+#### ✅ Mólmassi (Molar Mass Challenge) - **MIGRATED**
+- **Topics**: Molar mass calculations, chemical formulas, periodic table
+- **Format**: Practice & Competition modes with timer
+- **Features**: 29 compounds, 4 difficulty levels, hint system, streak tracking
+- **Source**: `games/1-ar/molmassi/`
+- **Build**: `molmassi.html` (184KB)
+
+#### ✅ Nafnakerfið (Compound Name Matchmaker) - **MIGRATED**
 - **Topics**: Chemical nomenclature, formula-name matching
-- **Format**: Memory matching game
-- **Status**: Pending migration
-- **Original**: `1-ar/nafnakerfid.html` (1734 lines)
+- **Format**: Card matching game with 3D animations
+- **Features**: 59 compounds, 3 difficulty levels, configurable pairs, best score tracking
+- **Source**: `games/1-ar/nafnakerfid/`
+- **Build**: `nafnakerfid.html` (172KB)
 
-#### ⏳ Lausnir (Solution Lab)
-- **Topics**: Molarity, dilution, solution mixing
-- **Format**: Problem-solving game
-- **Status**: Pending migration
-- **Original**: `1-ar/lausnir.html` (1745 lines)
+#### ✅ Lausnir (Solution Lab) - **MIGRATED**
+- **Topics**: Molarity, dilution, solution mixing, concentration calculations
+- **Format**: Interactive problem-solving with beaker animations
+- **Features**: 5 problem types, 3 difficulty levels, step-by-step solutions, hint system
+- **Source**: `games/1-ar/lausnir/`
+- **Build**: `lausnir.html` (201KB)
 
-#### ⏳ Takmarkandi (Limiting Reactant Factory)
-- **Topics**: Limiting reagents, stoichiometry
-- **Format**: Problem-solving game
-- **Status**: Pending migration
-- **Original**: `1-ar/takmarkandi.html` (1835 lines)
+#### ✅ Takmarkandi (Limiting Reactant Factory) - **MIGRATED**
+- **Topics**: Limiting reagents, stoichiometry, product formation
+- **Format**: Problem-solving game with molecule visualization
+- **Features**: 20 reactions, 3 difficulty levels, detailed solutions, streak system
+- **Source**: `games/1-ar/takmarkandi/`
+- **Build**: `takmarkandi.html` (188KB)
 
 ### Year 3 (3-ár) - Advanced Chemistry
 
-#### ⏳ pH Titration Practice
-- **Topics**: Acid-base titrations, pH calculations
-- **Status**: Pending migration
-- **Original**: `3-ar/ph-titration-practice.html` (1324 lines)
+#### ✅ pH Titration Practice - **MIGRATED**
+- **Topics**: Acid-base titrations, pH calculations, titration curves
+- **Format**: Interactive virtual laboratory
+- **Features**: 4 titration types, real-time pH curves, universal indicator, 5 weak acids/bases
+- **Source**: `games/3-ar/ph-titration-practice/`
+- **Build**: `ph-titration-practice.html` (179KB)
 
-#### ⏳ Thermodynamics Predictor
-- **Topics**: Enthalpy, entropy, Gibbs free energy
-- **Status**: Pending migration
-- **Original**: `3-ar/thermodynamics-predictor.html` (1221 lines)
+#### ✅ pH Titration Master - **MIGRATED**
+- **Topics**: Advanced pH and titrations including polyprotic acids
+- **Format**: Practice & Challenge modes with scoring
+- **Features**: 13 titration problems, 5 indicators, volume accuracy scoring, curve visualization
+- **Source**: `games/3-ar/ph-titration-master/`
+- **Build**: `ph-titration-master.html` (191KB)
 
-... [See MIGRATION-PLAN.md for complete list]
+#### ✅ Gas Law Challenge - **MIGRATED**
+- **Topics**: Ideal Gas Law (PV = nRT), gas properties
+- **Format**: Problem-solving with particle visualization
+- **Features**: 8 problems across 3 difficulties, canvas particle animations, 4-level hints
+- **Source**: `games/3-ar/gas-law-challenge/`
+- **Build**: `gas-law-challenge.html` (178KB)
+
+#### ✅ Equilibrium Shifter - **MIGRATED**
+- **Topics**: Chemical equilibrium, Le Chatelier's Principle
+- **Format**: Learning & Challenge modes
+- **Features**: 30 equilibrium systems, stress predictions, animated shifts, bilingual explanations
+- **Source**: `games/3-ar/equilibrium-shifter/`
+- **Build**: `equilibrium-shifter.html` (212KB)
+
+#### ✅ Thermodynamics Predictor - **MIGRATED**
+- **Topics**: Gibbs free energy (ΔG = ΔH - TΔS), spontaneity
+- **Format**: Interactive problem-solving with graphing
+- **Features**: 30 problems, temperature slider (200-1200 K), real-time ΔG graphs, entropy visualization
+- **Source**: `games/3-ar/thermodynamics-predictor/`
+- **Build**: `thermodynamics-predictor.html` (180KB)
+
+#### ✅ Buffer Recipe Creator - **MIGRATED**
+- **Topics**: Buffer solutions, Henderson-Hasselbalbalch equation
+- **Format**: Recipe calculation game with flask visualization
+- **Features**: 30 buffer problems, pH scale animation, difficulty filters, step-by-step solutions
+- **Source**: `games/3-ar/buffer-recipe-creator/`
+- **Build**: `buffer-recipe-creator.html` (185KB)
 
 ---
 
@@ -276,12 +317,14 @@ pnpm type-check
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| ✅ Completed | 1 | Full migration to new architecture |
+| ✅ Completed | 12 | Full migration to new architecture |
 | 🚧 In Progress | 0 | Currently being migrated |
-| ⏳ Pending | 11 | Awaiting migration |
+| ⏳ Pending | 0 | Awaiting migration |
 | **Total** | **12** | **All games** |
 
-See [MIGRATION-PLAN.md](MIGRATION-PLAN.md) for detailed status.
+**Phase 2 Complete!** All games have been successfully migrated to the monorepo architecture.
+
+See [MIGRATION-PLAN.md](MIGRATION-PLAN.md) for detailed migration status and Phase 3 plans.
 
 ---
 

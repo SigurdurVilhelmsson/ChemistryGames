@@ -1,0 +1,19 @@
+# Build outputs
+dist
+*.html
+
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Year directories (built games)
+1-ar
+2-ar
+3-ar
+
+# Config files
+.git
+.github
+
+# Documentation
+*.md
