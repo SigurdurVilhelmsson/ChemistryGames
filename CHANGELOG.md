@@ -81,7 +81,7 @@ Phase 2 Migration Complete! All 12 chemistry games successfully migrated to the 
 
 ---
 
-## [1.0.0] - 2024
+## [1.0.0] - 2025
 
 ### Initial Release
 
