@@ -26,10 +26,28 @@ This guide covers deploying ChemistryGames to **kvenno.app** and general server 
 
 ### Prerequisites
 
-⚠️ **CRITICAL**: Ensure dependencies are installed before building!
+⚠️ **CRITICAL**: Ensure pnpm and dependencies are installed before building!
+
+**Step 1: Install pnpm (if not already installed)**
 
 ```bash
-# If node_modules is missing, install dependencies first
+# Check if pnpm is installed
+pnpm --version
+
+# If not installed, install pnpm globally via npm
+sudo npm install -g pnpm
+
+# Verify installation
+pnpm --version
+```
+
+**Step 2: Install project dependencies**
+
+```bash
+# Navigate to repository directory
+cd ~/repos/ChemistryGames
+
+# Install all dependencies (302 packages)
 pnpm install
 
 # Verify installation
@@ -304,6 +322,9 @@ This section covers deploying to a general Linode/Ubuntu server with nginx.
 ⚠️ **Before deployment, you MUST:**
 
 ```bash
+# 0. Install pnpm if not already installed
+pnpm --version || sudo npm install -g pnpm
+
 # 1. Install dependencies (if not already installed)
 pnpm install
 
@@ -326,7 +347,7 @@ All games must be built before deployment:
 
 ### Step 2: Server Setup
 
-#### 2.1 Update System and Install Nginx
+#### 2.1 Update System and Install Prerequisites
 
 ```bash
 # SSH into your Linode server
@@ -334,6 +355,21 @@ ssh user@your-linode-ip
 
 # Update system
 sudo apt update && sudo apt upgrade -y
+
+# Install Node.js and npm (if not already installed)
+# For Ubuntu 22.04+
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Verify Node.js and npm installation
+node --version
+npm --version
+
+# Install pnpm globally
+sudo npm install -g pnpm
+
+# Verify pnpm installation
+pnpm --version
 
 # Install nginx
 sudo apt install nginx -y
