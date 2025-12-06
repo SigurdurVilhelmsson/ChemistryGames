@@ -204,81 +204,120 @@ export function Level3({ onComplete, onBack, initialProgress }: Level3Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-4 flex items-center justify-between">
+        {/* Header */}
+        <div className="mb-4 flex items-center justify-between flex-wrap gap-2">
           <button
             onClick={onBack}
-            className="text-gray-600 hover:text-gray-800 flex items-center gap-2"
+            className="text-gray-600 hover:text-gray-800 flex items-center gap-2 text-lg"
           >
             ← Til baka
           </button>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap">
+            <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-semibold">
+              Stig 3: Útreikningar
+            </span>
             <span>Áskorun {progress.problemsCompleted + 1} / 10</span>
-            <span className="ml-4">Meðaleinkunn: {avgScore}%</span>
+            <span className={`px-2 py-1 rounded text-xs ${
+              avgScore >= 75 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              Meðal: {avgScore}%
+            </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="mb-4">
-            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold">
+        {/* Progress bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+          <div
+            className="bg-purple-500 h-2 rounded-full transition-all duration-500"
+            style={{ width: `${((progress.problemsCompleted) / 10) * 100}%` }}
+          />
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          {/* Problem type badge */}
+          <div className="mb-4 flex items-center gap-3">
+            <span className="px-4 py-2 bg-purple-100 text-purple-800 rounded-xl text-sm font-bold">
               {problemTypeLabels[problem.type] || problem.type}
+            </span>
+            <span className="text-2xl">
+              {problem.type === 'reverse' && '🔄'}
+              {problem.type === 'error_analysis' && '🔍'}
+              {problem.type === 'efficiency' && '⚡'}
+              {problem.type === 'synthesis' && '🧪'}
+              {problem.type === 'real_world' && '🌍'}
+              {problem.type === 'derivation' && '📐'}
             </span>
           </div>
 
-          <h2 className="text-2xl font-bold mb-6">{problem.prompt}</h2>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800">{problem.prompt}</h2>
 
           {/* Display problem-specific context */}
           {problem.type === 'synthesis' && problem.density && (
-            <div className="mb-6 p-4 bg-purple-50 border-l-4 border-purple-400 rounded">
-              <p className="text-sm font-semibold text-purple-800 mb-2">📊 Gefnar upplýsingar:</p>
-              <div className="space-y-1">
+            <div className="mb-6 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+              <p className="text-sm font-bold text-purple-800 mb-3 flex items-center gap-2">
+                <span className="text-lg">📊</span> Gefnar upplýsingar:
+              </p>
+              <div className="grid grid-cols-2 gap-3">
                 {problem.startValue && problem.startUnit && (
-                  <p className="text-sm text-purple-700">
-                    <span className="font-semibold">Rúmmál:</span> {problem.startValue} {problem.startUnit}
-                  </p>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Rúmmál</p>
+                    <p className="font-bold text-purple-700">{problem.startValue} {problem.startUnit}</p>
+                  </div>
                 )}
                 {problem.density && problem.densityUnit && (
-                  <p className="text-sm text-purple-700">
-                    <span className="font-semibold">Eðlismassi:</span> {problem.density} {problem.densityUnit}
-                  </p>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Eðlismassi</p>
+                    <p className="font-bold text-purple-700">{problem.density} {problem.densityUnit}</p>
+                  </div>
                 )}
                 {problem.targetUnit && (
-                  <p className="text-sm text-purple-700">
-                    <span className="font-semibold">Markeining:</span> {problem.targetUnit}
-                  </p>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Markeining</p>
+                    <p className="font-bold text-green-700">{problem.targetUnit}</p>
+                  </div>
                 )}
                 {problem.significantFigures && (
-                  <p className="text-sm text-purple-700">
-                    <span className="font-semibold">Markverðir stafir:</span> {problem.significantFigures}
-                  </p>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Markverðir stafir</p>
+                    <p className="font-bold text-blue-700">{problem.significantFigures}</p>
+                  </div>
                 )}
               </div>
             </div>
           )}
 
           {problem.type === 'real_world' && (problem.startValue || problem.portionSize) && (
-            <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-400 rounded">
-              <p className="text-sm font-semibold text-green-800 mb-2">📊 Gefnar upplýsingar:</p>
-              <div className="space-y-1">
+            <div className="mb-6 p-5 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl border border-green-200">
+              <p className="text-sm font-bold text-green-800 mb-3 flex items-center gap-2">
+                <span className="text-lg">📊</span> Gefnar upplýsingar:
+              </p>
+              <div className="grid grid-cols-2 gap-3">
                 {problem.startValue && problem.startUnit && (
-                  <p className="text-sm text-green-700">
-                    <span className="font-semibold">Heildarmagn:</span> {problem.startValue} {problem.startUnit}
-                  </p>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Heildarmagn</p>
+                    <p className="font-bold text-green-700">{problem.startValue} {problem.startUnit}</p>
+                  </div>
                 )}
                 {problem.portionSize && problem.portionUnit && (
-                  <p className="text-sm text-green-700">
-                    <span className="font-semibold">Skammtastærð:</span> {problem.portionSize} {problem.portionUnit}
-                  </p>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Skammtastærð</p>
+                    <p className="font-bold text-green-700">{problem.portionSize} {problem.portionUnit}</p>
+                  </div>
                 )}
               </div>
             </div>
           )}
 
           {problem.type === 'error_analysis' && problem.incorrectWork && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400">
-              <p className="text-sm text-gray-600 mb-1">Röng vinna:</p>
-              <p className="font-mono text-red-800">{problem.incorrectWork}</p>
+            <div className="mb-6 p-5 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
+              <p className="text-sm font-bold text-red-800 mb-2 flex items-center gap-2">
+                <span className="text-lg">⚠️</span> Röng vinna:
+              </p>
+              <div className="bg-white p-4 rounded-lg border-2 border-red-200">
+                <p className="font-mono text-red-700 text-lg">{problem.incorrectWork}</p>
+              </div>
             </div>
           )}
 
@@ -287,19 +326,25 @@ export function Level3({ onComplete, onBack, initialProgress }: Level3Props) {
               {/* Reverse problem options */}
               {problem.type === 'reverse' && problem.options && (
                 <div className="space-y-3">
-                  <p className="font-semibold">Veldu rétta leið:</p>
+                  <p className="font-bold text-gray-800">Veldu rétta leið:</p>
                   {problem.options.map((option, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedOption(idx)}
-                      className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                      className={`w-full p-5 rounded-xl border-2 text-left transition-all ${
                         selectedOption === idx
-                          ? 'border-orange-500 bg-orange-50'
-                          : 'border-gray-300 hover:border-gray-400'
+                          ? 'border-purple-500 bg-purple-50 shadow-md'
+                          : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
                       }`}
                     >
-                      {option.text}
-                      <span className="text-sm text-gray-500 ml-2">({option.steps} skref)</span>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{option.text}</span>
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          selectedOption === idx ? 'bg-purple-200 text-purple-800' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {option.steps} skref
+                        </span>
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -308,70 +353,85 @@ export function Level3({ onComplete, onBack, initialProgress }: Level3Props) {
               {/* Efficiency problem paths */}
               {problem.type === 'efficiency' && problem.possiblePaths && (
                 <div className="space-y-3">
-                  <p className="font-semibold">Veldu leið:</p>
+                  <p className="font-bold text-gray-800">Veldu leið:</p>
                   {problem.possiblePaths.map((path, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedPath(idx)}
-                      className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                      className={`w-full p-5 rounded-xl border-2 text-left transition-all ${
                         selectedPath === idx
-                          ? 'border-orange-500 bg-orange-50'
-                          : 'border-gray-300 hover:border-gray-400'
+                          ? 'border-purple-500 bg-purple-50 shadow-md'
+                          : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
                       }`}
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-2 mb-3">
                         {path.steps.map((step, sidx) => (
-                          <div key={sidx} className="font-mono text-sm">{step}</div>
+                          <div key={sidx} className="font-mono text-sm bg-white px-3 py-2 rounded-lg border border-gray-100">
+                            {step}
+                          </div>
                         ))}
                       </div>
-                      <span className="text-sm text-gray-500 mt-2 block">
-                        {path.stepCount} skref
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          path.efficient ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {path.stepCount} skref
+                        </span>
+                        {path.efficient && (
+                          <span className="text-green-600 text-sm">⚡ Skilvirkt</span>
+                        )}
+                      </div>
                     </button>
                   ))}
                 </div>
               )}
 
               {/* Answer input */}
-              <div>
-                <label className="block font-semibold mb-2">
-                  {problem.type === 'error_analysis' ? 'Hvað er rétta svarið?' : 'Svar:'}
+              <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border-2 border-purple-200">
+                <label className="block font-bold mb-3 text-gray-800">
+                  {problem.type === 'error_analysis' ? 'Hvað er rétta svarið?' : 'Þitt svar:'}
                 </label>
-                <input
-                  type="text"
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  placeholder={(problem.type === 'derivation' && problem.scientificNotation) ? 't.d. 1.08e12' : 'Sláðu inn svar'}
-                  className="w-full p-3 border-2 border-gray-300 rounded-lg font-mono"
-                />
-                {problem.type !== 'reverse' && problem.type !== 'error_analysis' && 'targetUnit' in problem && problem.targetUnit && (
-                  <p className="text-sm text-gray-600 mt-1">Eining: {problem.targetUnit}</p>
-                )}
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                    placeholder={(problem.type === 'derivation' && problem.scientificNotation) ? 't.d. 1.08e12' : 'Sláðu inn svar'}
+                    className="flex-1 p-4 border-2 border-gray-300 rounded-xl font-mono text-xl focus:border-purple-400 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+                  />
+                  {problem.type !== 'reverse' && problem.type !== 'error_analysis' && 'targetUnit' in problem && problem.targetUnit && (
+                    <div className="px-4 py-3 bg-green-100 text-green-800 rounded-xl font-bold text-lg">
+                      {problem.targetUnit}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Explanation */}
-              <div>
-                <label className="block font-semibold mb-2">
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <label className="block font-bold mb-2 text-gray-800">
                   Útskýring (hvernig leystir þú þetta?):
                 </label>
                 <textarea
                   value={explanation}
                   onChange={(e) => setExplanation(e.target.value)}
                   placeholder="T.d. 'Fyrst breytti ég X í Y með stuðlinum Z...'"
-                  className="w-full p-3 border-2 border-gray-300 rounded-lg h-24"
+                  className="w-full p-4 border-2 border-gray-300 rounded-xl h-28 focus:border-purple-400 focus:ring-2 focus:ring-purple-200 outline-none transition-all resize-none"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  💡 Tip: Notaðu orð eins og "umbreyti", "stuðull", "eining" fyrir betri einkunn
+                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                  <span className="text-base">💡</span> Notaðu orð eins og "umbreyti", "stuðull", "eining" fyrir betri einkunn
                 </p>
               </div>
 
               {/* Hint */}
               {showHint && (
-                <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
-                  <p className="text-sm font-semibold text-blue-800 mb-2">💡 Vísbending:</p>
-                  <p className="text-sm text-blue-700">{getHint()}</p>
-                  <p className="text-xs text-orange-600 mt-2">
-                    ⚠️ Athugið: Notkun vísbendingar dregur 15% frá heildareinkunnnum.
+                <div className="p-5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                  <p className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
+                    <span className="text-xl">💡</span> Vísbending:
+                  </p>
+                  <p className="text-blue-700 mb-3">{getHint()}</p>
+                  <p className="text-xs text-orange-600 bg-orange-50 px-3 py-2 rounded-lg inline-block">
+                    ⚠️ 15% dregið frá heildareinkunn
                   </p>
                 </div>
               )}
@@ -388,7 +448,7 @@ export function Level3({ onComplete, onBack, initialProgress }: Level3Props) {
                         hintsUsed: prev.hintsUsed + 1
                       }));
                     }}
-                    className="w-full border-2 border-blue-400 text-blue-600 py-2 rounded-lg font-semibold hover:bg-blue-50"
+                    className="w-full border-2 border-blue-400 text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
                   >
                     💡 Sýna vísbendingu (kostar 15% af einkunn)
                   </button>
@@ -396,10 +456,9 @@ export function Level3({ onComplete, onBack, initialProgress }: Level3Props) {
                 <button
                   onClick={handleSubmit}
                   disabled={!userAnswer.trim() || !explanation.trim()}
-                  className="w-full bg-orange-500 text-white py-3 rounded-lg font-bold hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: !userAnswer.trim() || !explanation.trim() ? undefined : '#f36b22' }}
+                  className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500 bg-purple-600 hover:bg-purple-700 text-white"
                 >
-                  Senda inn
+                  Senda inn →
                 </button>
               </div>
             </div>
@@ -407,72 +466,93 @@ export function Level3({ onComplete, onBack, initialProgress }: Level3Props) {
 
           {/* Feedback */}
           {showFeedback && scores && (
-            <>
-              <div className={`mb-6 p-6 rounded-lg ${
-                scores.composite >= 0.75 ? 'bg-green-100' : 'bg-yellow-100'
-              }`}>
-                <h3 className="text-xl font-bold mb-4">
-                  {scores.composite >= 0.75 ? '✓ Vel gert!' : '○ Þú getur gert betur'}
+            <div className={`p-6 rounded-xl border-2 ${
+              scores.composite >= 0.75 ? 'bg-green-100 border-green-300' : 'bg-yellow-100 border-yellow-300'
+            }`}>
+              {/* Header with emoji */}
+              <div className="text-center mb-6">
+                <div className="text-5xl mb-2">
+                  {scores.composite >= 0.9 ? '🏆' : scores.composite >= 0.75 ? '🎉' : scores.composite >= 0.5 ? '💪' : '📚'}
+                </div>
+                <h3 className="text-2xl font-bold">
+                  {scores.composite >= 0.9 ? 'Frábært!' : scores.composite >= 0.75 ? 'Vel gert!' : scores.composite >= 0.5 ? 'Gott!' : 'Þú getur gert betur'}
                 </h3>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Svar</p>
-                    <p className="text-2xl font-bold">{Math.round(scores.answer * 100)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Aðferð</p>
-                    <p className="text-2xl font-bold">{Math.round(scores.method * 100)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Útskýring</p>
-                    <p className="text-2xl font-bold">{Math.round(scores.explanation * 100)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Skilvirkni</p>
-                    <p className="text-2xl font-bold">{Math.round(scores.efficiency * 100)}%</p>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <p className="text-lg font-bold">
-                    Heildareinkunn: {Math.round(scores.composite * 100)}%
+              {/* Score grid */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-white p-4 rounded-xl text-center">
+                  <p className="text-xs text-gray-500 mb-1">Svar</p>
+                  <p className={`text-3xl font-bold ${scores.answer >= 0.75 ? 'text-green-600' : 'text-yellow-600'}`}>
+                    {Math.round(scores.answer * 100)}%
                   </p>
-                  {scores.hintPenalty > 0 && (
-                    <p className="text-sm text-orange-600 mt-1">
-                      (15% dregið frá vegna vísbendingar)
-                    </p>
-                  )}
                 </div>
+                <div className="bg-white p-4 rounded-xl text-center">
+                  <p className="text-xs text-gray-500 mb-1">Aðferð</p>
+                  <p className={`text-3xl font-bold ${scores.method >= 0.75 ? 'text-green-600' : 'text-yellow-600'}`}>
+                    {Math.round(scores.method * 100)}%
+                  </p>
+                </div>
+                <div className="bg-white p-4 rounded-xl text-center">
+                  <p className="text-xs text-gray-500 mb-1">Útskýring</p>
+                  <p className={`text-3xl font-bold ${scores.explanation >= 0.75 ? 'text-green-600' : 'text-yellow-600'}`}>
+                    {Math.round(scores.explanation * 100)}%
+                  </p>
+                </div>
+                <div className="bg-white p-4 rounded-xl text-center">
+                  <p className="text-xs text-gray-500 mb-1">Skilvirkni</p>
+                  <p className={`text-3xl font-bold ${scores.efficiency >= 0.75 ? 'text-green-600' : 'text-yellow-600'}`}>
+                    {Math.round(scores.efficiency * 100)}%
+                  </p>
+                </div>
+              </div>
 
-                {problem.type === 'error_analysis' && problem.errorExplanation && (
-                  <div className="mt-4 p-3 bg-white rounded">
-                    <p className="text-sm font-semibold mb-1">Útskýring á villunni:</p>
-                    <p className="text-sm">{problem.errorExplanation}</p>
-                  </div>
-                )}
-
-                {problem.type === 'synthesis' && problem.significantFigures && scores.sigFig !== null && (
-                  <div className={`mt-4 p-3 rounded ${scores.sigFig === 1 ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-                    <p className="text-sm font-semibold mb-1">
-                      {scores.sigFig === 1 ? '✓ Markverðir stafir réttir' : '✗ Markverðir stafir rangir'}
-                    </p>
-                    <p className="text-sm">
-                      Þitt svar hefur {scores.userSigFigs} markverða stafi.
-                      Ætti að hafa {problem.significantFigures}.
-                    </p>
-                  </div>
+              {/* Total score */}
+              <div className="bg-white p-5 rounded-xl text-center mb-6">
+                <p className="text-sm text-gray-600 mb-1">Heildareinkunn</p>
+                <p className={`text-4xl font-bold ${scores.composite >= 0.75 ? 'text-green-600' : 'text-yellow-600'}`}>
+                  {Math.round(scores.composite * 100)}%
+                </p>
+                {scores.hintPenalty > 0 && (
+                  <p className="text-xs text-orange-600 mt-2 bg-orange-50 px-3 py-1 rounded-full inline-block">
+                    -15% vegna vísbendingar
+                  </p>
                 )}
               </div>
 
+              {/* Error explanation */}
+              {problem.type === 'error_analysis' && problem.errorExplanation && (
+                <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200">
+                  <p className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <span>🔍</span> Útskýring á villunni:
+                  </p>
+                  <p className="text-gray-700">{problem.errorExplanation}</p>
+                </div>
+              )}
+
+              {/* Significant figures feedback */}
+              {problem.type === 'synthesis' && problem.significantFigures && scores.sigFig !== null && (
+                <div className={`mb-6 p-4 rounded-xl ${scores.sigFig === 1 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                  <p className="font-bold mb-1 flex items-center gap-2">
+                    {scores.sigFig === 1 ? <><span>✓</span> Markverðir stafir réttir</> : <><span>✗</span> Markverðir stafir rangir</>}
+                  </p>
+                  <p className="text-sm">
+                    Þitt svar: {scores.userSigFigs} stafir · Ætti: {problem.significantFigures} stafir
+                  </p>
+                </div>
+              )}
+
               <button
                 onClick={handleContinue}
-                className="w-full bg-orange-500 text-white py-3 rounded-lg font-bold hover:bg-orange-600"
-                style={{ backgroundColor: '#f36b22' }}
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-colors ${
+                  scores.composite >= 0.75
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : 'bg-purple-600 hover:bg-purple-700 text-white'
+                }`}
               >
                 {currentProblemIndex < level3Challenges.length - 1 ? 'Næsta áskorun →' : 'Ljúka stigi'}
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
