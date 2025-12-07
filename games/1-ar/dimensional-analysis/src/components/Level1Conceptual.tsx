@@ -29,8 +29,8 @@ const challenges: Challenge[] = [
     id: 'C1',
     type: 'equivalence',
     title: 'Jafngildi eininga',
-    instruction: 'Stilltu hægri gildið þannig að vogin jafnist. 1000 mL er jafnt hverju?',
-    hint: 'Mundu: Lítrar og millilítrar mæla sama rúmmál, bara með mismunandi tölum.'
+    instruction: 'Finndu hversu margir LÍTRAR jafngilda 1000 mL. Notaðu takkana til að stilla.',
+    hint: 'Mundu: 1000 mL = 1 L. Lítrar og millilítrar mæla sama rúmmál, bara með mismunandi tölum.'
   },
   {
     id: 'C2',
@@ -428,28 +428,39 @@ interface ChallengeComponentProps {
 }
 
 /**
- * Challenge 1: Unit Equivalence - Match mL to L
+ * Challenge 1: Unit Equivalence - Find how many L equals 1000 mL
+ *
+ * Simplified design: Students adjust ONLY the L value to match 1000 mL.
+ * This teaches: "Different numbers with different units = same amount"
  */
 function EquivalenceChallenge1({ onSuccess, onAttempt }: ChallengeComponentProps) {
-  const [rightValue, setRightValue] = useState(100);
-  const [selectedUnit, setSelectedUnit] = useState<'mL' | 'L'>('mL');
+  const [rightValue, setRightValue] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [hasAttempted, setHasAttempted] = useState(false);
+
+  // Left side: 1000 mL = 1000 mL (in base units)
+  // Right side: rightValue L = rightValue * 1000 mL (in base units)
+  const leftVolumeInML = 1000;
+  const rightVolumeInML = rightValue * 1000;
 
   useEffect(() => {
-    // Check if 1000 mL = X L (correct when X = 1 and unit is L)
-    const correct = (selectedUnit === 'L' && rightValue === 1) ||
-                   (selectedUnit === 'mL' && rightValue === 1000);
+    // Correct when rightValue = 1 (meaning 1 L = 1000 mL)
+    const correct = rightValue === 1;
     setIsCorrect(correct);
-    if (correct) {
+    if (correct && hasAttempted) {
       onSuccess();
     }
-  }, [rightValue, selectedUnit, onSuccess]);
+  }, [rightValue, hasAttempted, onSuccess]);
 
   const adjustValue = (delta: number) => {
     onAttempt();
-    const newValue = Math.max(0.1, rightValue + delta);
+    setHasAttempted(true);
+    const newValue = Math.max(0, rightValue + delta);
     setRightValue(Number(newValue.toFixed(1)));
   };
+
+  // Determine which side is heavier for scale tilt
+  const comparison = rightVolumeInML - leftVolumeInML; // positive = right heavier
 
   return (
     <div className="space-y-6">
@@ -457,82 +468,68 @@ function EquivalenceChallenge1({ onSuccess, onAttempt }: ChallengeComponentProps
         leftValue={1000}
         leftUnit="mL"
         rightValue={rightValue}
-        rightUnit={selectedUnit}
+        rightUnit="L"
         isEqual={isCorrect}
+        comparison={comparison}
       />
 
       {!isCorrect && (
         <div className="flex flex-col items-center gap-4 p-6 bg-gray-50 rounded-xl">
-          <p className="text-gray-700 font-semibold">Stilltu hægri hliðina:</p>
+          <p className="text-gray-700 font-semibold">Hversu margir lítrar jafngilda 1000 mL?</p>
 
-          {/* Unit selector */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => { setSelectedUnit('mL'); onAttempt(); }}
-              className={`px-6 py-3 rounded-lg font-bold transition-all ${
-                selectedUnit === 'mL'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              mL
-            </button>
-            <button
-              onClick={() => { setSelectedUnit('L'); onAttempt(); }}
-              className={`px-6 py-3 rounded-lg font-bold transition-all ${
-                selectedUnit === 'L'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              L
-            </button>
-          </div>
-
-          {/* Value adjuster - mobile responsive */}
-          <div className="flex flex-col items-center gap-4">
-            <span className="text-3xl font-bold text-gray-800">
+          {/* Current value display */}
+          <div className="flex items-center gap-3">
+            <span className="text-4xl font-bold text-green-700">
               {rightValue}
             </span>
+            <span className="text-2xl font-bold text-green-600">L</span>
+          </div>
 
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              <button
-                onClick={() => adjustValue(-100)}
-                className="px-3 sm:px-4 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors text-sm sm:text-base"
-              >
-                -100
-              </button>
-              <button
-                onClick={() => adjustValue(-10)}
-                className="px-3 sm:px-4 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors text-sm sm:text-base"
-              >
-                -10
-              </button>
-              <button
-                onClick={() => adjustValue(-1)}
-                className="px-3 sm:px-4 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors text-sm sm:text-base"
-              >
-                -1
-              </button>
-              <button
-                onClick={() => adjustValue(1)}
-                className="px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors text-sm sm:text-base"
-              >
-                +1
-              </button>
-              <button
-                onClick={() => adjustValue(10)}
-                className="px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors text-sm sm:text-base"
-              >
-                +10
-              </button>
-              <button
-                onClick={() => adjustValue(100)}
-                className="px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors text-sm sm:text-base"
-              >
-                +100
-              </button>
-            </div>
+          {/* Hint about direction */}
+          {hasAttempted && !isCorrect && (
+            <p className="text-sm text-gray-500">
+              {comparison < 0 ? '↑ Þú þarft meira' : comparison > 0 ? '↓ Þú þarft minna' : ''}
+            </p>
+          )}
+
+          {/* Value adjuster - appropriate increments for Liters */}
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+            <button
+              onClick={() => adjustValue(-1)}
+              className="px-4 py-3 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors text-lg"
+            >
+              -1
+            </button>
+            <button
+              onClick={() => adjustValue(-0.5)}
+              className="px-4 py-3 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors"
+            >
+              -0.5
+            </button>
+            <button
+              onClick={() => adjustValue(-0.1)}
+              className="px-4 py-3 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors"
+            >
+              -0.1
+            </button>
+            <button
+              onClick={() => adjustValue(0.1)}
+              className="px-4 py-3 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors"
+            >
+              +0.1
+            </button>
+            <button
+              onClick={() => adjustValue(0.5)}
+              className="px-4 py-3 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors"
+            >
+              +0.5
+            </button>
+            <button
+              onClick={() => adjustValue(1)}
+              className="px-4 py-3 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors text-lg"
+            >
+              +1
+            </button>
           </div>
         </div>
       )}
