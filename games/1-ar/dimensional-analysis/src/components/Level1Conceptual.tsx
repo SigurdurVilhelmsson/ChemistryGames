@@ -644,11 +644,16 @@ function FactorBuildingChallenge({ onSuccess, onAttempt }: ChallengeComponentPro
 
 /**
  * Challenge 3: Unit Cancellation - Select factor to convert mL to L
+ *
+ * Visual feedback shows:
+ * - The mL units (starting value + denominator) get strikethrough
+ * - The L unit (numerator) stays highlighted as the result
  */
 function CancellationChallenge1({ onSuccess, onAttempt }: ChallengeComponentProps) {
   const [selectedFactor, setSelectedFactor] = useState<number | null>(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [animationPhase, setAnimationPhase] = useState<'selecting' | 'cancelling' | 'done'>('selecting');
   const [startValue] = useState(() => getRandomStartValue());
   const [factors] = useState(() => shuffleFactors([
     { num: 1000, numUnit: 'mL', den: 1, denUnit: 'L', correct: false },
@@ -659,96 +664,147 @@ function CancellationChallenge1({ onSuccess, onAttempt }: ChallengeComponentProp
     onAttempt();
     setSelectedFactor(idx);
     setShowAnimation(true);
+    setAnimationPhase('cancelling');
 
+    // After animation, show result
     setTimeout(() => {
       const correct = factors[idx].correct;
       setIsCorrect(correct);
+      setAnimationPhase('done');
       if (correct) {
         onSuccess();
       }
     }, 1500);
   };
 
+  // For correct factor (1 L / 1000 mL):
+  // - Starting mL cancels with denominator mL
+  // - Numerator L becomes the result
+  const selectedFactorData = selectedFactor !== null ? factors[selectedFactor] : null;
+  const isCancellingPhase = animationPhase === 'cancelling' || animationPhase === 'done';
+
   return (
     <div className="space-y-6">
       {/* Starting value */}
-      <div className="flex items-center justify-center gap-4 p-6 bg-gray-50 rounded-xl flex-wrap">
+      <div className="flex items-center justify-center gap-3 sm:gap-4 p-4 sm:p-6 bg-gray-50 rounded-xl flex-wrap">
         <div className="text-center">
           <p className="text-sm text-gray-600 mb-2">Byrjunargildi:</p>
-          <UnitBlock value={startValue} unit="mL" color="blue" size="large" />
+          <div className="flex items-center gap-1">
+            <span className="text-2xl sm:text-3xl font-bold text-blue-600">{startValue}</span>
+            {/* Starting mL - gets strikethrough when correct factor selected */}
+            <span className={`text-2xl sm:text-3xl font-bold transition-all duration-500 ${
+              isCancellingPhase && isCorrect
+                ? 'text-red-400 line-through opacity-50'
+                : 'text-blue-600'
+            }`}>
+              mL
+            </span>
+          </div>
         </div>
 
-        <div className="text-3xl text-gray-400">×</div>
+        <div className="text-2xl sm:text-3xl text-gray-400">×</div>
 
         {/* Factor slot */}
         <div className={`
-          min-w-[140px] min-h-[80px] p-4 rounded-xl border-2
-          flex items-center justify-center
+          min-w-[120px] sm:min-w-[140px] min-h-[70px] sm:min-h-[80px] p-3 sm:p-4 rounded-xl border-2
+          flex items-center justify-center transition-all duration-300
           ${selectedFactor !== null
             ? (isCorrect ? 'border-green-500 bg-green-50' : (showAnimation && !isCorrect ? 'border-red-500 bg-red-50' : 'border-orange-500 bg-orange-50'))
             : 'border-dashed border-gray-300 bg-gray-50'
           }
         `}>
-          {selectedFactor !== null ? (
+          {selectedFactorData ? (
             <div className="text-center">
-              <div className={`font-bold ${isCorrect && showAnimation ? 'text-gray-400 line-through' : 'text-blue-600'}`}>
-                {factors[selectedFactor].num} {factors[selectedFactor].numUnit}
+              {/* Numerator - L stays visible and highlighted when correct */}
+              <div className={`font-bold text-sm sm:text-base transition-all duration-500 ${
+                isCancellingPhase && isCorrect && selectedFactorData.numUnit === 'L'
+                  ? 'text-green-600 scale-110' // L stays, gets highlighted
+                  : isCancellingPhase && !isCorrect && selectedFactorData.numUnit === 'mL'
+                  ? 'text-orange-500' // Wrong: mL in numerator doesn't cancel
+                  : 'text-blue-600'
+              }`}>
+                {selectedFactorData.num} {selectedFactorData.numUnit}
               </div>
               <div className="w-full h-0.5 bg-gray-800 my-1" />
-              <div className={`font-bold ${isCorrect && showAnimation ? 'text-gray-400 line-through' : 'text-green-600'}`}>
-                {factors[selectedFactor].den} {factors[selectedFactor].denUnit}
+              {/* Denominator - mL gets strikethrough when correct */}
+              <div className={`font-bold text-sm sm:text-base transition-all duration-500 ${
+                isCancellingPhase && isCorrect && selectedFactorData.denUnit === 'mL'
+                  ? 'text-red-400 line-through opacity-50' // mL cancels
+                  : isCancellingPhase && !isCorrect && selectedFactorData.denUnit === 'L'
+                  ? 'text-orange-500' // Wrong: L in denominator
+                  : 'text-green-600'
+              }`}>
+                {selectedFactorData.den} {selectedFactorData.denUnit}
               </div>
             </div>
           ) : (
-            <span className="text-gray-400">Veldu stuðul</span>
+            <span className="text-gray-400 text-sm">Veldu stuðul</span>
           )}
         </div>
 
-        <div className="text-3xl text-gray-400">=</div>
+        <div className="text-2xl sm:text-3xl text-gray-400">=</div>
 
         {/* Result */}
-        <div className="text-center">
+        <div className="text-center min-w-[80px]">
           <p className="text-sm text-gray-600 mb-2">Útkoma:</p>
-          {showAnimation && (
-            <UnitBlock
-              value={isCorrect ? startValue / 1000 : startValue * 1000}
-              unit={isCorrect ? 'L' : 'mL²/L'}
-              color={isCorrect ? 'green' : 'red'}
-              size="large"
-            />
+          {showAnimation && animationPhase === 'done' && (
+            <div className={`px-3 sm:px-4 py-2 rounded-lg font-bold text-lg sm:text-xl ${
+              isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`}>
+              {isCorrect ? `${startValue / 1000} L` : 'Villa!'}
+            </div>
+          )}
+          {showAnimation && animationPhase === 'cancelling' && (
+            <div className="px-3 sm:px-4 py-2 rounded-lg bg-yellow-100 text-yellow-700 font-bold animate-pulse">
+              ...
+            </div>
           )}
         </div>
       </div>
 
-      {/* Cancellation animation explanation */}
-      {showAnimation && isCorrect && (
-        <div className="p-4 bg-green-50 rounded-lg border border-green-200 text-center">
-          <p className="text-green-800">
-            mL í teljaranum og mL í nefnaranum <strong>strikast út</strong>!
-          </p>
-          <p className="text-green-700 mt-2">
-            {startValue} mL × (1 L / 1000 mL) = {startValue / 1000} L
+      {/* Cancellation explanation - only show when correct */}
+      {animationPhase === 'done' && isCorrect && (
+        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <span className="text-red-400 line-through">mL</span>
+            <span className="text-gray-600">og</span>
+            <span className="text-red-400 line-through">mL</span>
+            <span className="text-gray-600">strikast út →</span>
+            <span className="text-green-600 font-bold text-lg">L</span>
+            <span className="text-gray-600">verður eftir!</span>
+          </div>
+          <p className="text-green-700 text-center text-sm">
+            {startValue} <span className="line-through text-red-400">mL</span> × (1 <span className="text-green-600 font-bold">L</span> / 1000 <span className="line-through text-red-400">mL</span>) = {startValue / 1000} L
           </p>
         </div>
       )}
 
-      {showAnimation && !isCorrect && selectedFactor !== null && (
+      {/* Error explanation - only show when wrong */}
+      {animationPhase === 'done' && !isCorrect && selectedFactor !== null && (
         <div className="p-4 bg-red-50 rounded-lg border border-red-200 text-center">
-          <p className="text-red-800">
-            mL er í teljara beggja - það strikast <strong>ekki</strong> út!
+          <p className="text-red-800 mb-2">
+            <strong>mL</strong> er í teljara <em>beggja</em> - ekkert strikast út!
+          </p>
+          <p className="text-red-600 text-sm mb-3">
+            Til að strika út einingu þarf hún að vera í teljara annarsvegar og nefnara hinsvegar.
           </p>
           <button
-            onClick={() => { setSelectedFactor(null); setShowAnimation(false); setIsCorrect(false); }}
-            className="mt-2 text-red-600 underline"
+            onClick={() => {
+              setSelectedFactor(null);
+              setShowAnimation(false);
+              setIsCorrect(false);
+              setAnimationPhase('selecting');
+            }}
+            className="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition-colors"
           >
             Reyna aftur
           </button>
         </div>
       )}
 
-      {/* Factor options */}
-      {!isCorrect && !showAnimation && (
-        <div className="flex justify-center gap-6">
+      {/* Factor options - only show when selecting */}
+      {animationPhase === 'selecting' && (
+        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
           {factors.map((factor, idx) => (
             <ConversionFactorBlock
               key={idx}
