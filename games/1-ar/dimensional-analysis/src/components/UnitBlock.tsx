@@ -160,26 +160,54 @@ interface EquivalenceDisplayProps {
   rightValue: number;
   rightUnit: string;
   isEqual: boolean;
+  /** Comparison value: negative = left heavier, positive = right heavier, 0 = equal */
+  comparison?: number;
 }
 
 /**
  * Visual display showing equivalence between two unit expressions
- * Uses a balance scale metaphor
+ * Uses a balance scale metaphor that tilts based on which side is heavier
  */
 export function EquivalenceDisplay({
   leftValue,
   leftUnit,
   rightValue,
   rightUnit,
-  isEqual
+  isEqual,
+  comparison = 0
 }: EquivalenceDisplayProps) {
+  // Determine tilt direction and amount
+  // Positive comparison = right is heavier = tilt right down
+  // Negative comparison = left is heavier = tilt left down
+  const getTiltClass = () => {
+    if (isEqual) return '';
+    if (comparison > 0) return 'rotate-[-5deg]'; // Right heavier - right goes down
+    if (comparison < 0) return 'rotate-[5deg]';  // Left heavier - left goes down
+    return '';
+  };
+
+  // Pan positions based on tilt
+  const getLeftPanClass = () => {
+    if (isEqual) return '';
+    if (comparison > 0) return '-translate-y-3'; // Right heavier - left goes up
+    if (comparison < 0) return 'translate-y-3';  // Left heavier - left goes down
+    return '';
+  };
+
+  const getRightPanClass = () => {
+    if (isEqual) return '';
+    if (comparison > 0) return 'translate-y-3';  // Right heavier - right goes down
+    if (comparison < 0) return '-translate-y-3'; // Left heavier - right goes up
+    return '';
+  };
+
   return (
     <div className="flex flex-col items-center p-6 bg-gradient-to-b from-gray-50 to-gray-100 rounded-xl">
       {/* Scale beam */}
       <div className={`
         relative w-full max-w-md h-2 bg-gray-800 rounded-full
-        transition-transform duration-500
-        ${isEqual ? '' : 'rotate-3'}
+        transition-transform duration-500 origin-center
+        ${getTiltClass()}
       `}>
         {/* Fulcrum */}
         <div className="absolute left-1/2 -translate-x-1/2 top-full">
@@ -191,7 +219,7 @@ export function EquivalenceDisplay({
       <div className="flex justify-between w-full max-w-md mt-6 px-4">
         <div className={`
           transition-all duration-500
-          ${isEqual ? '' : '-translate-y-2'}
+          ${getLeftPanClass()}
         `}>
           <UnitBlock
             value={leftValue}
@@ -210,7 +238,7 @@ export function EquivalenceDisplay({
 
         <div className={`
           transition-all duration-500
-          ${isEqual ? '' : 'translate-y-2'}
+          ${getRightPanClass()}
         `}>
           <UnitBlock
             value={rightValue}
@@ -229,7 +257,7 @@ export function EquivalenceDisplay({
           ? 'bg-green-100 text-green-700'
           : 'bg-yellow-100 text-yellow-700'}
       `}>
-        {isEqual ? 'Jafnvægi! Þetta jafngildir 1' : 'Ekki jafnvægi...'}
+        {isEqual ? 'Jafnvægi! Sama rúmmál!' : 'Ekki jafnvægi...'}
       </div>
     </div>
   );
