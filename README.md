@@ -58,7 +58,7 @@ cd games/1-ar/dimensional-analysis
 pnpm dev  # Opens at http://localhost:5173
 
 # Build a game to single HTML file
-pnpm build  # Outputs to ../../1-ar/dimensional-analysis-game-new.html
+pnpm build  # Outputs to ../../1-ar/dimensional-analysis.html
 ```
 
 ### Create a New Game
@@ -84,7 +84,7 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 - **Levels**: 3 progressive difficulty levels (lessons, practice, challenges)
 - **Features**: 35 interactive questions, scaffolded practice, complete scoring system
 - **Source**: `games/1-ar/dimensional-analysis/`
-- **Build**: `dimensional-analysis-game-new.html` (168KB)
+- **Build**: `dimensional-analysis.html` (168KB)
 
 #### ✅ Einingagreining Einföld (Dimensional Analysis Simple) - **MIGRATED**
 - **Topics**: Unit conversion fundamentals

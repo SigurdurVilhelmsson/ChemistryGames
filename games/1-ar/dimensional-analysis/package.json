@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && mv ../../../1-ar/index.html ../../../1-ar/dimensional-analysis-game-new.html",
+    "build": "tsc && vite build && mv ../../../1-ar/index.html ../../../1-ar/dimensional-analysis.html",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
