@@ -9,7 +9,7 @@ This document tracks the migration of all chemistry games to the new monorepo ar
 ### ✅ dimensional-analysis-game.html (3113 lines)
 **Status**: COMPLETED  
 **Location**: `/games/1-ar/dimensional-analysis/`  
-**Output**: `dimensional-analysis-game-new.html` (168KB)
+**Output**: `dimensional-analysis.html` (168KB)
 
 **Features Migrated**:
 - 3 interactive lessons

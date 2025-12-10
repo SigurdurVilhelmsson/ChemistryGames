@@ -175,7 +175,7 @@
 
 ### Build Status
 - **Year 1 Games**: ✅ 5 games built (169-205KB each)
-  - nafnakerfid.html, dimensional-analysis-game-new.html, molmassi.html, takmarkandi.html, lausnir.html
+  - nafnakerfid.html, dimensional-analysis.html, molmassi.html, takmarkandi.html, lausnir.html
 - **Year 3 Games**: ✅ 6 games built (175-212KB each)
   - gas-law-challenge.html, thermodynamics-predictor.html, buffer-recipe-creator.html, equilibrium-shifter.html, ph-titration-practice.html, ph-titration-master.html
 - **Landing Pages**: ✅ Present (1-ar/index.html, 3-ar/index.html)

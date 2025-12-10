@@ -20,7 +20,7 @@ This guide covers deploying ChemistryGames to **kvenno.app** and general server 
 **Games Overview**:
 - **Year 1 (1-ar)**: 5 games + landing page
   - nafnakerfid.html (169KB)
-  - dimensional-analysis-game-new.html (205KB)
+  - dimensional-analysis.html (205KB)
   - molmassi.html (181KB)
   - takmarkandi.html (185KB)
   - lausnir.html (197KB)
@@ -231,7 +231,7 @@ server {
 │   └── games/
 │       ├── index.html                           ✅ Landing page (6.0K)
 │       ├── nafnakerfid.html                     ✅ Built game (169K)
-│       ├── dimensional-analysis-game-new.html   ✅ Built game (205K)
+│       ├── dimensional-analysis.html   ✅ Built game (205K)
 │       ├── molmassi.html                        ✅ Built game (181K)
 │       ├── takmarkandi.html                     ✅ Built game (185K)
 │       └── lausnir.html                         ✅ Built game (197K)
