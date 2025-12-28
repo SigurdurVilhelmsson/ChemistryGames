@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2. ár - Efnafræðileikir - Kvennaskólinn</title>
+  <meta name="description" content="Gagnvirkir efnafræðileikir fyrir 2. ár í Kvennaskólanum í Reykjavík">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #d1fae5 100%);
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: #166534;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #4b5563;
+      font-size: 1.1rem;
+    }
+
+    .school-badge {
+      display: inline-block;
+      background: #166534;
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    .games-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .game-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .game-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    }
+
+    .game-card:focus {
+      outline: 2px solid #f36b22;
+      outline-offset: 2px;
+    }
+
+    .game-icon {
+      font-size: 3rem;
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1rem;
+    }
+
+    .game-content {
+      flex: 1;
+    }
+
+    .game-number {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .game-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .game-description {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .game-chapter {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.5rem;
+    }
+
+    .arrow {
+      color: #9ca3af;
+      font-size: 1.5rem;
+      transition: transform 0.2s;
+    }
+
+    .game-card:hover .arrow {
+      transform: translateX(4px);
+      color: #166534;
+    }
+
+    /* Individual game colors */
+    .game-1 { border-color: #fbbf24; }
+    .game-1 .game-icon { background: #fef3c7; }
+    .game-1 .game-number { color: #b45309; }
+    .game-1 .game-title { color: #b45309; }
+
+    .game-2 { border-color: #f97316; }
+    .game-2 .game-icon { background: #ffedd5; }
+    .game-2 .game-number { color: #c2410c; }
+    .game-2 .game-title { color: #c2410c; }
+
+    .game-3 { border-color: #3b82f6; }
+    .game-3 .game-icon { background: #dbeafe; }
+    .game-3 .game-number { color: #1d4ed8; }
+    .game-3 .game-title { color: #1d4ed8; }
+
+    .game-4 { border-color: #8b5cf6; }
+    .game-4 .game-icon { background: #ede9fe; }
+    .game-4 .game-number { color: #6d28d9; }
+    .game-4 .game-title { color: #6d28d9; }
+
+    .game-5 { border-color: #06b6d4; }
+    .game-5 .game-icon { background: #cffafe; }
+    .game-5 .game-number { color: #0e7490; }
+    .game-5 .game-title { color: #0e7490; }
+
+    .game-6 { border-color: #ef4444; }
+    .game-6 .game-icon { background: #fee2e2; }
+    .game-6 .game-number { color: #b91c1c; }
+    .game-6 .game-title { color: #b91c1c; }
+
+    .game-7 { border-color: #22c55e; }
+    .game-7 .game-icon { background: #dcfce7; }
+    .game-7 .game-number { color: #15803d; }
+    .game-7 .game-title { color: #15803d; }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: #166534;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .game-card {
+        padding: 1rem;
+        gap: 1rem;
+      }
+
+      .game-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+      }
+
+      .game-title {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Efnafræðileikir - 2. ár</h1>
+      <p class="subtitle">Gagnvirkir leikir til að læra efnafræði</p>
+      <span class="school-badge">Kvennaskólinn í Reykjavík</span>
+    </header>
+
+    <div class="games-grid">
+      <a href="hess-law.html" class="game-card game-1">
+        <div class="game-icon">🔥</div>
+        <div class="game-content">
+          <div class="game-number">Leikur 1</div>
+          <div class="game-title">Lögmál Hess</div>
+          <div class="game-description">Reiknaðu varmabreytingar með lögmáli Hess og iðefnaformum</div>
+          <div class="game-chapter">Kafli 5: Varmafræði</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a href="kinetics.html" class="game-card game-2">
+        <div class="game-icon">⚡</div>
+        <div class="game-content">
+          <div class="game-number">Leikur 2</div>
+          <div class="game-title">Hvarfhraði</div>
+          <div class="game-description">Lærðu um hvarfhraða, hvata og virkjunarorku</div>
+          <div class="game-chapter">Kafli 14: Efnahvörf</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a href="lewis-structures.html" class="game-card game-3">
+        <div class="game-icon">⚛️</div>
+        <div class="game-content">
+          <div class="game-number">Leikur 3</div>
+          <div class="game-title">Lewis-formúlur</div>
+          <div class="game-description">Teiknaðu Lewis-punktaformúlur og finndu gildisrafeindir</div>
+          <div class="game-chapter">Kafli 8: Efnatengi</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a href="vsepr-geometry.html" class="game-card game-4">
+        <div class="game-icon">🔮</div>
+        <div class="game-content">
+          <div class="game-number">Leikur 4</div>
+          <div class="game-title">VSEPR og Sameindaform</div>
+          <div class="game-description">Spáðu fyrir um lögun sameinda með VSEPR kenningunni</div>
+          <div class="game-chapter">Kafli 9: Sameindaform</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a href="intermolecular-forces.html" class="game-card game-5">
+        <div class="game-icon">🧲</div>
+        <div class="game-content">
+          <div class="game-number">Leikur 5</div>
+          <div class="game-title">Millisameindakraftar</div>
+          <div class="game-description">Greindu London-krafta, tvípóla og vetnistengi</div>
+          <div class="game-chapter">Kafli 11: Millisameindakraftar</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a href="redox-reactions.html" class="game-card game-6">
+        <div class="game-icon">⚡</div>
+        <div class="game-content">
+          <div class="game-number">Leikur 6</div>
+          <div class="game-title">Oxun og Afoxun</div>
+          <div class="game-description">Lærðu oxunartölur og jafnaðu redox-jöfnur</div>
+          <div class="game-chapter">Sérefni: Redox efnafræði</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a href="organic-nomenclature.html" class="game-card game-7">
+        <div class="game-icon">🧪</div>
+        <div class="game-content">
+          <div class="game-number">Leikur 7</div>
+          <div class="game-title">Lífræn Nafnagift</div>
+          <div class="game-description">Nefndu alkanar, alkenar, alkynar og hóptengi</div>
+          <div class="game-chapter">Sérefni: Lífræn efnafræði</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <footer>
+      <p>Sérsniðið námsefni fyrir Kvennaskólann í Reykjavík</p>
+      <p style="margin-top: 0.5rem;"><a href="../index.html">← Til baka á forsíðu</a></p>
+    </footer>
+  </div>
+</body>
+</html>
