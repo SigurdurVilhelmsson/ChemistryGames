@@ -20,7 +20,7 @@ ChemistryGames/
 │   └── styles/            # Kvennaskólinn brand theme
 ├── games/                  # Individual game projects
 │   ├── 1-ar/              # Year 1 games
-│   ├── 2-ar/              # Year 2 games (planned)
+│   ├── 2-ar/              # Year 2 games
 │   └── 3-ar/              # Year 3 games
 ├── tools/                  # Development tools
 │   ├── game-template/     # Template for new games
@@ -86,13 +86,6 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 - **Source**: `games/1-ar/dimensional-analysis/`
 - **Build**: `dimensional-analysis.html` (168KB)
 
-#### ✅ Einingagreining Einföld (Dimensional Analysis Simple) - **MIGRATED**
-- **Topics**: Unit conversion fundamentals
-- **Format**: Tutorial + sandbox + quiz
-- **Features**: Worked examples, interactive playground, progress tracking
-- **Source**: `games/1-ar/dimensional-analysis-simple/`
-- **Build**: `dimensional-analysis-simple.html` (190KB)
-
 #### ✅ Mólmassi (Molar Mass Challenge) - **MIGRATED**
 - **Topics**: Molar mass calculations, chemical formulas, periodic table
 - **Format**: Practice & Competition modes with timer
@@ -120,6 +113,29 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 - **Features**: 20 reactions, 3 difficulty levels, detailed solutions, streak system
 - **Source**: `games/1-ar/takmarkandi/`
 - **Build**: `takmarkandi.html` (188KB)
+
+### Year 2 (2-ár) - Intermediate Chemistry
+
+#### ✅ Hess's Law - **NEW**
+- **Topics**: Thermochemistry, enthalpy calculations, Hess's Law
+- **Format**: Puzzle-based learning with energy diagrams
+- **Features**: Multi-step enthalpy problems, reaction pathway visualization
+- **Source**: `games/2-ar/hess-law/`
+- **Build**: `hess-law.html` (212KB)
+
+#### ✅ Reaction Kinetics - **NEW**
+- **Topics**: Rate laws, reaction mechanisms, kinetic theory
+- **Format**: Interactive problem-solving with rate calculations
+- **Features**: Rate law determination, activation energy, temperature effects
+- **Source**: `games/2-ar/kinetics/`
+- **Build**: `kinetics.html` (204KB)
+
+#### ✅ Lewis Structures - **NEW**
+- **Topics**: Electron dot structures, valence electrons, bonding
+- **Format**: Interactive structure drawing
+- **Features**: Step-by-step structure building, electron counting, resonance structures
+- **Source**: `games/2-ar/lewis-structures/`
+- **Build**: `lewis-structures.html` (212KB)
 
 ### Year 3 (3-ár) - Advanced Chemistry
 
@@ -171,7 +187,7 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 
 ### Build System
 - **pnpm Workspaces** - Monorepo package management
-- **Vite** - Fast build tool and dev server
+- **Vite 6.4+** - Fast build tool and dev server
 - **TypeScript 5.3+** - Type safety
 - **vite-plugin-singlefile** - Single HTML output
 
@@ -191,17 +207,22 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 
 ### Quick Links
 - **[Documentation Hub](docs/README.md)** - Complete documentation index
+- **[Developer Guide](docs/DEVELOPER-GUIDE.md)** - Complete development workflow
+- **[Architecture](docs/ARCHITECTURE.md)** - System architecture and design decisions
+- **[API Reference](docs/API-REFERENCE.md)** - Shared library API documentation
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+
+### Development Resources
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** - Development workflow and tools
 - **[DEBUGGING.md](DEBUGGING.md)** - Debugging guide
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deployment to kvenno.app
-- **[KVENNO-STRUCTURE.md](KVENNO-STRUCTURE.md)** - Site structure and design
+- **[tools/game-template/README.md](tools/game-template/README.md)** - Game template guide
+- **[shared/README.md](shared/README.md)** - Shared library overview
 
 ### Additional Resources
-- **[tools/game-template/README.md](tools/game-template/README.md)** - Template guide
-- **[shared/README.md](shared/README.md)** - Shared library API
+- **[KVENNO-STRUCTURE.md](KVENNO-STRUCTURE.md)** - Site structure and design
 - **[GAME-REVIEW-PROMPT.md](GAME-REVIEW-PROMPT.md)** - Game review guidelines
-- **[Archived Docs](docs/archive/)** - Historical documentation (completed migrations)
+- **[Archived Docs](docs/archive/)** - Historical documentation
 
 ---
 
@@ -321,18 +342,16 @@ pnpm type-check
 
 ---
 
-## 📈 Migration Status
+## 📈 Game Status
 
-| Status | Count | Description |
-|--------|-------|-------------|
-| ✅ Completed | 12 | Full migration to new architecture |
-| 🚧 In Progress | 0 | Currently being migrated |
-| ⏳ Pending | 0 | Awaiting migration |
-| **Total** | **12** | **All games** |
+| Year | Count | Games |
+|------|-------|-------|
+| Year 1 (1-ár) | 5 | Dimensional Analysis, Molar Mass, Nomenclature, Solutions, Limiting Reactants |
+| Year 2 (2-ár) | 3 | Hess's Law, Reaction Kinetics, Lewis Structures |
+| Year 3 (3-ár) | 6 | pH Titration Practice/Master, Gas Laws, Equilibrium, Thermodynamics, Buffers |
+| **Total** | **14** | **All games implemented** |
 
-**Phase 2 Complete!** All games have been successfully migrated to the monorepo architecture.
-
-See [MIGRATION-PLAN.md](MIGRATION-PLAN.md) for detailed migration status and Phase 3 plans.
+All games have been migrated to the monorepo architecture and are production-ready.
 
 ---
 
