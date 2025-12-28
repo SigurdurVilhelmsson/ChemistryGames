@@ -1,27 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getRandomCompounds, Difficulty } from './data/compounds';
-import { Card as CardComponent } from './components/Card';
-import { Card as CardType, GameState } from './types';
+import { useState, useEffect } from 'react';
+import { Level1 } from './components/Level1';
+import { Level2 } from './components/Level2';
+import { Level3 } from './components/Level3';
 
-type Screen = 'menu' | 'difficulty' | 'playing' | 'win';
+type Screen = 'menu' | 'level1' | 'level2' | 'level3';
 
 interface Progress {
-  gamesPlayed: number;
-  bestMoves: { [key: string]: number };
-  totalMatches: number;
+  level1Completed: boolean;
+  level1Score: number;
+  level2Completed: boolean;
+  level2Score: number;
+  level3BestMoves: { [key: string]: number };
+  totalGamesPlayed: number;
 }
 
 const STORAGE_KEY = 'nafnakerfidProgress';
-
-// Fisher-Yates shuffle for reliable randomization
-function shuffle<T>(array: T[]): T[] {
-  const result = [...array];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
 
 function loadProgress(): Progress {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -29,10 +22,21 @@ function loadProgress(): Progress {
     try {
       return JSON.parse(saved);
     } catch {
-      return { gamesPlayed: 0, bestMoves: {}, totalMatches: 0 };
+      return getDefaultProgress();
     }
   }
-  return { gamesPlayed: 0, bestMoves: {}, totalMatches: 0 };
+  return getDefaultProgress();
+}
+
+function getDefaultProgress(): Progress {
+  return {
+    level1Completed: false,
+    level1Score: 0,
+    level2Completed: false,
+    level2Score: 0,
+    level3BestMoves: {},
+    totalGamesPlayed: 0,
+  };
 }
 
 function saveProgress(progress: Progress): void {
@@ -41,330 +45,247 @@ function saveProgress(progress: Progress): void {
 
 function App() {
   const [screen, setScreen] = useState<Screen>('menu');
-  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
-  const [pairCount, setPairCount] = useState<6 | 8 | 10>(6);
-  const [gameState, setGameState] = useState<GameState | null>(null);
   const [progress, setProgress] = useState<Progress>(loadProgress());
 
-  const initializeGame = useCallback((diff: Difficulty, pairs: 6 | 8 | 10) => {
-    const compounds = getRandomCompounds(pairs, diff);
-
-    const cards: CardType[] = [];
-    compounds.forEach((compound, index) => {
-      cards.push({
-        id: `formula-${index}`,
-        type: 'formula',
-        compound,
-        isFlipped: false,
-        isMatched: false,
-      });
-      cards.push({
-        id: `name-${index}`,
-        type: 'name',
-        compound,
-        isFlipped: false,
-        isMatched: false,
-      });
-    });
-
-    // Shuffle cards using Fisher-Yates
-    const shuffled = shuffle(cards);
-
-    setGameState({
-      cards: shuffled,
-      flippedCards: [],
-      matchedPairs: 0,
-      moves: 0,
-      gameStarted: true,
-      gameComplete: false,
-      difficulty: diff,
-      pairCount: pairs,
-    });
-
-    setDifficulty(diff);
-    setPairCount(pairs);
-    setScreen('playing');
-  }, []);
-
-  const handleCardClick = useCallback((cardId: string) => {
-    if (!gameState) return;
-
-    const card = gameState.cards.find(c => c.id === cardId);
-    if (!card || card.isFlipped || card.isMatched) return;
-    if (gameState.flippedCards.length >= 2) return;
-
-    const newFlippedCards = [...gameState.flippedCards, cardId];
-
-    setGameState(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        cards: prev.cards.map(c =>
-          c.id === cardId ? { ...c, isFlipped: true } : c
-        ),
-        flippedCards: newFlippedCards,
-      };
-    });
-
-    // Check for match when 2 cards are flipped
-    if (newFlippedCards.length === 2) {
-      const card1 = gameState.cards.find(c => c.id === newFlippedCards[0]);
-      const card2 = gameState.cards.find(c => c.id === newFlippedCards[1]);
-
-      if (card1 && card2 && card1.compound.formula === card2.compound.formula) {
-        // Match!
-        setTimeout(() => {
-          setGameState(prev => {
-            if (!prev) return prev;
-            const newMatchedPairs = prev.matchedPairs + 1;
-            const newState = {
-              ...prev,
-              cards: prev.cards.map(c =>
-                c.id === card1.id || c.id === card2.id
-                  ? { ...c, isMatched: true, isFlipped: true }
-                  : c
-              ),
-              flippedCards: [],
-              matchedPairs: newMatchedPairs,
-              moves: prev.moves + 1,
-              gameComplete: newMatchedPairs === prev.pairCount,
-            };
-            return newState;
-          });
-        }, 500);
-      } else {
-        // No match - flip back
-        setTimeout(() => {
-          setGameState(prev => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              cards: prev.cards.map(c =>
-                c.id === card1?.id || c.id === card2?.id
-                  ? { ...c, isFlipped: false }
-                  : c
-              ),
-              flippedCards: [],
-              moves: prev.moves + 1,
-            };
-          });
-        }, 1000);
-      }
-    }
-  }, [gameState]);
-
-  // Handle game completion
   useEffect(() => {
-    if (gameState?.gameComplete) {
-      const key = `${difficulty}-${pairCount}`;
-      setProgress(prevProgress => {
-        const newProgress = {
-          gamesPlayed: prevProgress.gamesPlayed + 1,
-          bestMoves: {
-            ...prevProgress.bestMoves,
-            [key]: Math.min(prevProgress.bestMoves[key] || Infinity, gameState.moves),
-          },
-          totalMatches: prevProgress.totalMatches + gameState.matchedPairs,
-        };
-        saveProgress(newProgress);
-        return newProgress;
-      });
-      setScreen('win');
-    }
-  }, [gameState?.gameComplete, gameState?.moves, gameState?.matchedPairs, difficulty, pairCount]);
+    saveProgress(progress);
+  }, [progress]);
 
-  // Menu Screen
-  if (screen === 'menu') {
+  const handleLevel1Complete = (score: number) => {
+    setProgress(prev => ({
+      ...prev,
+      level1Completed: true,
+      level1Score: Math.max(prev.level1Score, score),
+      totalGamesPlayed: prev.totalGamesPlayed + 1,
+    }));
+    setScreen('menu');
+  };
+
+  const handleLevel2Complete = (score: number) => {
+    setProgress(prev => ({
+      ...prev,
+      level2Completed: true,
+      level2Score: Math.max(prev.level2Score, score),
+      totalGamesPlayed: prev.totalGamesPlayed + 1,
+    }));
+    setScreen('menu');
+  };
+
+  const handleLevel3Complete = (moves: number, difficulty: string, pairs: number) => {
+    const key = `${difficulty}-${pairs}`;
+    setProgress(prev => ({
+      ...prev,
+      level3BestMoves: {
+        ...prev.level3BestMoves,
+        [key]: Math.min(prev.level3BestMoves[key] || Infinity, moves),
+      },
+      totalGamesPlayed: prev.totalGamesPlayed + 1,
+    }));
+    setScreen('menu');
+  };
+
+  const resetProgress = () => {
+    const newProgress = getDefaultProgress();
+    setProgress(newProgress);
+    saveProgress(newProgress);
+  };
+
+  // Level screens
+  if (screen === 'level1') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8">
-          <h1 className="text-4xl font-bold text-center mb-2 text-gray-800">Nafnapör</h1>
-          <p className="text-center text-gray-600 mb-8">Læra nöfn efnasambanda með minnisleik</p>
+      <Level1
+        onComplete={handleLevel1Complete}
+        onBack={() => setScreen('menu')}
+      />
+    );
+  }
+
+  if (screen === 'level2') {
+    return (
+      <Level2
+        onComplete={handleLevel2Complete}
+        onBack={() => setScreen('menu')}
+      />
+    );
+  }
+
+  if (screen === 'level3') {
+    return (
+      <Level3
+        onComplete={handleLevel3Complete}
+        onBack={() => setScreen('menu')}
+      />
+    );
+  }
+
+  // Main Menu
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full">
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+          <h1 className="text-4xl font-bold text-center mb-2 text-gray-800">Nafnakerfið</h1>
+          <p className="text-center text-gray-600 mb-8">Læra að nefna efnasambönd</p>
 
           <div className="space-y-4">
+            {/* Level 1 */}
             <button
-              onClick={() => setScreen('difficulty')}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-lg transition-colors"
+              onClick={() => setScreen('level1')}
+              className="w-full bg-white border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 rounded-xl p-6 text-left transition-all"
             >
-              Byrja Leik
-            </button>
-          </div>
-
-          {progress.gamesPlayed > 0 && (
-            <div className="mt-8 bg-gray-100 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-700 mb-2">Snögg yfirlit:</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>Leikir: {progress.gamesPlayed}</div>
-                <div>Samtals pör: {progress.totalMatches}</div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Difficulty Selection
-  if (screen === 'difficulty') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Veldu erfiðleikastig</h2>
-
-          <div className="space-y-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => (
-                <button
-                  key={diff}
-                  onClick={() => setDifficulty(diff)}
-                  className={`p-6 rounded-lg font-bold transition-all ${
-                    difficulty === diff
-                      ? diff === 'easy' ? 'bg-green-500 text-white' :
-                        diff === 'medium' ? 'bg-yellow-500 text-white' :
-                        'bg-red-500 text-white'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                  }`}
-                >
-                  {diff === 'easy' ? 'Auðvelt' :
-                   diff === 'medium' ? 'Miðlungs' :
-                   'Erfitt'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Fjöldi para:</h3>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {([6, 8, 10] as const).map((count) => (
-              <button
-                key={count}
-                onClick={() => setPairCount(count)}
-                className={`p-4 rounded-lg font-bold transition-all ${
-                  pairCount === count
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                }`}
-              >
-                {count} pör
-              </button>
-            ))}
-          </div>
-
-          <div className="flex gap-4">
-            <button
-              onClick={() => setScreen('menu')}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
-            >
-              Til baka
-            </button>
-            <button
-              onClick={() => initializeGame(difficulty, pairCount)}
-              className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
-            >
-              Byrja →
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Win Screen
-  if (screen === 'win' && gameState) {
-    const key = `${difficulty}-${pairCount}`;
-    const bestMoves = progress.bestMoves[key];
-
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8">
-          <div className="text-center mb-6">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-4xl font-bold text-gray-800 mb-2">Til hamingju!</h2>
-            <p className="text-gray-600">Þú fannt öll pörin!</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-blue-50 rounded-lg p-6 text-center">
-              <div className="text-4xl font-bold text-blue-600">{gameState.moves}</div>
-              <div className="text-sm text-gray-600 mt-2">Fjöldi leikja</div>
-            </div>
-
-            <div className="bg-green-50 rounded-lg p-6 text-center">
-              <div className="text-4xl font-bold text-green-600">{bestMoves || gameState.moves}</div>
-              <div className="text-sm text-gray-600 mt-2">Besta árangur</div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <button
-              onClick={() => initializeGame(difficulty, pairCount)}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
-            >
-              Spila aftur
-            </button>
-            <button
-              onClick={() => setScreen('menu')}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
-            >
-              Aftur í valmynd
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Playing Screen
-  if (screen === 'playing' && gameState) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header with stats */}
-          <div className="bg-white rounded-xl shadow-md p-4 mb-4">
-            <div className="flex justify-between items-center flex-wrap gap-4">
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{gameState.moves}</div>
-                  <div className="text-xs text-gray-600">Leikir</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {gameState.matchedPairs}/{pairCount}
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="bg-blue-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                      Stig 1
+                    </span>
+                    <h3 className="text-xl font-bold text-gray-800">Grunnreglur</h3>
                   </div>
-                  <div className="text-xs text-gray-600">Pör fundinn</div>
+                  <p className="text-gray-600 text-sm">
+                    Læra reglurnar um nafngiftir efnasambanda
+                  </p>
+                </div>
+                <div className="text-right">
+                  {progress.level1Completed ? (
+                    <div className="text-green-600">
+                      <div className="text-2xl font-bold">{progress.level1Score}/10</div>
+                      <div className="text-xs">Lokið</div>
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-3xl">→</div>
+                  )}
                 </div>
               </div>
+            </button>
 
-              <button
-                onClick={() => setScreen('menu')}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                Hætta við
-              </button>
-            </div>
-          </div>
+            {/* Level 2 */}
+            <button
+              onClick={() => setScreen('level2')}
+              className={`w-full bg-white border-2 rounded-xl p-6 text-left transition-all ${
+                progress.level1Completed
+                  ? 'border-yellow-200 hover:border-yellow-400 hover:bg-yellow-50'
+                  : 'border-gray-200 opacity-60'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`text-white text-sm font-bold px-3 py-1 rounded-full ${
+                      progress.level1Completed ? 'bg-yellow-500' : 'bg-gray-400'
+                    }`}>
+                      Stig 2
+                    </span>
+                    <h3 className="text-xl font-bold text-gray-800">Æfing með leiðsögn</h3>
+                    {!progress.level1Completed && (
+                      <span className="text-xs text-gray-500">(Ljúktu stigi 1 fyrst)</span>
+                    )}
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    Æfðu þig í að nefna efnasambönd skref fyrir skref
+                  </p>
+                </div>
+                <div className="text-right">
+                  {progress.level2Completed ? (
+                    <div className="text-green-600">
+                      <div className="text-2xl font-bold">{progress.level2Score}/12</div>
+                      <div className="text-xs">Lokið</div>
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-3xl">→</div>
+                  )}
+                </div>
+              </div>
+            </button>
 
-          {/* Game board */}
-          <div className={`grid gap-3 ${
-            pairCount === 6 ? 'grid-cols-3 sm:grid-cols-4' :
-            pairCount === 8 ? 'grid-cols-4' :
-            'grid-cols-4 sm:grid-cols-5'
-          }`}>
-            {gameState.cards.map((card) => (
-              <CardComponent
-                key={card.id}
-                card={card}
-                onClick={() => handleCardClick(card.id)}
-                disabled={gameState.flippedCards.length >= 2}
-              />
-            ))}
+            {/* Level 3 */}
+            <button
+              onClick={() => setScreen('level3')}
+              className={`w-full bg-white border-2 rounded-xl p-6 text-left transition-all ${
+                progress.level2Completed
+                  ? 'border-red-200 hover:border-red-400 hover:bg-red-50'
+                  : 'border-gray-200 opacity-60'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`text-white text-sm font-bold px-3 py-1 rounded-full ${
+                      progress.level2Completed ? 'bg-red-500' : 'bg-gray-400'
+                    }`}>
+                      Stig 3
+                    </span>
+                    <h3 className="text-xl font-bold text-gray-800">Minnisleikur</h3>
+                    {!progress.level2Completed && (
+                      <span className="text-xs text-gray-500">(Ljúktu stigi 2 fyrst)</span>
+                    )}
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    Paraðu saman formúlur og nöfn í minnisleik
+                  </p>
+                </div>
+                <div className="text-right">
+                  {Object.keys(progress.level3BestMoves).length > 0 ? (
+                    <div className="text-green-600">
+                      <div className="text-xs">Besta:</div>
+                      <div className="text-lg font-bold">
+                        {Math.min(...Object.values(progress.level3BestMoves))} leikir
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-3xl">→</div>
+                  )}
+                </div>
+              </div>
+            </button>
           </div>
         </div>
-      </div>
-    );
-  }
 
-  return null;
+        {/* Progress Summary */}
+        {progress.totalGamesPlayed > 0 && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-gray-700">Framvinda</h3>
+              <button
+                onClick={resetProgress}
+                className="text-sm text-gray-500 hover:text-red-500 transition-colors"
+              >
+                Endurstilla
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="bg-blue-50 rounded-lg p-3">
+                <div className="text-2xl font-bold text-blue-600">
+                  {[progress.level1Completed, progress.level2Completed].filter(Boolean).length}/2
+                </div>
+                <div className="text-xs text-gray-600">Stig lokið</div>
+              </div>
+              <div className="bg-green-50 rounded-lg p-3">
+                <div className="text-2xl font-bold text-green-600">
+                  {progress.level1Score + progress.level2Score}
+                </div>
+                <div className="text-xs text-gray-600">Heildar stig</div>
+              </div>
+              <div className="bg-purple-50 rounded-lg p-3">
+                <div className="text-2xl font-bold text-purple-600">
+                  {progress.totalGamesPlayed}
+                </div>
+                <div className="text-xs text-gray-600">Leikir spilaðir</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Back to games link */}
+        <div className="text-center mt-6">
+          <a
+            href="/games/1-ar/"
+            className="text-gray-500 hover:text-gray-700 text-sm transition-colors"
+          >
+            ← Til baka í leikjayfirlit
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default App;
