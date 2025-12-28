@@ -1,43 +1,110 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Level1 } from './components/Level1';
 import { Level2 } from './components/Level2';
 import { Level3 } from './components/Level3';
 
 type ActiveLevel = 'menu' | 'level1' | 'level2' | 'level3' | 'complete';
 
-interface LevelScore {
-  level1: number | null;
-  level2: number | null;
-  level3: number | null;
+interface Progress {
+  level1Score: number | null;
+  level1Completed: boolean;
+  level2Score: number | null;
+  level2Completed: boolean;
+  level3Score: number | null;
+  level3Completed: boolean;
+  totalGamesPlayed: number;
+}
+
+const STORAGE_KEY = 'lausnirProgress';
+
+// Mastery thresholds
+const LEVEL1_MASTERY_SCORE = 300; // 5/6 challenges at 60 points each = 300
+const LEVEL2_MASTERY_SCORE = 350; // 70% accuracy
+
+function loadProgress(): Progress {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return getDefaultProgress();
+    }
+  }
+  return getDefaultProgress();
+}
+
+function getDefaultProgress(): Progress {
+  return {
+    level1Score: null,
+    level1Completed: false,
+    level2Score: null,
+    level2Completed: false,
+    level3Score: null,
+    level3Completed: false,
+    totalGamesPlayed: 0,
+  };
+}
+
+function saveProgress(progress: Progress): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
 function App() {
   const [activeLevel, setActiveLevel] = useState<ActiveLevel>('menu');
-  const [scores, setScores] = useState<LevelScore>({
-    level1: null,
-    level2: null,
-    level3: null
-  });
+  const [progress, setProgress] = useState<Progress>(loadProgress());
+
+  useEffect(() => {
+    saveProgress(progress);
+  }, [progress]);
 
   const handleLevel1Complete = (score: number) => {
-    setScores(prev => ({ ...prev, level1: score }));
-    setActiveLevel('level2');
+    const completed = score >= LEVEL1_MASTERY_SCORE;
+    setProgress(prev => ({
+      ...prev,
+      level1Score: Math.max(prev.level1Score || 0, score),
+      level1Completed: completed || prev.level1Completed,
+      totalGamesPlayed: prev.totalGamesPlayed + 1,
+    }));
+
+    if (completed) {
+      setActiveLevel('menu');
+    } else {
+      // Show message that they need to try again
+      setActiveLevel('menu');
+    }
   };
 
   const handleLevel2Complete = (score: number) => {
-    setScores(prev => ({ ...prev, level2: score }));
-    setActiveLevel('level3');
+    const completed = score >= LEVEL2_MASTERY_SCORE;
+    setProgress(prev => ({
+      ...prev,
+      level2Score: Math.max(prev.level2Score || 0, score),
+      level2Completed: completed || prev.level2Completed,
+      totalGamesPlayed: prev.totalGamesPlayed + 1,
+    }));
+
+    setActiveLevel('menu');
   };
 
   const handleLevel3Complete = (score: number) => {
-    setScores(prev => ({ ...prev, level3: score }));
+    setProgress(prev => ({
+      ...prev,
+      level3Score: Math.max(prev.level3Score || 0, score),
+      level3Completed: true,
+      totalGamesPlayed: prev.totalGamesPlayed + 1,
+    }));
     setActiveLevel('complete');
   };
 
-  const resetGame = () => {
-    setScores({ level1: null, level2: null, level3: null });
-    setActiveLevel('menu');
+  const resetProgress = () => {
+    const newProgress = getDefaultProgress();
+    setProgress(newProgress);
+    saveProgress(newProgress);
   };
+
+  // Check unlock status
+  const isLevel2Unlocked = progress.level1Completed;
+  const isLevel3Unlocked = progress.level2Completed;
 
   // Render active level
   if (activeLevel === 'level1') {
@@ -54,13 +121,13 @@ function App() {
 
   // Complete screen
   if (activeLevel === 'complete') {
-    const totalScore = (scores.level1 || 0) + (scores.level2 || 0) + (scores.level3 || 0);
+    const totalScore = (progress.level1Score || 0) + (progress.level2Score || 0) + (progress.level3Score || 0);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 p-4 md:p-8">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-orange-600">
-            🏆 Til hamingju!
+            Til hamingju!
           </h1>
 
           <div className="text-center mb-8">
@@ -73,26 +140,26 @@ function App() {
           <div className="space-y-4 mb-8">
             <div className="bg-blue-50 p-4 rounded-xl flex justify-between items-center">
               <div>
-                <div className="font-bold text-blue-800">Stigur 1: Hugtök</div>
+                <div className="font-bold text-blue-800">Stig 1: Hugtök</div>
                 <div className="text-sm text-blue-600">Sjónræn meðhöndlun</div>
               </div>
-              <div className="text-2xl font-bold text-blue-600">{scores.level1 || 0}</div>
+              <div className="text-2xl font-bold text-blue-600">{progress.level1Score || 0}</div>
             </div>
 
             <div className="bg-green-50 p-4 rounded-xl flex justify-between items-center">
               <div>
-                <div className="font-bold text-green-800">Stigur 2: Rökstuðningur</div>
+                <div className="font-bold text-green-800">Stig 2: Rökstuðningur</div>
                 <div className="text-sm text-green-600">Spá fyrir um breytingar</div>
               </div>
-              <div className="text-2xl font-bold text-green-600">{scores.level2 || 0}</div>
+              <div className="text-2xl font-bold text-green-600">{progress.level2Score || 0}</div>
             </div>
 
             <div className="bg-purple-50 p-4 rounded-xl flex justify-between items-center">
               <div>
-                <div className="font-bold text-purple-800">Stigur 3: Útreikningar</div>
+                <div className="font-bold text-purple-800">Stig 3: Útreikningar</div>
                 <div className="text-sm text-purple-600">Nota formúlur</div>
               </div>
-              <div className="text-2xl font-bold text-purple-600">{scores.level3 || 0}</div>
+              <div className="text-2xl font-bold text-purple-600">{progress.level3Score || 0}</div>
             </div>
 
             <div className="bg-orange-100 p-4 rounded-xl flex justify-between items-center border-2 border-orange-400">
@@ -104,18 +171,26 @@ function App() {
           <div className="bg-yellow-50 p-6 rounded-xl mb-6">
             <h2 className="font-bold text-yellow-800 mb-3">Hvað lærðir þú?</h2>
             <ul className="space-y-2 text-yellow-900 text-sm">
-              <li>✓ <strong>Stigur 1:</strong> Styrkur = sameindir / rúmmál (sjónrænt)</li>
-              <li>✓ <strong>Stigur 2:</strong> Spá fyrir um hvernig breytingar hafa áhrif á styrk</li>
-              <li>✓ <strong>Stigur 3:</strong> Nota M₁V₁ = M₂V₂ og aðrar formúlur</li>
+              <li>✓ <strong>Stig 1:</strong> Styrkur = sameindir / rúmmál (sjónrænt)</li>
+              <li>✓ <strong>Stig 2:</strong> Spá fyrir um hvernig breytingar hafa áhrif á styrk</li>
+              <li>✓ <strong>Stig 3:</strong> Nota M₁V₁ = M₂V₂ og aðrar formúlur</li>
             </ul>
           </div>
 
-          <button
-            onClick={resetGame}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
-          >
-            Spila aftur
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setActiveLevel('menu')}
+              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+            >
+              Til baka
+            </button>
+            <button
+              onClick={resetProgress}
+              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+            >
+              Byrja upp á nýtt
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -126,7 +201,7 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 p-4 md:p-8">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-orange-600">
-          💧 Lausnir
+          Lausnir
         </h1>
         <p className="text-center text-gray-600 mb-8">
           Lærðu um mólstyrk, útþynningu og lausnir
@@ -148,7 +223,7 @@ function App() {
 
         {/* Level selection */}
         <div className="space-y-4">
-          {/* Level 1 */}
+          {/* Level 1 - Always available */}
           <button
             onClick={() => setActiveLevel('level1')}
             className="w-full p-6 rounded-xl border-4 border-blue-400 bg-blue-50 hover:bg-blue-100 transition-all text-left"
@@ -157,10 +232,15 @@ function App() {
               <div className="text-4xl">🔬</div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-blue-800">Stigur 1: Hugtök</span>
-                  {scores.level1 !== null && (
+                  <span className="text-xl font-bold text-blue-800">Stig 1: Hugtök</span>
+                  {progress.level1Completed && (
                     <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                      ✓ {scores.level1} stig
+                      ✓ Lokið
+                    </span>
+                  )}
+                  {progress.level1Score !== null && (
+                    <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                      {progress.level1Score} stig
                     </span>
                   )}
                 </div>
@@ -171,78 +251,139 @@ function App() {
                   Dragðu, smelltu og sjáðu hvernig styrkur breytist í rauntíma.
                   Byggðu innsæi fyrir M = n/V.
                 </div>
+                {!progress.level1Completed && progress.level1Score !== null && (
+                  <div className="text-xs text-orange-600 mt-2 font-semibold">
+                    Þarft {LEVEL1_MASTERY_SCORE} stig til að opna Stig 2. Reyndu aftur!
+                  </div>
+                )}
               </div>
             </div>
           </button>
 
-          {/* Level 2 */}
+          {/* Level 2 - Locked until Level 1 completed */}
           <button
-            onClick={() => setActiveLevel('level2')}
+            onClick={() => isLevel2Unlocked && setActiveLevel('level2')}
+            disabled={!isLevel2Unlocked}
             className={`w-full p-6 rounded-xl border-4 transition-all text-left ${
-              scores.level1 !== null
-                ? 'border-green-400 bg-green-50 hover:bg-green-100'
-                : 'border-gray-200 bg-gray-50 opacity-75'
+              isLevel2Unlocked
+                ? 'border-green-400 bg-green-50 hover:bg-green-100 cursor-pointer'
+                : 'border-gray-300 bg-gray-100 cursor-not-allowed opacity-70'
             }`}
           >
             <div className="flex items-center gap-4">
-              <div className="text-4xl">🤔</div>
+              <div className="text-4xl">{isLevel2Unlocked ? '🤔' : '🔒'}</div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className={`text-xl font-bold ${scores.level1 !== null ? 'text-green-800' : 'text-gray-600'}`}>
-                    Stigur 2: Rökstuðningur
+                  <span className={`text-xl font-bold ${isLevel2Unlocked ? 'text-green-800' : 'text-gray-500'}`}>
+                    Stig 2: Rökstuðningur
                   </span>
-                  {scores.level2 !== null && (
+                  {progress.level2Completed && (
                     <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                      ✓ {scores.level2} stig
+                      ✓ Lokið
+                    </span>
+                  )}
+                  {progress.level2Score !== null && (
+                    <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                      {progress.level2Score} stig
                     </span>
                   )}
                 </div>
-                <div className={`text-sm mt-1 ${scores.level1 !== null ? 'text-green-600' : 'text-gray-500'}`}>
+                <div className={`text-sm mt-1 ${isLevel2Unlocked ? 'text-green-600' : 'text-gray-500'}`}>
                   Spáðu fyrir um breytingar - fjölval
                 </div>
                 <div className="text-xs text-gray-600 mt-2">
-                  "Hvað gerist ef...?" spurningar. Notaðu hugtökin sem þú lærðir.
+                  {isLevel2Unlocked
+                    ? '"Hvað gerist ef...?" spurningar. Notaðu hugtökin sem þú lærðir.'
+                    : 'Ljúktu Stig 1 til að opna þetta stig.'}
                 </div>
+                {isLevel2Unlocked && !progress.level2Completed && progress.level2Score !== null && (
+                  <div className="text-xs text-orange-600 mt-2 font-semibold">
+                    Þarft {LEVEL2_MASTERY_SCORE} stig til að opna Stig 3. Reyndu aftur!
+                  </div>
+                )}
               </div>
             </div>
           </button>
 
-          {/* Level 3 */}
+          {/* Level 3 - Locked until Level 2 completed */}
           <button
-            onClick={() => setActiveLevel('level3')}
+            onClick={() => isLevel3Unlocked && setActiveLevel('level3')}
+            disabled={!isLevel3Unlocked}
             className={`w-full p-6 rounded-xl border-4 transition-all text-left ${
-              scores.level2 !== null
-                ? 'border-purple-400 bg-purple-50 hover:bg-purple-100'
-                : 'border-gray-200 bg-gray-50 opacity-75'
+              isLevel3Unlocked
+                ? 'border-purple-400 bg-purple-50 hover:bg-purple-100 cursor-pointer'
+                : 'border-gray-300 bg-gray-100 cursor-not-allowed opacity-70'
             }`}
           >
             <div className="flex items-center gap-4">
-              <div className="text-4xl">📐</div>
+              <div className="text-4xl">{isLevel3Unlocked ? '📐' : '🔒'}</div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className={`text-xl font-bold ${scores.level2 !== null ? 'text-purple-800' : 'text-gray-600'}`}>
-                    Stigur 3: Útreikningar
+                  <span className={`text-xl font-bold ${isLevel3Unlocked ? 'text-purple-800' : 'text-gray-500'}`}>
+                    Stig 3: Útreikningar
                   </span>
-                  {scores.level3 !== null && (
+                  {progress.level3Completed && (
                     <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                      ✓ {scores.level3} stig
+                      ✓ Lokið
+                    </span>
+                  )}
+                  {progress.level3Score !== null && (
+                    <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
+                      {progress.level3Score} stig
                     </span>
                   )}
                 </div>
-                <div className={`text-sm mt-1 ${scores.level2 !== null ? 'text-purple-600' : 'text-gray-500'}`}>
+                <div className={`text-sm mt-1 ${isLevel3Unlocked ? 'text-purple-600' : 'text-gray-500'}`}>
                   Notaðu formúlur til að reikna
                 </div>
                 <div className="text-xs text-gray-600 mt-2">
-                  M₁V₁ = M₂V₂, mól = massi/mólmassi. Nú skilur þú HVERS VEGNA þær virka!
+                  {isLevel3Unlocked
+                    ? 'M₁V₁ = M₂V₂, mól = massi/mólmassi. Nú skilur þú HVERS VEGNA þær virka!'
+                    : 'Ljúktu Stig 2 til að opna þetta stig.'}
                 </div>
               </div>
             </div>
           </button>
         </div>
 
+        {/* Progress summary */}
+        {progress.totalGamesPlayed > 0 && (
+          <div className="mt-8 bg-gray-50 p-4 rounded-xl">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold text-gray-700">Framvinda</h3>
+              <button
+                onClick={resetProgress}
+                className="text-xs text-gray-500 hover:text-red-500 transition-colors"
+              >
+                Endurstilla
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center text-sm">
+              <div className="bg-blue-50 rounded-lg p-2">
+                <div className="text-lg font-bold text-blue-600">
+                  {[progress.level1Completed, progress.level2Completed, progress.level3Completed].filter(Boolean).length}/3
+                </div>
+                <div className="text-xs text-gray-600">Stig lokið</div>
+              </div>
+              <div className="bg-green-50 rounded-lg p-2">
+                <div className="text-lg font-bold text-green-600">
+                  {(progress.level1Score || 0) + (progress.level2Score || 0) + (progress.level3Score || 0)}
+                </div>
+                <div className="text-xs text-gray-600">Heildar stig</div>
+              </div>
+              <div className="bg-purple-50 rounded-lg p-2">
+                <div className="text-lg font-bold text-purple-600">
+                  {progress.totalGamesPlayed}
+                </div>
+                <div className="text-xs text-gray-600">Leikir</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Formula reference */}
-        <div className="mt-8 bg-gray-50 p-4 rounded-xl">
-          <h3 className="font-semibold text-gray-700 mb-2">📐 Formúlur (Stigur 3)</h3>
+        <div className="mt-6 bg-gray-50 p-4 rounded-xl">
+          <h3 className="font-semibold text-gray-700 mb-2">Formúlur (Stig 3)</h3>
           <div className="font-mono text-sm space-y-1 text-gray-600">
             <p>M = mól / L (mólstyrkur)</p>
             <p>M₁V₁ = M₂V₂ (útþynning)</p>
@@ -251,9 +392,14 @@ function App() {
           </div>
         </div>
 
-        {/* Credits */}
-        <div className="mt-6 text-center text-xs text-gray-500">
-          Hönnuð með hugtakamiðaðri nálgun innblásinni af PhET Simulations
+        {/* Back to games link */}
+        <div className="text-center mt-6">
+          <a
+            href="/games/1-ar/"
+            className="text-gray-500 hover:text-gray-700 text-sm transition-colors"
+          >
+            ← Til baka í leikjayfirlit
+          </a>
         </div>
       </div>
     </div>
