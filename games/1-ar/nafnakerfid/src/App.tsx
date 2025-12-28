@@ -11,8 +11,10 @@ interface Progress {
   totalMatches: number;
 }
 
+const STORAGE_KEY = 'nafnakerfidProgress';
+
 function loadProgress(): Progress {
-  const saved = localStorage.getItem('nafnakerf​idProgress');
+  const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
       return JSON.parse(saved);
@@ -24,7 +26,7 @@ function loadProgress(): Progress {
 }
 
 function saveProgress(progress: Progress): void {
-  localStorage.setItem('nafnakerfidProgress', JSON.stringify(progress));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
 function App() {
@@ -145,19 +147,21 @@ function App() {
   useEffect(() => {
     if (gameState?.gameComplete) {
       const key = `${difficulty}-${pairCount}`;
-      const newProgress = {
-        gamesPlayed: progress.gamesPlayed + 1,
-        bestMoves: {
-          ...progress.bestMoves,
-          [key]: Math.min(progress.bestMoves[key] || Infinity, gameState.moves),
-        },
-        totalMatches: progress.totalMatches + gameState.matchedPairs,
-      };
-      setProgress(newProgress);
-      saveProgress(newProgress);
+      setProgress(prevProgress => {
+        const newProgress = {
+          gamesPlayed: prevProgress.gamesPlayed + 1,
+          bestMoves: {
+            ...prevProgress.bestMoves,
+            [key]: Math.min(prevProgress.bestMoves[key] || Infinity, gameState.moves),
+          },
+          totalMatches: prevProgress.totalMatches + gameState.matchedPairs,
+        };
+        saveProgress(newProgress);
+        return newProgress;
+      });
       setScreen('win');
     }
-  }, [gameState?.gameComplete, gameState?.moves, gameState?.matchedPairs, difficulty, pairCount, progress]);
+  }, [gameState?.gameComplete, gameState?.moves, gameState?.matchedPairs, difficulty, pairCount]);
 
   // Menu Screen
   if (screen === 'menu') {
