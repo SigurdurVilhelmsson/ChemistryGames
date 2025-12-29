@@ -245,24 +245,26 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 
 ## 📖 Documentation
 
-### Quick Links
-- **[Documentation Hub](docs/README.md)** - Complete documentation index
+### Planning & Roadmap
+- **[GAME-IMPROVEMENT-RECOMMENDATIONS.md](GAME-IMPROVEMENT-RECOMMENDATIONS.md)** - Research-based improvement plan (108 items)
+- **[GAME-IMPROVEMENT-CHECKLIST.md](GAME-IMPROVEMENT-CHECKLIST.md)** - Implementation progress tracker
+- **[GAME-REVIEW-PROMPT.md](GAME-REVIEW-PROMPT.md)** - Game review guidelines (three-level pedagogical framework)
+
+### Development
 - **[Developer Guide](docs/DEVELOPER-GUIDE.md)** - Complete development workflow
-- **[Architecture](docs/ARCHITECTURE.md)** - System architecture and design decisions
 - **[API Reference](docs/API-REFERENCE.md)** - Shared library API documentation
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+- **[Architecture](docs/ARCHITECTURE.md)** - System architecture and design decisions
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Scripts and tooling
+- **[DEBUGGING.md](DEBUGGING.md)** - Debugging techniques
 
-### Development Resources
-- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Development workflow and tools
-- **[DEBUGGING.md](DEBUGGING.md)** - Debugging guide
+### Deployment & Infrastructure
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deployment to kvenno.app
-- **[tools/game-template/README.md](tools/game-template/README.md)** - Game template guide
-- **[shared/README.md](shared/README.md)** - Shared library overview
+- **[KVENNO-STRUCTURE.md](KVENNO-STRUCTURE.md)** - Site structure and design system
 
-### Additional Resources
-- **[KVENNO-STRUCTURE.md](KVENNO-STRUCTURE.md)** - Site structure and design
-- **[GAME-REVIEW-PROMPT.md](GAME-REVIEW-PROMPT.md)** - Game review guidelines
-- **[Archived Docs](docs/archive/)** - Historical documentation
+### Reference
+- **[Documentation Hub](docs/README.md)** - Complete documentation index
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history
+- **[shared/README.md](shared/README.md)** - Shared library overview
 
 ---
 
@@ -392,6 +394,33 @@ pnpm type-check
 | **Total** | **18** | **All games implemented with cross-game achievement system** |
 
 All games have been migrated to the monorepo architecture and include the cross-game achievement system with 23 badges, streak tracking, and persistent progress.
+
+---
+
+## 🎯 Development Roadmap
+
+This project follows a research-based improvement plan for enhancing all 18 educational games.
+
+### Planning Documents
+
+| Document | Purpose |
+|----------|---------|
+| **[GAME-IMPROVEMENT-RECOMMENDATIONS.md](GAME-IMPROVEMENT-RECOMMENDATIONS.md)** | Comprehensive evaluation with 108 specific improvements based on 2024-2025 educational games research |
+| **[GAME-IMPROVEMENT-CHECKLIST.md](GAME-IMPROVEMENT-CHECKLIST.md)** | Implementation tracker with progress status for each improvement |
+
+### Improvement Categories
+
+Based on Barry Fishman's principles of effective educational games and PhET-style simulation best practices:
+
+1. **Enhanced Visualizations** - Animated, interactive content (High Priority)
+2. **Deeper Feedback System** - Detailed explanations for learning (High Priority)
+3. **3D Molecule Viewer** - WebGL-based visualization for Lewis/VSEPR/IMF (High Priority)
+4. **Adaptive Difficulty** - Performance-based challenge adjustment (Medium Priority)
+5. **Audio Support** - Pronunciations and narration (Medium Priority)
+
+### Current Progress
+
+See [GAME-IMPROVEMENT-CHECKLIST.md](GAME-IMPROVEMENT-CHECKLIST.md) for detailed progress tracking.
 
 ---
 

@@ -6,11 +6,19 @@ Welcome to the ChemistryGames documentation hub. This directory organizes all pr
 
 ## 📚 Active Documentation
 
+### 🎯 Roadmap & Planning (PRIMARY)
+
+Our development is guided by research-based improvement plans:
+
+- **[GAME-IMPROVEMENT-RECOMMENDATIONS.md](../GAME-IMPROVEMENT-RECOMMENDATIONS.md)** - Comprehensive evaluation with 108 improvements based on 2024-2025 educational games research
+- **[GAME-IMPROVEMENT-CHECKLIST.md](../GAME-IMPROVEMENT-CHECKLIST.md)** - Implementation tracker with status for all improvements
+- **[GAME-REVIEW-PROMPT.md](../GAME-REVIEW-PROMPT.md)** - Three-level pedagogical framework for game reviews
+
 ### Core Documentation
 - **[Main README](../README.md)** - Repository overview, architecture, and quick start guide
 - **[LICENSE](../LICENSE)** - MIT License (Copyright 2025 Sigurður E. Vilhelmsson)
 
-### Technical Reference (NEW)
+### Technical Reference
 - **[API Reference](API-REFERENCE.md)** - Complete API documentation for the shared library (hooks, utilities, types)
 - **[Architecture](ARCHITECTURE.md)** - System architecture, diagrams, data flow, and design decisions
 - **[Developer Guide](DEVELOPER-GUIDE.md)** - Comprehensive guide for developers (setup, patterns, best practices)
@@ -18,14 +26,10 @@ Welcome to the ChemistryGames documentation hub. This directory organizes all pr
 ### Development Guides
 - **[DEVELOPMENT.md](../DEVELOPMENT.md)** - Development workflow, available scripts, and code quality tools
 - **[DEBUGGING.md](../DEBUGGING.md)** - Comprehensive debugging guide (VSCode, React DevTools, browser tools)
-- **[GAME-REVIEW-PROMPT.md](../GAME-REVIEW-PROMPT.md)** - Guidelines for reviewing and improving games
 
 ### Deployment & Infrastructure
 - **[DEPLOYMENT.md](../DEPLOYMENT.md)** - Deployment guide to kvenno.app production server
 - **[KVENNO-STRUCTURE.md](../KVENNO-STRUCTURE.md)** - Site-wide structure, design system, authentication, and backend API
-
-### Planning & Improvements
-- **[IMPROVEMENTS.md](../IMPROVEMENTS.md)** - Proposed enhancements and future improvements
 
 ---
 
@@ -57,10 +61,15 @@ Each game has its own README with specific implementation details:
 
 Historical documentation from completed project phases:
 
-### Completed Migrations (Phase 2 - 2024/2025)
+### Archived Documents
+
+**Completed Migrations (Phase 2 - 2024/2025):**
 - **[MIGRATION-PLAN.md](archive/completed-migrations/MIGRATION-PLAN.md)** - Migration status tracking (✅ All 12 games migrated)
 - **[MIGRATION-GUIDE.md](archive/completed-migrations/MIGRATION-GUIDE.md)** - Detailed guide for migrating legacy games to monorepo
 - **[EININGAGREINING-UPDATES.md](archive/completed-migrations/EININGAGREINING-UPDATES.md)** - Specific updates to dimensional analysis game (Nov 2025)
+
+**Consolidated Documents:**
+- **[IMPROVEMENTS.md](archive/IMPROVEMENTS.md)** - Original improvements tracker (consolidated into GAME-IMPROVEMENT-CHECKLIST.md)
 
 > **Note:** These documents are kept for historical reference. All games have been successfully migrated to the monorepo architecture. New games should use the game template (`tools/create-game.sh`).
 
@@ -70,14 +79,19 @@ Historical documentation from completed project phases:
 
 ### For New Contributors
 1. Start with [Main README](../README.md) for project overview
-2. Read [Developer Guide](DEVELOPER-GUIDE.md) for comprehensive setup and patterns
-3. Review [API Reference](API-REFERENCE.md) for shared library usage
+2. Review [GAME-IMPROVEMENT-CHECKLIST.md](../GAME-IMPROVEMENT-CHECKLIST.md) to see current progress
+3. Read [Developer Guide](DEVELOPER-GUIDE.md) for setup and patterns
+4. Review [API Reference](API-REFERENCE.md) for shared library usage
+
+### For Game Improvements
+1. Check [GAME-IMPROVEMENT-RECOMMENDATIONS.md](../GAME-IMPROVEMENT-RECOMMENDATIONS.md) for the improvement roadmap
+2. Track progress in [GAME-IMPROVEMENT-CHECKLIST.md](../GAME-IMPROVEMENT-CHECKLIST.md)
+3. Follow [GAME-REVIEW-PROMPT.md](../GAME-REVIEW-PROMPT.md) for quality guidelines
 
 ### For Game Development
 1. Use `tools/create-game.sh` to create a new game from template
 2. Follow patterns in [Developer Guide](DEVELOPER-GUIDE.md)
 3. Use the [API Reference](API-REFERENCE.md) for hooks and utilities
-4. Review [GAME-REVIEW-PROMPT.md](../GAME-REVIEW-PROMPT.md) for quality guidelines
 
 ### For Understanding the Codebase
 1. Read [Architecture](ARCHITECTURE.md) for system design and data flow
@@ -87,10 +101,6 @@ Historical documentation from completed project phases:
 ### For Deployment
 1. Follow [DEPLOYMENT.md](../DEPLOYMENT.md) for production deployment
 2. Ensure alignment with [KVENNO-STRUCTURE.md](../KVENNO-STRUCTURE.md)
-
-### For Debugging
-1. See [DEBUGGING.md](../DEBUGGING.md) for comprehensive debugging guide
-2. Check game-specific READMEs for game-specific issues
 
 ---
 
@@ -122,4 +132,4 @@ When adding new documentation:
 
 ---
 
-**Last Updated:** 2025-12-28
+**Last Updated:** 2025-12-29

@@ -1,8 +1,16 @@
-# Improvements Tracker
+# Improvements Tracker [ARCHIVED]
+
+> **Note:** This document has been archived as of 2025-12-29. Its content has been consolidated into:
+> - **[GAME-IMPROVEMENT-CHECKLIST.md](../../GAME-IMPROVEMENT-CHECKLIST.md)** - Developer tooling section
+> - **[GAME-IMPROVEMENT-RECOMMENDATIONS.md](../../GAME-IMPROVEMENT-RECOMMENDATIONS.md)** - Primary improvement roadmap
+>
+> This file is kept for historical reference only.
+
+---
 
 This document tracks suggested improvements for the ChemistryGames repository. Items are marked as completed (✅), in-progress (🚧), or planned (📋).
 
-**Last Updated:** 2025-12-29
+**Last Updated:** 2025-12-29 (ARCHIVED)
 
 ---
 

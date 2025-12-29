@@ -225,6 +225,13 @@
 | Content | 18 | 3 | 16.7% |
 | Gamification | 15 | 2 | 13.3% |
 
+### Developer Tooling
+
+| Category | Total | Completed | Percentage |
+|----------|-------|-----------|------------|
+| Infrastructure | 9 | 9 | 100% |
+| Testing & Automation | 10 | 0 | 0% |
+
 ---
 
 ## Quick Wins (Low Effort, High Impact)
@@ -267,6 +274,42 @@ Building these once benefits multiple games:
 | 2025-12-29 | Added visual excess reactant display to Limiting Reactants |
 | 2025-12-29 | Added functional group highlighting to Organic Nomenclature (double/triple bonds with colors) |
 | 2025-12-29 | Marked buffer region highlight as complete (already implemented in TitrationCurve) |
+| 2025-12-29 | Consolidated Developer Tooling improvements from IMPROVEMENTS.md |
+
+---
+
+## Developer Tooling Improvements
+
+*Consolidated from IMPROVEMENTS.md*
+
+### Completed Infrastructure
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Error Boundaries | ✅ | `shared/components/ErrorBoundary.tsx` with bilingual messages |
+| ESLint Configuration | ✅ | TypeScript + React hooks rules |
+| Prettier Configuration | ✅ | Consistent formatting rules |
+| TypeScript Strict Mode | ✅ | Enabled in `tsconfig.base.json` |
+| VSCode Debugging | ✅ | Chrome/Firefox debugging configs |
+| GitHub Actions CI/CD | ✅ | Type check, lint, build on push |
+| Source Maps | ✅ | Development and production |
+| Documentation Structure | ✅ | Organized `docs/` directory |
+| Achievement System | ✅ | 23 badges, 5 rarity levels, cross-game tracking |
+
+### Planned Tooling
+
+| Item | Status | Priority | Effort | Notes |
+|------|--------|----------|--------|-------|
+| Git Hooks (Husky) | ⬜ | High | Low | Pre-commit type checking and linting |
+| Conventional Commits | ⬜ | High | Low | Automated changelog generation |
+| Unit Testing (Vitest) | ⬜ | High | Medium | Test scoring, validation, storage utils |
+| Component Testing | ⬜ | Medium | Medium | React Testing Library for shared components |
+| E2E Testing (Playwright) | ⬜ | Medium | High | Game flow testing |
+| Automated Changelog | ⬜ | Medium | Low | conventional-changelog-cli |
+| PWA Support | ⬜ | Low | Medium | Offline game access |
+| Error Tracking (Sentry) | ⬜ | Low | Medium | Production monitoring |
+| Usage Analytics | ⬜ | Low | Medium | Privacy-focused local analytics |
+| Performance Monitoring | ⬜ | Low | Low | usePerformance hook |
 
 ---
 
@@ -276,3 +319,4 @@ Building these once benefits multiple games:
 - Test on tablets after implementing touch interactions
 - Consider performance impact of complex animations
 - Ensure all new features maintain accessibility standards
+- Developer tooling improvements enhance maintainability and code quality
