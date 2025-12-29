@@ -11,7 +11,7 @@
 
 | Task | Status | Priority | Effort | Impact | Notes |
 |------|--------|----------|--------|--------|-------|
-| Create AnimatedMolecule component | ⬜ | High | High | High | Reusable for Lewis, VSEPR, IMF, Organic |
+| Create AnimatedMolecule component | 🟡 | High | High | High | Phase 1 complete: SVG atoms, bonds, layouts |
 | Create InteractiveGraph component | ⬜ | Medium | Medium | Medium | For titration, thermodynamics, kinetics |
 | Create DragDropBuilder component | ⬜ | Medium | High | High | For equations, nomenclature |
 | Add shared audio utilities | ⬜ | Low | Medium | Medium | TTS for pronunciations |
