@@ -1,4 +1,57 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+
+/**
+ * Multiplies all coefficients in a chemical equation string
+ * E.g., "CH₄(g) + 2O₂(g)" with multiplier 2 → "2CH₄(g) + 4O₂(g)"
+ */
+function multiplyEquationCoefficients(equation: string, multiplier: number): string {
+  if (multiplier === 1) return equation;
+
+  // Split by " + " to get individual terms
+  const terms = equation.split(' + ');
+
+  const multipliedTerms = terms.map(term => {
+    term = term.trim();
+
+    // Match coefficient at start: number, fraction (½), or nothing (implicit 1)
+    // Regex: optional number or fraction at the start, followed by the formula
+    const fractionMatch = term.match(/^(½|⅓|¼|⅔|¾)/);
+    const numberMatch = term.match(/^(\d+)/);
+
+    if (fractionMatch) {
+      // Handle fraction coefficients
+      const fractionMap: Record<string, number> = {
+        '½': 0.5, '⅓': 1/3, '¼': 0.25, '⅔': 2/3, '¾': 0.75
+      };
+      const fractionValue = fractionMap[fractionMatch[1]] || 0.5;
+      const newCoeff = fractionValue * multiplier;
+      const formula = term.slice(fractionMatch[1].length);
+
+      // Format the new coefficient nicely
+      if (Number.isInteger(newCoeff)) {
+        return newCoeff === 1 ? formula : `${newCoeff}${formula}`;
+      } else {
+        // Convert back to fraction if possible
+        const fractionStr = newCoeff === 0.5 ? '½' :
+                           newCoeff === 1.5 ? '³⁄₂' :
+                           newCoeff === 2.5 ? '⁵⁄₂' :
+                           `${newCoeff}`;
+        return `${fractionStr}${formula}`;
+      }
+    } else if (numberMatch) {
+      // Handle numeric coefficients
+      const oldCoeff = parseInt(numberMatch[1], 10);
+      const newCoeff = oldCoeff * multiplier;
+      const formula = term.slice(numberMatch[1].length);
+      return `${newCoeff}${formula}`;
+    } else {
+      // Implicit coefficient of 1
+      return `${multiplier}${term}`;
+    }
+  });
+
+  return multipliedTerms.join(' + ');
+}
 
 interface Equation {
   id: string;
@@ -164,9 +217,21 @@ function EnergyDiagram({
   const effectiveDeltaH = equation.deltaH * equation.multiplier * (equation.isReversed ? -1 : 1);
   const isExothermic = effectiveDeltaH < 0;
 
+  // Calculate positions based on ΔH magnitude
+  // Base gap (at multiplier=1) is 20% from center, scales with multiplier
+  // Center is at 50%, so positions range from ~20% to ~80%
+  const baseGap = 15; // Base distance from center (%)
+  const gapPerMultiplier = 10; // Additional gap per multiplier level
+  const totalGap = baseGap + (equation.multiplier - 1) * gapPerMultiplier;
+
+  // Clamp the gap to keep bars within visible range (max 35% from center)
+  const clampedGap = Math.min(totalGap, 35);
+
   // Calculate positions (0-100 scale, lower value = higher on screen = higher energy)
-  const reactantLevel = isExothermic ? 30 : 70;
-  const productLevel = isExothermic ? 70 : 30;
+  // For exothermic: reactants high (small top%), products low (large top%)
+  // For endothermic: reactants low (large top%), products high (small top%)
+  const reactantLevel = isExothermic ? (50 - clampedGap) : (50 + clampedGap);
+  const productLevel = isExothermic ? (50 + clampedGap) : (50 - clampedGap);
 
   return (
     <div className="relative bg-gradient-to-b from-red-50 via-white to-blue-50 rounded-xl p-6 h-64 border-2 border-gray-200">
@@ -236,7 +301,16 @@ function EquationDisplay({
   showControls?: boolean;
 }) {
   const effectiveDeltaH = equation.deltaH * equation.multiplier * (equation.isReversed ? -1 : 1);
-  const displayMultiplier = equation.multiplier !== 1 ? `${equation.multiplier} × ` : '';
+
+  // Get the displayed reactants and products with multiplied coefficients
+  const displayReactants = multiplyEquationCoefficients(
+    equation.isReversed ? equation.products : equation.reactants,
+    equation.multiplier
+  );
+  const displayProducts = multiplyEquationCoefficients(
+    equation.isReversed ? equation.reactants : equation.products,
+    equation.multiplier
+  );
 
   return (
     <div className={`p-4 rounded-xl border-2 transition-all ${
@@ -247,10 +321,9 @@ function EquationDisplay({
       {/* Equation */}
       <div className="text-center mb-3">
         <span className="font-mono text-lg">
-          {displayMultiplier && <span className="text-orange-600 font-bold">{displayMultiplier}</span>}
-          <span className="text-blue-700">{equation.isReversed ? equation.products : equation.reactants}</span>
+          <span className="text-blue-700">{displayReactants}</span>
           <span className="mx-2 text-gray-600">→</span>
-          <span className="text-green-700">{equation.isReversed ? equation.reactants : equation.products}</span>
+          <span className="text-green-700">{displayProducts}</span>
         </span>
       </div>
 
@@ -317,7 +390,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const challenge = CHALLENGES[currentChallenge];
 
   // Reset equation when challenge changes
-  const resetChallenge = useCallback(() => {
+  useEffect(() => {
     setEquation({ ...CHALLENGES[currentChallenge].equation });
     setSelectedAnswer(null);
     setShowResult(false);
@@ -356,7 +429,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const nextChallenge = () => {
     if (currentChallenge < CHALLENGES.length - 1) {
       setCurrentChallenge(prev => prev + 1);
-      resetChallenge();
+      // useEffect will reset the equation when currentChallenge changes
     } else {
       // Max score is 100 per challenge × 6 challenges = 600
       onComplete(score, 600, totalHintsUsed);
