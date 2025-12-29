@@ -181,7 +181,7 @@
 | Phase diagram integration | ⬜ | Medium | High | Link to phases |
 | Coupled reaction examples | ⬜ | Medium | Medium | ATP hydrolysis |
 | Bio thermodynamics | ⬜ | Low | Low | Life science connections |
-| Crossover temp finder | ⬜ | Medium | Low | Interactive game |
+| Crossover temp finder | ✅ | Medium | Low | Visual T_cross marker on graph, scenario-specific hints, solution steps |
 
 #### Buffer Recipe Creator
 
@@ -201,9 +201,9 @@
 | Priority | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
 | High | 42 | 2 | 4.8% |
-| Medium | 45 | 5 | 11.1% |
+| Medium | 45 | 6 | 13.3% |
 | Low | 21 | 1 | 4.8% |
-| **Total** | **108** | **8** | **7.4%** |
+| **Total** | **108** | **9** | **8.3%** |
 
 ### By Year
 
@@ -212,13 +212,13 @@
 | Shared | 8 | 0 | 0% |
 | Year 1 | 20 | 2 | 10% |
 | Year 2 | 40 | 3 | 7.5% |
-| Year 3 | 32 | 3 | 9.4% |
+| Year 3 | 32 | 4 | 12.5% |
 
 ### By Category
 
 | Category | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
-| Visualization | 45 | 3 | 6.7% |
+| Visualization | 45 | 4 | 8.9% |
 | Interactivity | 30 | 0 | 0% |
 | Content | 18 | 3 | 16.7% |
 | Gamification | 15 | 2 | 13.3% |
@@ -242,7 +242,7 @@ These improvements can be implemented quickly:
 4. ✅ Add industrial examples to Hess's Law
 5. ✅ Add functional group highlighting to Organic Nomenclature
 6. ✅ Add atmospheric applications to Gas Laws
-7. ⬜ Add crossover temperature finder to Thermodynamics
+7. ✅ Add crossover temperature finder to Thermodynamics
 8. ✅ Add biological buffer examples to Buffer Creator
 
 ---
@@ -276,6 +276,7 @@ Building these once benefits multiple games:
 | 2025-12-29 | **MAJOR:** Consolidated ph-titration-practice and ph-titration-master into unified three-level pH Titration game |
 | 2025-12-29 | pH Titration now includes: Level 1 (6 conceptual challenges), Level 2 (6 interactive puzzles), Level 3 (8 calculation problems with polyprotic acids and Henderson-Hasselbalch) |
 | 2025-12-29 | Archived original games to games/archive/ |
+| 2025-12-29 | Added crossover temperature finder to Thermodynamics Predictor (visual T_cross marker, scenario hints, solution steps) |
 
 ---
 

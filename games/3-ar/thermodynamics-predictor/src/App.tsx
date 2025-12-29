@@ -261,6 +261,38 @@ function App() {
     ctx.fillStyle = 'rgba(239, 68, 68, 0.1)';
     ctx.fillRect(50, 30, width - 80, height / 2 - 30);
 
+    // Draw crossover temperature marker (where ΔG = 0)
+    if (deltaS !== 0) {
+      const crossTemp = Math.abs(deltaH / deltaS);
+      if (crossTemp >= tempRange.min && crossTemp <= tempRange.max) {
+        const crossX = 50 + ((crossTemp - tempRange.min) / (tempRange.max - tempRange.min)) * (width - 80);
+
+        // Vertical dashed line at crossover
+        ctx.strokeStyle = '#8b5cf6';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(crossX, 30);
+        ctx.lineTo(crossX, height - 30);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Crossover point marker (where line crosses ΔG=0)
+        ctx.fillStyle = '#8b5cf6';
+        ctx.beginPath();
+        ctx.arc(crossX, height / 2, 8, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = '#8b5cf6';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText(`T_cross = ${crossTemp.toFixed(0)} K`, crossX - 40, height - 35);
+      }
+    }
+
   }, [currentProblem, temperature]);
 
   // Timer for challenge mode
@@ -565,9 +597,50 @@ function App() {
                 </div>
               </div>
 
-              {crossoverTemp && (
-                <div className="mt-3 text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                  💡 Vísbending: Umbreytingarhitastig = {crossoverTemp.toFixed(0)} K ({(crossoverTemp - 273).toFixed(0)}°C)
+              {crossoverTemp && crossoverTemp >= 200 && crossoverTemp <= 1200 && (
+                <div className={`mt-3 text-sm p-3 rounded border-l-4 ${
+                  (currentProblem.scenario === 3 || currentProblem.scenario === 4)
+                    ? 'bg-purple-50 border-purple-500'
+                    : 'bg-gray-50 border-gray-300'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🎯</span>
+                    <div>
+                      <strong className="text-purple-700">Umbreytingarhitastig (T<sub>cross</sub>):</strong>
+                      <span className="ml-2 font-mono font-bold">{crossoverTemp.toFixed(0)} K</span>
+                      <span className="text-gray-500 ml-1">({(crossoverTemp - 273).toFixed(0)}°C)</span>
+                    </div>
+                  </div>
+                  {(currentProblem.scenario === 3 || currentProblem.scenario === 4) && (
+                    <div className="mt-2 text-xs">
+                      {currentProblem.scenario === 3 ? (
+                        <span className="text-purple-600">
+                          ⚡ Þetta hvarf er sjálfviljugt <strong>undir</strong> þessu hitastigi
+                        </span>
+                      ) : (
+                        <span className="text-purple-600">
+                          ⚡ Þetta hvarf er sjálfviljugt <strong>yfir</strong> þessu hitastigi
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {temperature > 0 && (
+                    <div className="mt-2 text-xs">
+                      {temperature < crossoverTemp ? (
+                        <span className={currentProblem.scenario === 3 ? 'text-green-600' : 'text-red-600'}>
+                          📍 Núverandi hitastig ({temperature} K) er <strong>undir</strong> T<sub>cross</sub>
+                        </span>
+                      ) : temperature > crossoverTemp ? (
+                        <span className={currentProblem.scenario === 4 ? 'text-green-600' : 'text-red-600'}>
+                          📍 Núverandi hitastig ({temperature} K) er <strong>yfir</strong> T<sub>cross</sub>
+                        </span>
+                      ) : (
+                        <span className="text-yellow-600">
+                          📍 Núverandi hitastig ({temperature} K) er <strong>við</strong> T<sub>cross</sub> (jafnvægi)
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -680,6 +753,28 @@ function App() {
                     {Math.abs(currentDeltaG) <= 1 && 'ΔG° ≈ 0 → JAFNVÆGI ⚖️'}
                     {currentDeltaG > 1 && 'ΔG° > 0 → EKKI SJÁLFVILJUGT ✗'}
                   </div>
+                  {/* Crossover temperature explanation for scenarios 3 & 4 */}
+                  {(currentProblem.scenario === 3 || currentProblem.scenario === 4) && crossoverTemp && (
+                    <div className="bg-purple-50 border-l-4 border-purple-500 p-3 rounded">
+                      <strong>Skref 4:</strong> Reikna umbreytingarhitastig (T<sub>cross</sub>)<br/>
+                      <div className="font-mono mt-1">
+                        Þegar ΔG° = 0: ΔH° = TΔS°<br/>
+                        T<sub>cross</sub> = ΔH° / ΔS°<br/>
+                        T<sub>cross</sub> = {currentProblem.deltaH} / {(currentProblem.deltaS/1000).toFixed(3)}<br/>
+                        <strong>T<sub>cross</sub> = {crossoverTemp.toFixed(0)} K ({(crossoverTemp - 273).toFixed(0)}°C)</strong>
+                      </div>
+                      <div className="mt-2 text-sm">
+                        {currentProblem.scenario === 3 ? (
+                          <>🔹 Við T &lt; {crossoverTemp.toFixed(0)} K: ΔG° &lt; 0 (sjálfviljugt)<br/>
+                          🔹 Við T &gt; {crossoverTemp.toFixed(0)} K: ΔG° &gt; 0 (ekki sjálfviljugt)</>
+                        ) : (
+                          <>🔹 Við T &lt; {crossoverTemp.toFixed(0)} K: ΔG° &gt; 0 (ekki sjálfviljugt)<br/>
+                          🔹 Við T &gt; {crossoverTemp.toFixed(0)} K: ΔG° &lt; 0 (sjálfviljugt)</>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="bg-blue-50 p-3 rounded">
                     <strong>Atburðarás {currentProblem.scenario}:</strong><br/>
                     {getScenarioDescription(currentProblem.scenario)}
@@ -702,10 +797,14 @@ function App() {
                 className="w-full"
               />
               <div className="mt-3 text-xs text-gray-600 grid grid-cols-2 gap-2">
-                <div>🔴 Línuhalli: -ΔS°</div>
+                <div>🟠 Línuhalli: -ΔS°</div>
                 <div>🟢 Sjálfviljugt: ΔG° &lt; 0</div>
                 <div>🔵 Y-skurður: ΔH°</div>
                 <div>🔴 Ekki sjálfviljugt: ΔG° &gt; 0</div>
+                <div className="col-span-2">
+                  <span className="inline-block w-3 h-3 rounded-full bg-purple-500 mr-1"></span>
+                  T<sub>cross</sub>: Umbreytingarhitastig (ΔG° = 0)
+                </div>
               </div>
             </div>
 
