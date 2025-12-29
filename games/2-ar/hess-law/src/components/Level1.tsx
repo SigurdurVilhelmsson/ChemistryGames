@@ -164,9 +164,9 @@ function EnergyDiagram({
   const effectiveDeltaH = equation.deltaH * equation.multiplier * (equation.isReversed ? -1 : 1);
   const isExothermic = effectiveDeltaH < 0;
 
-  // Calculate positions (0-100 scale)
-  const reactantLevel = isExothermic ? 70 : 30;
-  const productLevel = isExothermic ? 30 : 70;
+  // Calculate positions (0-100 scale, lower value = higher on screen = higher energy)
+  const reactantLevel = isExothermic ? 30 : 70;
+  const productLevel = isExothermic ? 70 : 30;
 
   return (
     <div className="relative bg-gradient-to-b from-red-50 via-white to-blue-50 rounded-xl p-6 h-64 border-2 border-gray-200">
