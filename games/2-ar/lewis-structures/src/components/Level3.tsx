@@ -245,6 +245,182 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
 
   const isCorrect = challenge.options?.find(opt => opt.id === selectedAnswer)?.correct ?? false;
 
+  // Render formal charge badge
+  const renderFormalCharge = (charge: number) => {
+    if (charge === 0) return null;
+
+    const chargeText = charge > 0 ? `+${charge}` : `${charge}`;
+    const bgColor = charge > 0 ? 'bg-red-500' : 'bg-blue-500';
+
+    return (
+      <div className={`absolute -top-2 -right-2 ${bgColor} text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm`}>
+        {chargeText}
+      </div>
+    );
+  };
+
+  // Render lone pairs as dots
+  const renderLonePairs = (count: number, position: 'top' | 'bottom' | 'left' | 'right') => {
+    if (count === 0) return null;
+    const pairs = Math.floor(count / 2);
+    if (pairs === 0) return null;
+
+    const positionClasses: Record<string, string> = {
+      'top': 'absolute -top-4 left-1/2 -translate-x-1/2',
+      'bottom': 'absolute -bottom-4 left-1/2 -translate-x-1/2',
+      'left': 'absolute top-1/2 -left-4 -translate-y-1/2',
+      'right': 'absolute top-1/2 -right-4 -translate-y-1/2',
+    };
+
+    return (
+      <div className={`${positionClasses[position]} flex gap-0.5`}>
+        {Array(Math.min(pairs, 2)).fill(0).map((_, i) => (
+          <div key={i} className="flex gap-0.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+            <div className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Render bonding electrons as lines
+  const renderBonds = (bondingElectrons: number) => {
+    const bondCount = bondingElectrons / 2;
+    return (
+      <div className="flex flex-col gap-0.5">
+        {Array(Math.min(bondCount, 4)).fill(0).map((_, i) => (
+          <div key={i} className="w-6 h-0.5 bg-gray-600" />
+        ))}
+      </div>
+    );
+  };
+
+  // Render atom visualization for FC calculations
+  const renderAtomVisualization = (atom: AtomCharge, showCharge: boolean) => {
+    const lonePairs = atom.lonePairElectrons / 2;
+
+    return (
+      <div className="flex items-center justify-center gap-2 py-4">
+        {/* Bonding electrons on left */}
+        <div className="flex items-center">
+          <div className="text-xs text-gray-500 mr-2">tengsl</div>
+          {renderBonds(atom.bondingElectrons)}
+        </div>
+
+        {/* Atom with lone pairs */}
+        <div className="relative mx-4">
+          <div className="w-16 h-16 rounded-full border-4 border-purple-500 bg-purple-100 flex items-center justify-center font-bold text-xl text-purple-800">
+            {atom.symbol}
+          </div>
+          {/* Show formal charge when revealed */}
+          {showCharge && renderFormalCharge(atom.formalCharge)}
+          {/* Lone pairs */}
+          {lonePairs >= 1 && renderLonePairs(2, 'top')}
+          {lonePairs >= 2 && renderLonePairs(2, 'bottom')}
+        </div>
+
+        {/* Electron count summary */}
+        <div className="text-xs text-gray-600 ml-4 text-left">
+          <div>V = {atom.valenceElectrons}</div>
+          <div>L = {atom.lonePairElectrons}</div>
+          <div>B = {atom.bondingElectrons}</div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render structure comparison for best_structure challenges
+  const renderStructureComparison = (structures: NonNullable<Challenge['structures']>) => {
+    return (
+      <div className="flex flex-wrap justify-center gap-6 py-4">
+        {structures.map((struct) => (
+          <div key={struct.id} className={`p-4 rounded-xl border-2 ${
+            showResult && struct.isPreferred
+              ? 'border-green-500 bg-green-50'
+              : 'border-gray-200 bg-white'
+          }`}>
+            {/* Structure visualization */}
+            <div className="flex items-center justify-center gap-1 mb-3">
+              {struct.formalCharges.map((fc, idx) => (
+                <div key={idx} className="relative mx-1">
+                  <div className={`w-12 h-12 rounded-full border-3 flex items-center justify-center font-bold ${
+                    idx === 0 ? 'border-blue-400 bg-blue-50 text-blue-700' : 'border-green-400 bg-green-50 text-green-700'
+                  }`}>
+                    {fc.atom}
+                  </div>
+                  {fc.charge !== 0 && (
+                    <div className={`absolute -top-1.5 -right-1.5 ${fc.charge > 0 ? 'bg-red-500' : 'bg-blue-500'} text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center`}>
+                      {fc.charge > 0 ? '+' : '−'}
+                    </div>
+                  )}
+                  {/* Bond between atoms */}
+                  {idx < struct.formalCharges.length - 1 && (
+                    <div className="absolute top-1/2 -right-3 transform -translate-y-1/2">
+                      {struct.id === 'triple' ? (
+                        <div className="flex flex-col gap-0.5">
+                          <div className="w-4 h-0.5 bg-gray-700" />
+                          <div className="w-4 h-0.5 bg-gray-700" />
+                          <div className="w-4 h-0.5 bg-gray-700" />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-0.5">
+                          <div className="w-4 h-0.5 bg-gray-700" />
+                          <div className="w-4 h-0.5 bg-gray-700" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            {/* Structure label */}
+            <div className="text-center text-sm font-mono font-bold text-gray-700">
+              {struct.description}
+            </div>
+            {/* Formal charges text */}
+            <div className="text-center text-xs text-gray-500 mt-1">
+              {struct.formalCharges.map(fc =>
+                `${fc.atom}: ${fc.charge >= 0 ? '+' : ''}${fc.charge}`
+              ).join(', ')}
+            </div>
+            {/* Preferred badge */}
+            {showResult && struct.isPreferred && (
+              <div className="text-center mt-2">
+                <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                  ✓ Æskilegast
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Render resonance structures visualization
+  const renderResonanceStructures = (forms: NonNullable<Challenge['resonanceForms']>) => {
+    return (
+      <div className="flex flex-wrap justify-center items-center gap-4 py-4">
+        {forms.map((form, idx) => (
+          <div key={form.id} className="flex items-center gap-2">
+            <div className={`p-3 rounded-lg border-2 ${
+              form.isValid ? 'border-purple-300 bg-purple-50' : 'border-gray-200 bg-gray-50'
+            }`}>
+              <div className="font-mono text-lg font-bold text-purple-800">
+                {form.structure}
+              </div>
+            </div>
+            {/* Double arrow between structures */}
+            {idx < forms.length - 1 && (
+              <div className="text-2xl text-purple-400 font-bold">⟷</div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
@@ -284,39 +460,49 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
 
           <p className="text-gray-600 mb-6">{challenge.description}</p>
 
-          {/* Atom info for FC calculations */}
+          {/* Atom info for FC calculations - with visual diagram */}
           {challenge.atoms && (
             <div className="bg-gray-50 p-4 rounded-xl mb-6">
               <h3 className="font-bold text-gray-700 mb-3">Rafeindasamsetning:</h3>
-              <div className="space-y-2">
-                {challenge.atoms.map((atom, idx) => (
-                  <div key={idx} className="flex items-center gap-4 text-sm font-mono">
-                    <span className="font-bold text-purple-600 w-8">{atom.symbol}:</span>
-                    <span>Gildisraf: {atom.valenceElectrons}</span>
-                    <span>Óbundnar: {atom.lonePairElectrons}</span>
-                    <span>Bundnar: {atom.bondingElectrons}</span>
+              {/* Visual atom diagram */}
+              {challenge.atoms.map((atom, idx) => (
+                <div key={idx}>
+                  {renderAtomVisualization(atom, showResult)}
+                </div>
+              ))}
+              {/* FC calculation shown after answer */}
+              {showResult && challenge.atoms.map((atom, idx) => (
+                <div key={`calc-${idx}`} className="mt-4 p-3 bg-white rounded-lg border border-purple-200">
+                  <div className="text-sm font-mono text-center">
+                    <span className="text-gray-600">FC = </span>
+                    <span className="text-purple-600">{atom.valenceElectrons}</span>
+                    <span className="text-gray-600"> - (</span>
+                    <span className="text-blue-600">{atom.lonePairElectrons}</span>
+                    <span className="text-gray-600"> + ½×</span>
+                    <span className="text-green-600">{atom.bondingElectrons}</span>
+                    <span className="text-gray-600">) = </span>
+                    <span className={`font-bold ${atom.formalCharge === 0 ? 'text-green-600' : atom.formalCharge > 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                      {atom.formalCharge >= 0 ? '+' : ''}{atom.formalCharge}
+                    </span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
 
-          {/* Structure options for best structure challenges */}
+          {/* Structure options for best structure challenges - with visual diagram */}
           {challenge.structures && (
             <div className="bg-gray-50 p-4 rounded-xl mb-6">
               <h3 className="font-bold text-gray-700 mb-3">Möguleg form:</h3>
-              <div className="space-y-3">
-                {challenge.structures.map((struct) => (
-                  <div key={struct.id} className="bg-white p-3 rounded-lg border">
-                    <div className="font-mono font-bold">{struct.description}</div>
-                    <div className="text-sm text-gray-600">
-                      Formhleðslur: {struct.formalCharges.map(fc =>
-                        `${fc.atom}${fc.charge >= 0 ? '+' : ''}${fc.charge}`
-                      ).join(', ')}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {renderStructureComparison(challenge.structures)}
+            </div>
+          )}
+
+          {/* Resonance structures visualization */}
+          {challenge.resonanceForms && (
+            <div className="bg-gray-50 p-4 rounded-xl mb-6">
+              <h3 className="font-bold text-gray-700 mb-3">Samsvörunarformúlur:</h3>
+              {renderResonanceStructures(challenge.resonanceForms)}
             </div>
           )}
 
