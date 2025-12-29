@@ -14,6 +14,7 @@ import type { AnimatedMoleculeProps } from '@shared/types';
 import { MoleculeAtom, MoleculeAtomDefs } from './MoleculeAtom';
 import { MoleculeBond, MoleculeBondDefs } from './MoleculeBond';
 import { MoleculeLonePair, MoleculeLonePairDefs, calculateLonePairAngles } from './MoleculeLonePair';
+import { MoleculeDipole, MoleculeDipoleDefs, calculateDipoleDirection, calculateDipoleLength } from './MoleculeDipole';
 import {
   calculateAtomPositions,
   calculateBondEndpoints,
@@ -35,7 +36,7 @@ export function AnimatedMolecule({
   showLonePairs = false,
   showFormalCharges = true,
   showPartialCharges = false,
-  showDipoleMoment: _showDipoleMoment = false, // TODO: Phase 4
+  showDipoleMoment = false,
   showAtomLabels = false,
   interactive = false,
   onAtomClick,
@@ -140,6 +141,38 @@ export function AnimatedMolecule({
     return info;
   }, [mode, molecule.geometry, atomsWithIds]);
 
+  // Calculate dipole moment for polar molecules
+  const dipoleData = useMemo(() => {
+    if (!showDipoleMoment) return null;
+
+    // Use explicit dipole from molecule data, or calculate from partial charges
+    let dipoleDirection = molecule.dipoleMoment?.direction;
+
+    if (!dipoleDirection && molecule.isPolar) {
+      // Build atom position data for dipole calculation
+      const atomsWithPositions = atomsWithIds
+        .map(atom => ({
+          position: atomPositions.get(atom.id)!,
+          partialCharge: atom.partialCharge,
+        }))
+        .filter(a => a.position);
+
+      dipoleDirection = calculateDipoleDirection(atomsWithPositions, { x: width / 2, y: height / 2 });
+    }
+
+    if (!dipoleDirection) return null;
+
+    // Calculate dipole arrow length based on molecule size
+    const dipoleLength = calculateDipoleLength(width * 0.6, height * 0.6, molecule.dipoleMoment?.magnitude);
+
+    return {
+      direction: dipoleDirection,
+      magnitude: molecule.dipoleMoment?.magnitude,
+      length: dipoleLength,
+      center: { x: width / 2, y: height / 2 },
+    };
+  }, [showDipoleMoment, molecule.dipoleMoment, molecule.isPolar, atomsWithIds, atomPositions, width, height]);
+
   // Handle atom click
   const handleAtomClick = (atomId: string) => {
     if (!interactive || !onAtomClick) return;
@@ -238,6 +271,7 @@ export function AnimatedMolecule({
       <MoleculeAtomDefs />
       <MoleculeBondDefs />
       <MoleculeLonePairDefs />
+      <MoleculeDipoleDefs />
 
       {/* Background (optional) */}
       <rect
@@ -294,7 +328,17 @@ export function AnimatedMolecule({
         </g>
       )}
 
-      {/* TODO: Add dipole moment arrow in Phase 4 */}
+      {/* Dipole moment arrow (for polar molecules) */}
+      {showDipoleMoment && dipoleData && (
+        <MoleculeDipole
+          moleculeCenter={dipoleData.center}
+          dipole={{ direction: dipoleData.direction, magnitude: dipoleData.magnitude }}
+          length={dipoleData.length}
+          animationDelay={shouldSkipAnimation ? 0 : 500}
+          reducedMotion={shouldSkipAnimation}
+          showLabels={!showPartialCharges} // Don't duplicate labels if partial charges are shown
+        />
+      )}
     </svg>
   );
 }
