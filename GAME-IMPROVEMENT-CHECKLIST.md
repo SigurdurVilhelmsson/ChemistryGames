@@ -11,7 +11,7 @@
 
 | Task | Status | Priority | Effort | Impact | Notes |
 |------|--------|----------|--------|--------|-------|
-| Create AnimatedMolecule component | 🟡 | High | High | High | Phase 1-2 complete: SVG atoms, bonds, layouts, lone pairs for Lewis mode |
+| Create AnimatedMolecule component | ✅ | High | High | High | All 5 phases complete: atoms, bonds, lone pairs, animation, dipoles, VSEPR, organic mode |
 | Create InteractiveGraph component | ⬜ | Medium | Medium | Medium | For titration, thermodynamics, kinetics |
 | Create DragDropBuilder component | ⬜ | Medium | High | High | For equations, nomenclature |
 | Add shared audio utilities | ⬜ | Low | Medium | Medium | TTS for pronunciations |
@@ -279,6 +279,10 @@ Building these once benefits multiple games:
 | 2025-12-29 | Added crossover temperature finder to Thermodynamics Predictor (visual T_cross marker, scenario hints, solution steps) |
 | 2025-12-29 | AnimatedMolecule Phase 1: SVG atoms, bonds, layouts, size variants |
 | 2025-12-29 | AnimatedMolecule Phase 2: MoleculeLonePair component for Lewis mode with smart angle positioning |
+| 2025-12-29 | AnimatedMolecule Phase 3: useMoleculeAnimation hook for orchestrated timing, onAnimationComplete callback |
+| 2025-12-29 | AnimatedMolecule Phase 4: MoleculeDipole arrows, useMoleculeLayout hook, VSEPR depth styling |
+| 2025-12-29 | AnimatedMolecule Phase 5: Organic mode with carbon chain layout, colored bonds, glow effects |
+| 2025-12-29 | **AnimatedMolecule COMPLETE** - All 5 phases implemented, ready for game migrations |
 
 ---
 

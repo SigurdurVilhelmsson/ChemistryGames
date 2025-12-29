@@ -1,21 +1,41 @@
 import { useState, useEffect } from 'react';
+import { AnimatedMolecule, ELEMENT_VISUALS } from '@shared/components';
+import { elementsToAtomCluster } from '../utils/moleculeConverter';
 
-// Atom visual properties - size correlates with atomic mass
-const ATOM_VISUALS: Record<string, { color: string; size: number; name: string; mass: number }> = {
-  H: { color: '#FFFFFF', size: 20, name: 'Vetni', mass: 1.008 },
-  C: { color: '#333333', size: 34, name: 'Kolefni', mass: 12.011 },
-  N: { color: '#3B82F6', size: 32, name: 'Köfnunarefni', mass: 14.007 },
-  O: { color: '#EF4444', size: 30, name: 'Súrefni', mass: 15.999 },
-  S: { color: '#EAB308', size: 40, name: 'Brennisteinn', mass: 32.065 },
-  Cl: { color: '#22C55E', size: 38, name: 'Klór', mass: 35.453 },
-  Na: { color: '#8B5CF6', size: 44, name: 'Natríum', mass: 22.990 },
-  Ca: { color: '#F97316', size: 48, name: 'Kalsíum', mass: 40.078 },
-  Fe: { color: '#78716C', size: 46, name: 'Járn', mass: 55.845 },
-  K: { color: '#EC4899', size: 52, name: 'Kalíum', mass: 39.098 },
-  Mg: { color: '#14B8A6', size: 42, name: 'Magnesíum', mass: 24.305 },
-  P: { color: '#F59E0B', size: 36, name: 'Fosfór', mass: 30.974 },
-  Al: { color: '#A1A1AA', size: 40, name: 'Ál', mass: 26.982 },
-  Cu: { color: '#B45309', size: 44, name: 'Kopar', mass: 63.546 },
+// Icelandic names for elements
+const ELEMENT_NAMES: Record<string, string> = {
+  H: 'Vetni',
+  C: 'Kolefni',
+  N: 'Köfnunarefni',
+  O: 'Súrefni',
+  S: 'Brennisteinn',
+  Cl: 'Klór',
+  Na: 'Natríum',
+  Ca: 'Kalsíum',
+  Fe: 'Járn',
+  K: 'Kalíum',
+  Mg: 'Magnesíum',
+  P: 'Fosfór',
+  Al: 'Ál',
+  Cu: 'Kopar',
+};
+
+// Atomic masses for calculations
+const ATOMIC_MASSES: Record<string, number> = {
+  H: 1.008,
+  C: 12.011,
+  N: 14.007,
+  O: 15.999,
+  S: 32.065,
+  Cl: 35.453,
+  Na: 22.990,
+  Ca: 40.078,
+  Fe: 55.845,
+  K: 39.098,
+  Mg: 24.305,
+  P: 30.974,
+  Al: 26.982,
+  Cu: 63.546,
 };
 
 // Challenge types for Level 1
