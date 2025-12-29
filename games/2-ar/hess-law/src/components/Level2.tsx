@@ -27,8 +27,8 @@ interface Puzzle {
 const PUZZLES: Puzzle[] = [
   {
     id: 1,
-    title: 'Einföld samsetning',
-    description: 'Notaðu gefnar jöfnur til að finna ΔH fyrir markmiðshvörfin.',
+    title: 'Kolmonoxíð - iðnaðargas',
+    description: '🏭 CO er mikilvægt iðnaðargas notað í stálframleiðslu og efnasmíði. Finndu myndunarvarmans.',
     targetEquation: {
       reactants: 'C(s) + ½O₂(g)',
       products: 'CO(g)'
@@ -47,8 +47,8 @@ const PUZZLES: Puzzle[] = [
   },
   {
     id: 2,
-    title: 'Myndun vatns',
-    description: 'Finndu ΔH fyrir myndun vatns úr frumefnunum.',
+    title: 'Vatn - vetnisorkugjafi',
+    description: '🚀 Myndun vatns er grunnur að vetnisbrennslugögnum (fuel cells) og eldsneytisknippi eldflaugar. Finndu hvörfvarmann.',
     targetEquation: {
       reactants: 'H₂(g) + ½O₂(g)',
       products: 'H₂O(g)'
@@ -67,8 +67,8 @@ const PUZZLES: Puzzle[] = [
   },
   {
     id: 3,
-    title: 'Brennsla etanóls',
-    description: 'Finndu brennsluvarminn fyrir etanól.',
+    title: 'Etanól - lífeldsneyti',
+    description: '🌽 Etanól er umhverfisvænt lífeldsneyti framleitt úr korni og sykurreyr. Notað í bílum í Brasilíu og E85 blöndum.',
     targetEquation: {
       reactants: 'C₂H₅OH(l) + 3O₂(g)',
       products: '2CO₂(g) + 3H₂O(l)'
@@ -89,8 +89,8 @@ const PUZZLES: Puzzle[] = [
   },
   {
     id: 4,
-    title: 'Myndun NO₂',
-    description: 'Finndu ΔH fyrir myndun NO₂ úr frumefnum.',
+    title: 'NO₂ - loftmengun',
+    description: '🚗 NO₂ myndast í bifreiðum og veldur loftmengun. Skilningur á þessu hjálpar við útblásturshreinsikerfi (catalytic converters).',
     targetEquation: {
       reactants: '½N₂(g) + O₂(g)',
       products: 'NO₂(g)'
@@ -109,8 +109,8 @@ const PUZZLES: Puzzle[] = [
   },
   {
     id: 5,
-    title: 'Myndun SO₃',
-    description: 'Finndu ΔH fyrir myndun SO₃ úr SO₂ og O₂.',
+    title: 'SO₃ - Snertiferlið (Contact Process)',
+    description: '🏭 SO₃ framleiðsla er lykilskref í snertiferlinu (Contact Process) sem framleiðir brennisteinsýru - mest framleidda efnið í heiminum!',
     targetEquation: {
       reactants: 'SO₂(g) + ½O₂(g)',
       products: 'SO₃(g)'
@@ -129,8 +129,8 @@ const PUZZLES: Puzzle[] = [
   },
   {
     id: 6,
-    title: 'Flóknara dæmi',
-    description: 'Þetta þarf bæði margföldun og viðsnúning.',
+    title: 'Thermít - járnbrautaviðgerðir',
+    description: '🔥 Thermítviðbrögð (2700°C!) eru notuð til að bræða saman járnbrautateina. Einnig notað í hernaði og eldflaugum.',
     targetEquation: {
       reactants: '2Al(s) + Fe₂O₃(s)',
       products: 'Al₂O₃(s) + 2Fe(s)'

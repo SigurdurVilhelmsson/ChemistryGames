@@ -80,7 +80,7 @@
 | Energy pathway animation | ⬜ | High | Medium | Animated energy diagram |
 | Drag-drop equation builder | ⬜ | High | High | Combine equations visually |
 | State function path comparison | ⬜ | Medium | Medium | Show different routes |
-| Industrial examples | ⬜ | Low | Low | Real-world applications |
+| Industrial examples | ✅ | Low | Low | Real-world applications (CO, H₂O fuel cells, ethanol, NO₂, Contact Process, Thermite) |
 
 #### Kinetics
 
@@ -165,7 +165,7 @@
 | Interactive PVT simulation | ⬜ | High | High | Slider-controlled |
 | Particle KE visualization | ⬜ | High | High | Temperature-speed link |
 | Real gas deviation | ⬜ | Low | Medium | Van der Waals comparison |
-| Atmospheric applications | ⬜ | Medium | Low | Weather, altitude |
+| Atmospheric applications | ✅ | Medium | Low | Mt. Everest, aircraft, weather balloons, spacecraft, ski resorts |
 
 #### Equilibrium Shifter
 
@@ -191,7 +191,7 @@
 |-------------|--------|----------|--------|-------|
 | Buffer capacity visualization | ⬜ | High | Medium | Graph of capacity |
 | Acid/base addition sim | ⬜ | High | Medium | See pH changes |
-| Biological buffer examples | ⬜ | Medium | Low | Blood, cellular |
+| Biological buffer examples | ✅ | Medium | Low | Blood pH, cellular phosphate buffer, DNA/RNA TRIS buffer, citrate blood bank |
 | HH equation builder | ⬜ | Medium | Low | Interactive formula |
 
 ---
@@ -203,9 +203,9 @@
 | Priority | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
 | High | 42 | 1 | 2.4% |
-| Medium | 45 | 0 | 0% |
-| Low | 21 | 0 | 0% |
-| **Total** | **108** | **1** | **0.9%** |
+| Medium | 45 | 2 | 4.4% |
+| Low | 21 | 1 | 4.8% |
+| **Total** | **108** | **4** | **3.7%** |
 
 ### By Year
 
@@ -213,8 +213,8 @@
 |------|-------|-----------|------------|
 | Shared | 8 | 0 | 0% |
 | Year 1 | 20 | 0 | 0% |
-| Year 2 | 40 | 1 | 2.5% |
-| Year 3 | 32 | 0 | 0% |
+| Year 2 | 40 | 2 | 5.0% |
+| Year 3 | 32 | 2 | 6.3% |
 
 ### By Category
 
@@ -222,7 +222,7 @@
 |----------|-------|-----------|------------|
 | Visualization | 45 | 1 | 2.2% |
 | Interactivity | 30 | 0 | 0% |
-| Content | 18 | 0 | 0% |
+| Content | 18 | 3 | 16.7% |
 | Gamification | 15 | 0 | 0% |
 
 ---
@@ -234,11 +234,11 @@ These improvements can be implemented quickly:
 1. ⬜ Add step-by-step solution display to Dimensional Analysis
 2. ⬜ Show excess reactant in Limiting Reactants
 3. ⬜ Add buffer region highlight to pH Titration Master
-4. ⬜ Add industrial examples to Hess's Law
+4. ✅ Add industrial examples to Hess's Law
 5. ⬜ Add functional group highlighting to Organic Nomenclature
-6. ⬜ Add atmospheric applications to Gas Laws
+6. ✅ Add atmospheric applications to Gas Laws
 7. ⬜ Add crossover temperature finder to Thermodynamics
-8. ⬜ Add biological buffer examples to Buffer Creator
+8. ✅ Add biological buffer examples to Buffer Creator
 
 ---
 
@@ -260,6 +260,9 @@ Building these once benefits multiple games:
 |------|---------|
 | 2025-12-29 | Initial checklist created |
 | 2025-12-29 | Lewis Structures electron animation marked complete |
+| 2025-12-29 | Added atmospheric applications to Gas Laws (5 new questions) |
+| 2025-12-29 | Added biological buffer examples to Buffer Creator |
+| 2025-12-29 | Added industrial examples to Hess's Law (6 puzzles enhanced) |
 
 ---
 
