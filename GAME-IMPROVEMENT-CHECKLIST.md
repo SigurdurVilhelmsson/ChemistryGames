@@ -11,7 +11,7 @@
 
 | Task | Status | Priority | Effort | Impact | Notes |
 |------|--------|----------|--------|--------|-------|
-| Create AnimatedMolecule component | ✅ | High | High | High | All 5 phases complete: atoms, bonds, lone pairs, animation, dipoles, VSEPR, organic mode |
+| Create AnimatedMolecule component | ✅ | High | High | High | All 5 phases complete. Integrated into: Molmassi, Lewis Structures, VSEPR Geometry, IMF, Organic Nomenclature |
 | Create InteractiveGraph component | ⬜ | Medium | Medium | Medium | For titration, thermodynamics, kinetics |
 | Create DragDropBuilder component | ⬜ | Medium | High | High | For equations, nomenclature |
 | Add shared audio utilities | ⬜ | Low | Medium | Medium | TTS for pronunciations |
@@ -104,8 +104,9 @@
 
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
-| 3D molecule viewer | ⬜ | High | High | Rotatable molecules |
-| Electron repulsion animation | ⬜ | High | Medium | Show domains separating |
+| AnimatedMolecule integration | ✅ | High | Medium | VSEPR mode with depth styling, dipoles, lone pairs |
+| 3D molecule viewer | ⬜ | High | High | Rotatable molecules (Three.js) |
+| Electron repulsion animation | ⬜ | Medium | Medium | Show domains separating |
 | Bond angle measurement | ⬜ | Medium | Low | Interactive tool |
 | Shape transition animation | ⬜ | Medium | Medium | Adding/removing domains |
 
@@ -113,8 +114,9 @@
 
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
+| AnimatedMolecule integration | ✅ | High | Medium | Partial charges, dipole moments, polar bond indicators |
 | Boiling point prediction | ⬜ | High | Medium | Based on IMF analysis |
-| Force strength animation | ⬜ | High | Medium | Visual comparison |
+| Force strength animation | ⬜ | Medium | Medium | Visual comparison |
 | Solubility prediction | ⬜ | Medium | Medium | "Like dissolves like" |
 | Surface tension demo | ⬜ | Low | High | Physical property link |
 
@@ -122,10 +124,11 @@
 
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
+| AnimatedMolecule integration | ✅ | High | Medium | Organic mode with chain layout, carbon numbering, colored bonds |
 | Interactive molecule builder | ⬜ | High | High | With auto-naming |
 | Draw structure from name | ⬜ | High | High | Reverse challenge |
-| Carbon chain numbering | ⬜ | Medium | Medium | Visual annotation |
-| Functional group highlighting | ✅ | Medium | Low | Double/triple bonds highlighted with colors and glow effect, legend added |
+| Carbon chain numbering | ✅ | Medium | Medium | Visual annotation (integrated with AnimatedMolecule) |
+| Functional group highlighting | ✅ | Medium | Low | Double/triple bonds highlighted with colors |
 
 #### Redox Reactions
 
