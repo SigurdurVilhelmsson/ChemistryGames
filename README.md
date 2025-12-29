@@ -8,7 +8,7 @@ Interactive chemistry educational games for Kvennaskólinn í Reykjavík. Built 
 
 ## ✨ Key Features
 
-- **18 Educational Games** across 3 years of chemistry curriculum
+- **17 Educational Games** across 3 years of chemistry curriculum
 - **Cross-Game Achievement System** - 23 achievements with 5 rarity levels, streak tracking, persistent progress
 - **Multi-Language Support** - Icelandic (primary), English, Polish
 - **Accessibility Features** - High contrast, text scaling, reduced motion
@@ -178,19 +178,17 @@ See [tools/game-template/README.md](tools/game-template/README.md) for detailed 
 
 ### Year 3 (3-ár) - Advanced Chemistry
 
-#### ✅ pH Titration Practice - **MIGRATED**
-- **Topics**: Acid-base titrations, pH calculations, titration curves
-- **Format**: Interactive virtual laboratory
-- **Features**: 4 titration types, real-time pH curves, universal indicator, 5 weak acids/bases
-- **Source**: `games/3-ar/ph-titration-practice/`
-- **Build**: `ph-titration-practice.html` (179KB)
-
-#### ✅ pH Titration Master - **MIGRATED**
-- **Topics**: Advanced pH and titrations including polyprotic acids
-- **Format**: Practice & Challenge modes with scoring
-- **Features**: 13 titration problems, 5 indicators, volume accuracy scoring, curve visualization
-- **Source**: `games/3-ar/ph-titration-master/`
-- **Build**: `ph-titration-master.html` (191KB)
+#### ✅ pH Titration - **UNIFIED**
+- **Topics**: Acid-base titrations, pH calculations, titration curves, Henderson-Hasselbalch
+- **Format**: Three-level pedagogical progression (Conceptual → Application → Calculation)
+- **Levels**:
+  - Level 1: Curve recognition, indicator colors, equivalence concepts (6 challenges)
+  - Level 2: Interactive titration with Burette/Flask simulation (6 puzzles)
+  - Level 3: Calculations including polyprotic acids & Henderson-Hasselbalch (8 problems)
+- **Features**: 13 titrations, 5 indicators, real-time pH curves, worked solutions
+- **Source**: `games/3-ar/ph-titration/`
+- **Build**: `ph-titration.html` (265KB)
+- **Note**: Consolidates previous ph-titration-practice and ph-titration-master (archived)
 
 #### ✅ Gas Law Challenge - **MIGRATED**
 - **Topics**: Ideal Gas Law (PV = nRT), gas properties
@@ -390,10 +388,10 @@ pnpm type-check
 |------|-------|-------|
 | Year 1 (1-ár) | 5 | Dimensional Analysis, Molar Mass, Nomenclature, Solutions, Limiting Reactants |
 | Year 2 (2-ár) | 7 | Hess's Law, Kinetics, Lewis Structures, VSEPR, Intermolecular Forces, Organic Nomenclature, Redox |
-| Year 3 (3-ár) | 6 | pH Titration Practice/Master, Gas Laws, Equilibrium, Thermodynamics, Buffers |
-| **Total** | **18** | **All games implemented with cross-game achievement system** |
+| Year 3 (3-ár) | 5 | **pH Titration (unified)**, Gas Laws, Equilibrium, Thermodynamics, Buffers |
+| **Total** | **17** | **All games implemented with cross-game achievement system** |
 
-All games have been migrated to the monorepo architecture and include the cross-game achievement system with 23 badges, streak tracking, and persistent progress.
+All games have been migrated to the monorepo architecture and include the cross-game achievement system with 23 badges, streak tracking, and persistent progress. The pH Titration game consolidates the former practice and master games into a unified three-level pedagogical experience.
 
 ---
 

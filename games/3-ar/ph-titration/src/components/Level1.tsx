@@ -1,0 +1,397 @@
+import { useState, useRef, useEffect } from 'react';
+import { LEVEL1_CHALLENGES } from '../data/level1-challenges';
+import { generateTitrationCurve } from '../utils/ph-calculations';
+import { titrations } from '../data/titrations';
+import type { MonoproticTitration } from '../types';
+
+interface Level1Props {
+  onComplete: (score: number, maxScore?: number, hintsUsed?: number) => void;
+  onBack: () => void;
+  onCorrectAnswer?: () => void;
+  onIncorrectAnswer?: () => void;
+}
+
+// Get sample titration data for curve visualization (only monoprotic)
+const strongStrongTitration = titrations.find(
+  (t): t is MonoproticTitration => t.type === 'strong-strong'
+);
+const weakStrongTitration = titrations.find(
+  (t): t is MonoproticTitration => t.type === 'weak-strong'
+);
+
+export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer }: Level1Props) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [showResult, setShowResult] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [completed, setCompleted] = useState(0);
+  const levelCompleteReported = useRef(false);
+
+  const challenge = LEVEL1_CHALLENGES[currentIndex];
+  const maxScore = LEVEL1_CHALLENGES.length * 100;
+
+  useEffect(() => {
+    if (completed >= LEVEL1_CHALLENGES.length && !levelCompleteReported.current) {
+      levelCompleteReported.current = true;
+      onComplete(score, maxScore, hintsUsed);
+    }
+  }, [completed, score, maxScore, hintsUsed, onComplete]);
+
+  const handleOptionSelect = (optionId: string) => {
+    if (showResult) return;
+    setSelectedOption(optionId);
+  };
+
+  const handleCheck = () => {
+    if (!selectedOption || showResult) return;
+
+    const selectedOpt = challenge.options?.find(o => o.id === selectedOption);
+    const isCorrect = selectedOpt?.isCorrect ?? false;
+
+    setShowResult(true);
+
+    if (isCorrect) {
+      const points = showHint ? 50 : 100;
+      setScore(prev => prev + points);
+      onCorrectAnswer?.();
+    } else {
+      onIncorrectAnswer?.();
+    }
+  };
+
+  const handleNext = () => {
+    setCompleted(prev => prev + 1);
+
+    if (currentIndex < LEVEL1_CHALLENGES.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setSelectedOption(null);
+      setShowResult(false);
+      setShowHint(false);
+    }
+  };
+
+  const handleShowHint = () => {
+    if (!showHint) {
+      setShowHint(true);
+      setHintsUsed(prev => prev + 1);
+    }
+  };
+
+  const selectedOpt = challenge.options?.find(o => o.id === selectedOption);
+  const isCorrect = selectedOpt?.isCorrect ?? false;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={onBack}
+            className="text-gray-600 hover:text-gray-800 flex items-center gap-2"
+          >
+            ← Til baka
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-500">
+              {completed + 1} / {LEVEL1_CHALLENGES.length}
+            </div>
+            <div className="text-lg font-bold text-blue-600">
+              Stig: {score}
+            </div>
+          </div>
+        </div>
+
+        {/* Title */}
+        <h1 className="text-2xl md:text-3xl font-bold text-blue-600 mb-2">
+          📈 Stig 1: Skilningur á títrunarkúrfum
+        </h1>
+        <p className="text-gray-600 mb-6">
+          Lærðu að þekkja mismunandi títrunarkúrfur og skilja hvernig pH breytist.
+        </p>
+
+        {/* Progress bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+          <div
+            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${((completed) / LEVEL1_CHALLENGES.length) * 100}%` }}
+          />
+        </div>
+
+        {/* Challenge card */}
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-3 mb-4">
+            <span className="bg-blue-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+              {challenge.id}
+            </span>
+            <div>
+              <h2 className="text-lg font-bold text-blue-800">
+                {challenge.type === 'match-curve' && 'Þekktu kúrfuna'}
+                {challenge.type === 'predict-color' && 'Spáðu um litinn'}
+                {challenge.type === 'find-equivalence' && 'Finndu jafngildispunkt'}
+                {challenge.type === 'curve-feature' && 'Einkenni kúrfunnar'}
+              </h2>
+            </div>
+          </div>
+
+          <p className="text-blue-900 text-lg mb-6">
+            {challenge.questionIs}
+          </p>
+
+          {/* Curve visualization for relevant challenges */}
+          {(challenge.type === 'match-curve' || challenge.type === 'curve-feature') && (
+            <div className="mb-6">
+              <TitrationCurvePreview curveType={challenge.curveType} />
+            </div>
+          )}
+
+          {/* Options */}
+          <div className="space-y-3">
+            {challenge.options?.map(option => {
+              const isSelected = selectedOption === option.id;
+              const isOptionCorrect = option.isCorrect;
+
+              let bgColor = 'bg-white hover:bg-blue-50';
+              let borderColor = 'border-gray-200';
+
+              if (showResult) {
+                if (isOptionCorrect) {
+                  bgColor = 'bg-green-100';
+                  borderColor = 'border-green-500';
+                } else if (isSelected && !isOptionCorrect) {
+                  bgColor = 'bg-red-100';
+                  borderColor = 'border-red-500';
+                }
+              } else if (isSelected) {
+                bgColor = 'bg-blue-100';
+                borderColor = 'border-blue-500';
+              }
+
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => handleOptionSelect(option.id)}
+                  disabled={showResult}
+                  className={`w-full p-4 rounded-xl border-2 text-left transition-all ${bgColor} ${borderColor} ${
+                    showResult ? 'cursor-default' : 'cursor-pointer'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={`font-bold ${showResult && isOptionCorrect ? 'text-green-600' : 'text-blue-600'}`}>
+                      {option.id}.
+                    </span>
+                    <span className="text-gray-800">{option.labelIs}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Hint */}
+        {!showResult && (
+          <div className="mb-4">
+            {showHint ? (
+              <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
+                <div className="font-bold text-yellow-800 mb-1">💡 Vísbending:</div>
+                <p className="text-yellow-900">{challenge.hintIs}</p>
+              </div>
+            ) : (
+              <button
+                onClick={handleShowHint}
+                className="text-yellow-600 hover:text-yellow-800 text-sm flex items-center gap-2"
+              >
+                💡 Sýna vísbendingu (-50 stig)
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Result feedback */}
+        {showResult && (
+          <div className={`mb-6 p-4 rounded-xl ${isCorrect ? 'bg-green-50 border border-green-300' : 'bg-red-50 border border-red-300'}`}>
+            <div className={`font-bold mb-2 ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+              {isCorrect ? '✓ Rétt!' : '✗ Rangt'}
+              {isCorrect && showHint && ' (50 stig með vísbendingu)'}
+              {isCorrect && !showHint && ' (+100 stig)'}
+            </div>
+            <p className={isCorrect ? 'text-green-900' : 'text-red-900'}>
+              {challenge.explanationIs}
+            </p>
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex justify-between">
+          <div className="text-sm text-gray-500">
+            {showHint && '💡 Vísbending notuð'}
+          </div>
+          <div className="flex gap-3">
+            {!showResult ? (
+              <button
+                onClick={handleCheck}
+                disabled={!selectedOption}
+                className={`px-6 py-3 rounded-xl font-bold transition-colors ${
+                  selectedOption
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Staðfesta
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold transition-colors"
+              >
+                {currentIndex < LEVEL1_CHALLENGES.length - 1 ? 'Næsta →' : 'Ljúka stigi →'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Simple curve preview component
+function TitrationCurvePreview({ curveType }: { curveType?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+
+    // Clear
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, width, height);
+
+    // Get curve data based on type
+    let curveData: { volume: number; pH: number }[] = [];
+    let equivVolume = 25;
+    let equivPH = 7;
+
+    if (curveType === 'strong-strong' && strongStrongTitration) {
+      curveData = generateTitrationCurve(strongStrongTitration, 50);
+      equivVolume = strongStrongTitration.equivalenceVolume;
+      equivPH = strongStrongTitration.equivalencePH;
+    } else if ((curveType === 'weak-strong' || curveType === 'strong-weak') && weakStrongTitration) {
+      curveData = generateTitrationCurve(weakStrongTitration, 50);
+      equivVolume = weakStrongTitration.equivalenceVolume;
+      equivPH = weakStrongTitration.equivalencePH;
+    } else {
+      // Default strong-strong curve
+      curveData = Array.from({ length: 51 }, (_, i) => ({
+        volume: i,
+        pH: i < 24 ? 1 + (i / 24) * 2 : i < 26 ? 3 + (i - 24) * 2 : 11 + (i - 26) * 0.1
+      }));
+    }
+
+    const maxVolume = 50;
+    const xScale = (v: number) => margin.left + (v / maxVolume) * plotWidth;
+    const yScale = (pH: number) => margin.top + ((14 - pH) / 14) * plotHeight;
+
+    // Grid lines
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+
+    for (let pH = 0; pH <= 14; pH += 2) {
+      ctx.beginPath();
+      ctx.moveTo(margin.left, yScale(pH));
+      ctx.lineTo(width - margin.right, yScale(pH));
+      ctx.stroke();
+    }
+
+    for (let v = 0; v <= maxVolume; v += 10) {
+      ctx.beginPath();
+      ctx.moveTo(xScale(v), margin.top);
+      ctx.lineTo(xScale(v), height - margin.bottom);
+      ctx.stroke();
+    }
+
+    // pH 7 reference line
+    ctx.strokeStyle = '#94a3b8';
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(margin.left, yScale(7));
+    ctx.lineTo(width - margin.right, yScale(7));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Curve
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    curveData.forEach((point, i) => {
+      const x = xScale(point.volume);
+      const y = yScale(Math.max(0, Math.min(14, point.pH)));
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+
+    // Equivalence point marker
+    ctx.fillStyle = '#22c55e';
+    ctx.beginPath();
+    ctx.arc(xScale(equivVolume), yScale(equivPH), 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Axes
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top);
+    ctx.lineTo(margin.left, height - margin.bottom);
+    ctx.lineTo(width - margin.right, height - margin.bottom);
+    ctx.stroke();
+
+    // Labels
+    ctx.fillStyle = '#475569';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Rúmmál (mL)', width / 2, height - 5);
+
+    ctx.save();
+    ctx.translate(15, height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('pH', 0, 0);
+    ctx.restore();
+
+    // pH scale numbers
+    ctx.textAlign = 'right';
+    for (let pH = 0; pH <= 14; pH += 2) {
+      ctx.fillText(pH.toString(), margin.left - 5, yScale(pH) + 4);
+    }
+
+  }, [curveType]);
+
+  return (
+    <div className="bg-white rounded-lg p-2 border border-gray-200">
+      <canvas
+        ref={canvasRef}
+        width={500}
+        height={300}
+        className="w-full max-w-lg mx-auto"
+      />
+      <div className="text-center text-sm text-gray-500 mt-2">
+        <span className="inline-flex items-center gap-2">
+          <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+          Jafngildispunktur
+        </span>
+      </div>
+    </div>
+  );
+}

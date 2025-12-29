@@ -140,23 +140,21 @@
 
 ### Year 3 Games
 
-#### pH Titration Practice
+#### pH Titration (Unified) - **CONSOLIDATED**
+
+**Note:** Former `ph-titration-practice` and `ph-titration-master` games were consolidated into a single unified three-level game (`ph-titration`). Original games archived to `games/archive/`.
 
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
-| Indicator selection | ⬜ | Medium | Low | Multiple indicators |
-| Virtual pH paper | ⬜ | Low | Medium | Alternative measurement |
-| Endpoint prediction challenge | ⬜ | Medium | Medium | Guess volume game |
-| Derivative curve display | ⬜ | Low | Medium | dPH/dV analysis |
-
-#### pH Titration Master
-
-| Improvement | Status | Priority | Effort | Notes |
-|-------------|--------|----------|--------|-------|
-| Polyprotic acid curves | ⬜ | Medium | Medium | H2SO4, H3PO4 |
-| Buffer region identification | ✅ | High | Low | Highlighted pKa ± 1 region on curve with shading and labels |
-| Equivalence volume prediction | ⬜ | Medium | Low | Accuracy game |
-| Indicator optimization | ⬜ | Medium | Medium | Best indicator selection |
+| Three-level structure | ✅ | High | High | Level 1: Concepts, Level 2: Interactive, Level 3: Calculations |
+| Indicator selection | ✅ | Medium | Low | Multiple indicators in Level 2 |
+| Endpoint prediction challenge | ✅ | Medium | Medium | Level 2 volume accuracy game (±1.0 mL) |
+| Buffer region identification | ✅ | High | Low | Highlighted pKa ± 1 region on curve |
+| Polyprotic acid problems | ✅ | Medium | Medium | H₂SO₃, H₃PO₄ in Level 3 |
+| Henderson-Hasselbalch | ✅ | Medium | Medium | Buffer calculations in Level 3 |
+| Worked solutions | ✅ | Medium | Medium | Step-by-step solutions in Level 3 |
+| Virtual pH paper | ⬜ | Low | Medium | Alternative measurement (future) |
+| Derivative curve display | ⬜ | Low | Medium | dPH/dV analysis (future) |
 
 #### Gas Law Challenge
 
@@ -275,6 +273,9 @@ Building these once benefits multiple games:
 | 2025-12-29 | Added functional group highlighting to Organic Nomenclature (double/triple bonds with colors) |
 | 2025-12-29 | Marked buffer region highlight as complete (already implemented in TitrationCurve) |
 | 2025-12-29 | Consolidated Developer Tooling improvements from IMPROVEMENTS.md |
+| 2025-12-29 | **MAJOR:** Consolidated ph-titration-practice and ph-titration-master into unified three-level pH Titration game |
+| 2025-12-29 | pH Titration now includes: Level 1 (6 conceptual challenges), Level 2 (6 interactive puzzles), Level 3 (8 calculation problems with polyprotic acids and Henderson-Hasselbalch) |
+| 2025-12-29 | Archived original games to games/archive/ |
 
 ---
 
