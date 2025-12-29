@@ -199,4 +199,6 @@ export interface AnimatedMoleculeProps {
   reducedMotion?: boolean;
   /** ARIA label for accessibility */
   ariaLabel?: string;
+  /** Callback when all animations complete */
+  onAnimationComplete?: () => void;
 }

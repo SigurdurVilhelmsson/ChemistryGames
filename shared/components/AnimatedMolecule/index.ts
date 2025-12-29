@@ -46,8 +46,21 @@ export { MoleculeAtom, MoleculeAtomDefs } from './MoleculeAtom';
 export { MoleculeBond, MoleculeBondDefs } from './MoleculeBond';
 export { MoleculeLonePair, MoleculeLonePairDefs, calculateLonePairAngles } from './MoleculeLonePair';
 
+// Animation hook (for advanced animation control)
+export {
+  useMoleculeAnimation,
+  getAnimationStyle,
+  MOLECULE_KEYFRAMES,
+} from './useMoleculeAnimation';
+export type {
+  AnimationState,
+  AnimationTiming,
+  MoleculeAnimationConfig,
+  MoleculeAnimationResult,
+} from './useMoleculeAnimation';
+
 // Constants and utilities
-export { ELEMENT_VISUALS, SIZE_CONFIG, GEOMETRY_COORDS, MOLECULE_COLORS } from './molecule.constants';
+export { ELEMENT_VISUALS, SIZE_CONFIG, GEOMETRY_COORDS, MOLECULE_COLORS, ANIMATION_DURATIONS } from './molecule.constants';
 export {
   getElementVisual,
   project3Dto2D,

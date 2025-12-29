@@ -23,7 +23,8 @@ import {
   ensureAtomIds,
   getDepthStyle,
 } from './molecule.utils';
-import { GEOMETRY_COORDS, ANIMATION_DURATIONS } from './molecule.constants';
+import { GEOMETRY_COORDS } from './molecule.constants';
+import { useMoleculeAnimation, MOLECULE_KEYFRAMES } from './useMoleculeAnimation';
 
 export function AnimatedMolecule({
   molecule,
@@ -44,6 +45,7 @@ export function AnimatedMolecule({
   className = '',
   reducedMotion = false,
   ariaLabel,
+  onAnimationComplete,
 }: AnimatedMoleculeProps) {
   // Get size configuration
   const sizeConfig = getSizeConfig(size);
@@ -51,6 +53,28 @@ export function AnimatedMolecule({
 
   // Ensure all atoms have IDs
   const atomsWithIds = useMemo(() => ensureAtomIds(molecule.atoms), [molecule.atoms]);
+
+  // Count lone pairs for animation
+  const lonePairCount = useMemo(() => {
+    if (!showLonePairs || mode !== 'lewis') return 0;
+    return atomsWithIds.reduce((sum, atom) => sum + (atom.lonePairs || 0), 0);
+  }, [atomsWithIds, showLonePairs, mode]);
+
+  // Use animation hook for orchestrated timing
+  const {
+    getAtomTiming,
+    getBondTiming,
+    getLonePairTiming,
+    shouldSkipAnimation,
+  } = useMoleculeAnimation({
+    atomCount: atomsWithIds.length,
+    bondCount: molecule.bonds.length,
+    lonePairCount,
+    animation,
+    baseDuration: animationDuration,
+    reducedMotion,
+    onAnimationComplete,
+  });
 
   // Calculate atom positions
   const atomPositions = useMemo(
@@ -62,13 +86,6 @@ export function AnimatedMolecule({
     ),
     [molecule, atomsWithIds, width, height, atomRadius]
   );
-
-  // Calculate animation timing
-  const baseDuration = animationDuration || ANIMATION_DURATIONS.normal;
-  const atomDelay = animation === 'build' ? baseDuration / atomsWithIds.length : 0;
-  const bondDelay = animation === 'build' ? baseDuration : 0;
-  const bondDelayIncrement = animation === 'build' ? baseDuration / Math.max(molecule.bonds.length, 1) : 0;
-  const lonePairDelay = animation === 'build' ? baseDuration * 2 : baseDuration;
 
   // Calculate bond angles for each atom (needed for lone pair positioning)
   const atomBondAngles = useMemo(() => {
@@ -153,6 +170,8 @@ export function AnimatedMolecule({
     // Calculate bond endpoints (just outside atom circles)
     const { start, end } = calculateBondEndpoints(fromPos, toPos, fromRadius, toRadius);
 
+    const bondTiming = getBondTiming(index);
+
     return (
       <MoleculeBond
         key={`bond-${index}`}
@@ -164,8 +183,8 @@ export function AnimatedMolecule({
         isHighlighted={highlightedBonds.includes(index) || bond.highlight}
         isInteractive={interactive}
         onClick={() => handleBondClick(index)}
-        animationDelay={bondDelay + index * bondDelayIncrement}
-        reducedMotion={reducedMotion || animation === 'none'}
+        animationDelay={bondTiming.delay}
+        reducedMotion={shouldSkipAnimation}
       />
     );
   });
@@ -176,6 +195,7 @@ export function AnimatedMolecule({
     if (!position) return null;
 
     const depth = depthInfo.get(atom.id) || { opacity: 1, scale: 1 };
+    const atomTiming = getAtomTiming(index);
 
     return (
       <MoleculeAtom
@@ -191,8 +211,8 @@ export function AnimatedMolecule({
         isHighlighted={highlightedAtoms.includes(atom.id) || atom.highlight}
         isInteractive={interactive}
         onClick={() => handleAtomClick(atom.id)}
-        animationDelay={index * atomDelay}
-        reducedMotion={reducedMotion || animation === 'none'}
+        animationDelay={atomTiming.delay}
+        reducedMotion={shouldSkipAnimation}
         depthOpacity={depth.opacity}
         depthScale={depth.scale}
       />
@@ -212,6 +232,9 @@ export function AnimatedMolecule({
       aria-label={accessibleLabel}
     >
       {/* SVG definitions for filters and animations */}
+      <defs>
+        <style>{MOLECULE_KEYFRAMES}</style>
+      </defs>
       <MoleculeAtomDefs />
       <MoleculeBondDefs />
       <MoleculeLonePairDefs />
@@ -253,17 +276,20 @@ export function AnimatedMolecule({
             // Distance from atom center to lone pairs
             const lonePairDistance = radius + 8;
 
-            return lonePairAngles.map((angle, lpIndex) => (
-              <MoleculeLonePair
-                key={`${atom.id}-lp-${lpIndex}`}
-                atomPosition={position}
-                angle={angle}
-                distance={lonePairDistance}
-                dotSize={Math.max(4, fontSize * 0.4)}
-                animationDelay={lonePairDelay + atomIndex * 100 + lpIndex * 50}
-                reducedMotion={reducedMotion || animation === 'none'}
-              />
-            ));
+            return lonePairAngles.map((angle, lpIndex) => {
+              const lpTiming = getLonePairTiming(atomIndex, lpIndex);
+              return (
+                <MoleculeLonePair
+                  key={`${atom.id}-lp-${lpIndex}`}
+                  atomPosition={position}
+                  angle={angle}
+                  distance={lonePairDistance}
+                  dotSize={Math.max(4, fontSize * 0.4)}
+                  animationDelay={lpTiming.delay}
+                  reducedMotion={shouldSkipAnimation}
+                />
+              );
+            });
           })}
         </g>
       )}

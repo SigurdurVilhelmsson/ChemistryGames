@@ -11,7 +11,7 @@
 
 | Task | Status | Priority | Effort | Impact | Notes |
 |------|--------|----------|--------|--------|-------|
-| Create AnimatedMolecule component | 🟡 | High | High | High | Phase 1 complete: SVG atoms, bonds, layouts |
+| Create AnimatedMolecule component | 🟡 | High | High | High | Phase 1-2 complete: SVG atoms, bonds, layouts, lone pairs for Lewis mode |
 | Create InteractiveGraph component | ⬜ | Medium | Medium | Medium | For titration, thermodynamics, kinetics |
 | Create DragDropBuilder component | ⬜ | Medium | High | High | For equations, nomenclature |
 | Add shared audio utilities | ⬜ | Low | Medium | Medium | TTS for pronunciations |
@@ -277,6 +277,8 @@ Building these once benefits multiple games:
 | 2025-12-29 | pH Titration now includes: Level 1 (6 conceptual challenges), Level 2 (6 interactive puzzles), Level 3 (8 calculation problems with polyprotic acids and Henderson-Hasselbalch) |
 | 2025-12-29 | Archived original games to games/archive/ |
 | 2025-12-29 | Added crossover temperature finder to Thermodynamics Predictor (visual T_cross marker, scenario hints, solution steps) |
+| 2025-12-29 | AnimatedMolecule Phase 1: SVG atoms, bonds, layouts, size variants |
+| 2025-12-29 | AnimatedMolecule Phase 2: MoleculeLonePair component for Lewis mode with smart angle positioning |
 
 ---
 
