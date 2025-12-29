@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { AnimatedMolecule } from '@shared/components';
+import { organicToMolecule } from '../utils/organicConverter';
 
 interface Level2Props {
   onComplete: (score: number, maxScore: number, hintsUsed: number) => void;
@@ -98,56 +100,6 @@ export function Level2({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     setShowHint(true);
   };
 
-  const renderStructure = () => {
-    const elements: JSX.Element[] = [];
-
-    for (let i = 0; i < molecule.carbons; i++) {
-      elements.push(
-        <div key={`c-${i}`} className="flex flex-col items-center">
-          <div className="text-xs text-gray-400 mb-1">{i + 1}</div>
-          <div className="w-10 h-10 rounded-full bg-gray-800 text-white font-bold text-sm flex items-center justify-center">
-            C
-          </div>
-        </div>
-      );
-
-      if (i < molecule.carbons - 1) {
-        const isDouble = molecule.type === 'alkene' && molecule.doublePosition === i + 1;
-        const isTriple = molecule.type === 'alkyne' && molecule.triplePosition === i + 1;
-
-        if (isTriple) {
-          // Triple bond - highlighted in purple with glow effect
-          elements.push(
-            <div key={`bond-${i}`} className="flex flex-col justify-center h-10 relative">
-              <div className="absolute inset-0 bg-purple-400 opacity-30 rounded-lg blur-sm"></div>
-              <div className="w-6 h-0.5 bg-purple-600 relative z-10"></div>
-              <div className="w-6 h-0.5 bg-purple-600 mt-0.5 relative z-10"></div>
-              <div className="w-6 h-0.5 bg-purple-600 mt-0.5 relative z-10"></div>
-              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs text-purple-600 font-bold">≡</span>
-            </div>
-          );
-        } else if (isDouble) {
-          // Double bond - highlighted in green with glow effect
-          elements.push(
-            <div key={`bond-${i}`} className="flex flex-col justify-center h-10 relative">
-              <div className="absolute inset-0 bg-green-400 opacity-30 rounded-lg blur-sm"></div>
-              <div className="w-6 h-0.5 bg-green-600 relative z-10"></div>
-              <div className="w-6 h-0.5 bg-green-600 mt-1 relative z-10"></div>
-              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs text-green-600 font-bold">=</span>
-            </div>
-          );
-        } else {
-          // Single bond - standard gray
-          elements.push(
-            <div key={`bond-${i}`} className="w-6 h-1 bg-gray-600"></div>
-          );
-        }
-      }
-    }
-
-    return elements;
-  };
-
   const getTypeColor = () => {
     switch (molecule.type) {
       case 'alkane': return 'from-gray-50 to-slate-100 border-gray-300';
@@ -195,8 +147,15 @@ export function Level2({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
             </span>
           </div>
 
-          <div className="flex justify-center items-center gap-1 mb-4 overflow-x-auto py-2">
-            {renderStructure()}
+          <div className="flex justify-center items-center mb-4 py-2">
+            <AnimatedMolecule
+              molecule={organicToMolecule(molecule)}
+              mode="organic"
+              size="lg"
+              animation="scale-in"
+              showAtomLabels={true}
+              ariaLabel={`${molecule.formula} kolefniskeðja`}
+            />
           </div>
 
           <div className="text-center">
