@@ -4,6 +4,7 @@
 
 import type { MoleculeBond as MoleculeBondType, Position2D, MoleculeRenderMode } from '@shared/types';
 import { MOLECULE_COLORS, BOND_STYLES } from './molecule.constants';
+import { getOrganicBondColor, getOrganicBondGlow } from './molecule.utils';
 
 export interface MoleculeBondProps {
   /** Bond data */
@@ -54,7 +55,7 @@ export function MoleculeBond({
   startPos,
   endPos,
   bondWidth,
-  mode: _mode,
+  mode = 'simple',
   isHighlighted = false,
   isInteractive = false,
   onClick,
@@ -62,11 +63,21 @@ export function MoleculeBond({
   reducedMotion = false,
 }: MoleculeBondProps) {
   const bondStyle = BOND_STYLES[bond.type];
-  const strokeColor = isHighlighted
-    ? MOLECULE_COLORS.bondHighlight
-    : bond.polar
-    ? MOLECULE_COLORS.bondPolar
-    : MOLECULE_COLORS.bond;
+
+  // Determine stroke color based on mode
+  let strokeColor: string;
+  if (isHighlighted) {
+    strokeColor = MOLECULE_COLORS.bondHighlight;
+  } else if (mode === 'organic') {
+    strokeColor = getOrganicBondColor(bond.type);
+  } else if (bond.polar) {
+    strokeColor = MOLECULE_COLORS.bondPolar;
+  } else {
+    strokeColor = MOLECULE_COLORS.bond;
+  }
+
+  // Get glow effect for organic mode
+  const glowColor = mode === 'organic' ? getOrganicBondGlow(bond.type) : null;
 
   // Calculate bond length for animation
   const dx = endPos.x - startPos.x;
@@ -85,26 +96,31 @@ export function MoleculeBond({
   // Render single bond
   if (bond.type === 'single') {
     return (
-      <line
-        x1={startPos.x}
-        y1={startPos.y}
-        x2={endPos.x}
-        y2={endPos.y}
-        stroke={strokeColor}
-        strokeWidth={bondWidth}
-        strokeLinecap="round"
+      <g
         className={`molecule-bond ${isInteractive ? 'cursor-pointer' : ''}`}
         onClick={isInteractive ? onClick : undefined}
         role={isInteractive ? 'button' : undefined}
         aria-label={`${bond.type} bond`}
-        style={animationStyle}
-      />
+      >
+        <line
+          x1={startPos.x}
+          y1={startPos.y}
+          x2={endPos.x}
+          y2={endPos.y}
+          stroke={strokeColor}
+          strokeWidth={bondWidth}
+          strokeLinecap="round"
+          style={animationStyle}
+        />
+      </g>
     );
   }
 
   // Render double bond
   if (bond.type === 'double') {
     const offset = getPerpendicularOffset(startPos, endPos, bondStyle.gap / 2);
+    const midX = (startPos.x + endPos.x) / 2;
+    const midY = (startPos.y + endPos.y) / 2;
 
     return (
       <g
@@ -113,6 +129,17 @@ export function MoleculeBond({
         role={isInteractive ? 'button' : undefined}
         aria-label="double bond"
       >
+        {/* Glow effect for organic mode */}
+        {glowColor && (
+          <ellipse
+            cx={midX}
+            cy={midY}
+            rx={bondLength / 2 + 8}
+            ry={12}
+            fill={glowColor}
+            style={animationStyle}
+          />
+        )}
         <line
           x1={startPos.x + offset.dx}
           y1={startPos.y + offset.dy}
@@ -143,6 +170,8 @@ export function MoleculeBond({
   // Render triple bond
   if (bond.type === 'triple') {
     const offset = getPerpendicularOffset(startPos, endPos, bondStyle.gap);
+    const midX = (startPos.x + endPos.x) / 2;
+    const midY = (startPos.y + endPos.y) / 2;
 
     return (
       <g
@@ -151,6 +180,17 @@ export function MoleculeBond({
         role={isInteractive ? 'button' : undefined}
         aria-label="triple bond"
       >
+        {/* Glow effect for organic mode */}
+        {glowColor && (
+          <ellipse
+            cx={midX}
+            cy={midY}
+            rx={bondLength / 2 + 8}
+            ry={14}
+            fill={glowColor}
+            style={animationStyle}
+          />
+        )}
         {/* Center line */}
         <line
           x1={startPos.x}

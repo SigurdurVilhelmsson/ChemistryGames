@@ -17,6 +17,7 @@ import { MoleculeLonePair, MoleculeLonePairDefs, calculateLonePairAngles } from 
 import { MoleculeDipole, MoleculeDipoleDefs, calculateDipoleDirection, calculateDipoleLength } from './MoleculeDipole';
 import {
   calculateAtomPositions,
+  calculateOrganicChainPositions,
   calculateBondEndpoints,
   calculateAngle,
   getElementVisual,
@@ -77,16 +78,23 @@ export function AnimatedMolecule({
     onAnimationComplete,
   });
 
-  // Calculate atom positions
-  const atomPositions = useMemo(
-    () => calculateAtomPositions(
+  // Calculate atom positions based on mode
+  const atomPositions = useMemo(() => {
+    if (mode === 'organic') {
+      return calculateOrganicChainPositions(
+        { ...molecule, atoms: atomsWithIds },
+        width,
+        height,
+        atomRadius
+      );
+    }
+    return calculateAtomPositions(
       { ...molecule, atoms: atomsWithIds },
       width,
       height,
       atomRadius
-    ),
-    [molecule, atomsWithIds, width, height, atomRadius]
-  );
+    );
+  }, [molecule, atomsWithIds, width, height, atomRadius, mode]);
 
   // Calculate bond angles for each atom (needed for lone pair positioning)
   const atomBondAngles = useMemo(() => {

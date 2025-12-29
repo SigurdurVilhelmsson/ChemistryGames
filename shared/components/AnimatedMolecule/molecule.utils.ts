@@ -303,3 +303,119 @@ export function isPointInBounds(
     point.y <= bounds.y + bounds.height
   );
 }
+
+/**
+ * Calculate positions for organic chain layout (linear carbon chain)
+ * @param carbonCount - Number of carbons in the chain
+ * @param width - Container width
+ * @param height - Container height
+ * @param atomRadius - Base atom radius
+ * @returns Map of atom IDs to positions
+ */
+export function calculateOrganicChainPositions(
+  molecule: Molecule,
+  width: number,
+  height: number,
+  atomRadius: number
+): Map<string, Position2D> {
+  const positions = new Map<string, Position2D>();
+  const centerY = height / 2;
+
+  // Find carbon atoms (main chain)
+  const carbons = molecule.atoms.filter(a => a.symbol === 'C');
+  const otherAtoms = molecule.atoms.filter(a => a.symbol !== 'C');
+
+  if (carbons.length === 0) {
+    // Fallback to simple layout
+    return calculateAtomPositions(molecule, width, height, atomRadius);
+  }
+
+  // Calculate spacing for carbon chain
+  const padding = atomRadius * 2;
+  const availableWidth = width - padding * 2;
+  const spacing = Math.min(atomRadius * 3, availableWidth / Math.max(carbons.length - 1, 1));
+  const totalChainWidth = (carbons.length - 1) * spacing;
+  const startX = (width - totalChainWidth) / 2;
+
+  // Position carbons in a horizontal line
+  carbons.forEach((carbon, index) => {
+    positions.set(carbon.id, {
+      x: startX + index * spacing,
+      y: centerY,
+    });
+  });
+
+  // Position other atoms (hydrogens, etc.) around their bonded carbons
+  for (const atom of otherAtoms) {
+    // Find which carbon this atom is bonded to
+    const bond = molecule.bonds.find(b =>
+      (b.from === atom.id || b.to === atom.id)
+    );
+
+    if (bond) {
+      const carbonId = bond.from === atom.id ? bond.to : bond.from;
+      const carbonPos = positions.get(carbonId);
+
+      if (carbonPos) {
+        // Position hydrogen above or below the carbon
+        const hydrogenOffset = atomRadius * 1.5;
+
+        // Alternate above/below for visual clarity
+        const yOffset = (otherAtoms.indexOf(atom) % 2 === 0) ? -hydrogenOffset : hydrogenOffset;
+
+        positions.set(atom.id, {
+          x: carbonPos.x,
+          y: carbonPos.y + yOffset,
+        });
+      }
+    }
+  }
+
+  return positions;
+}
+
+/**
+ * Get bond color for organic mode based on bond type
+ */
+export function getOrganicBondColor(bondType: 'single' | 'double' | 'triple'): string {
+  switch (bondType) {
+    case 'single':
+      return '#4B5563'; // Gray
+    case 'double':
+      return '#16A34A'; // Green
+    case 'triple':
+      return '#9333EA'; // Purple
+    default:
+      return '#4B5563';
+  }
+}
+
+/**
+ * Get glow color for functional group highlighting
+ */
+export function getOrganicBondGlow(bondType: 'single' | 'double' | 'triple'): string | null {
+  switch (bondType) {
+    case 'double':
+      return 'rgba(34, 197, 94, 0.4)'; // Green glow
+    case 'triple':
+      return 'rgba(168, 85, 247, 0.4)'; // Purple glow
+    default:
+      return null; // No glow for single bonds
+  }
+}
+
+/**
+ * Get bond symbol for organic nomenclature display
+ */
+export function getBondSymbol(bondType: 'single' | 'double' | 'triple'): string {
+  switch (bondType) {
+    case 'single':
+      return '-';
+    case 'double':
+      return '=';
+    case 'triple':
+      return '≡';
+    default:
+      return '-';
+  }
+}

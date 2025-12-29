@@ -75,8 +75,12 @@ export {
   getElementVisual,
   project3Dto2D,
   calculateAtomPositions,
+  calculateOrganicChainPositions,
   calculateBondEndpoints,
   getContrastTextColor,
+  getOrganicBondColor,
+  getOrganicBondGlow,
+  getBondSymbol,
 } from './molecule.utils';
 
 // Types are exported from @shared/types
