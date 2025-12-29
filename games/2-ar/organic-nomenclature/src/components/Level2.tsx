@@ -116,21 +116,28 @@ export function Level2({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
         const isTriple = molecule.type === 'alkyne' && molecule.triplePosition === i + 1;
 
         if (isTriple) {
+          // Triple bond - highlighted in purple with glow effect
           elements.push(
-            <div key={`bond-${i}`} className="flex flex-col justify-center h-10">
-              <div className="w-6 h-0.5 bg-gray-600"></div>
-              <div className="w-6 h-0.5 bg-gray-600 mt-0.5"></div>
-              <div className="w-6 h-0.5 bg-gray-600 mt-0.5"></div>
+            <div key={`bond-${i}`} className="flex flex-col justify-center h-10 relative">
+              <div className="absolute inset-0 bg-purple-400 opacity-30 rounded-lg blur-sm"></div>
+              <div className="w-6 h-0.5 bg-purple-600 relative z-10"></div>
+              <div className="w-6 h-0.5 bg-purple-600 mt-0.5 relative z-10"></div>
+              <div className="w-6 h-0.5 bg-purple-600 mt-0.5 relative z-10"></div>
+              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs text-purple-600 font-bold">≡</span>
             </div>
           );
         } else if (isDouble) {
+          // Double bond - highlighted in green with glow effect
           elements.push(
-            <div key={`bond-${i}`} className="flex flex-col justify-center h-10">
-              <div className="w-6 h-0.5 bg-gray-600"></div>
-              <div className="w-6 h-0.5 bg-gray-600 mt-1"></div>
+            <div key={`bond-${i}`} className="flex flex-col justify-center h-10 relative">
+              <div className="absolute inset-0 bg-green-400 opacity-30 rounded-lg blur-sm"></div>
+              <div className="w-6 h-0.5 bg-green-600 relative z-10"></div>
+              <div className="w-6 h-0.5 bg-green-600 mt-1 relative z-10"></div>
+              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs text-green-600 font-bold">=</span>
             </div>
           );
         } else {
+          // Single bond - standard gray
           elements.push(
             <div key={`bond-${i}`} className="w-6 h-1 bg-gray-600"></div>
           );
@@ -197,6 +204,31 @@ export function Level2({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
               {molecule.formula}
             </span>
           </div>
+
+          {/* Functional group legend */}
+          {molecule.type !== 'alkane' && (
+            <div className={`mt-4 p-3 rounded-lg border-2 ${
+              molecule.type === 'alkene'
+                ? 'bg-green-50 border-green-300'
+                : 'bg-purple-50 border-purple-300'
+            }`}>
+              <div className="flex items-center justify-center gap-2">
+                <span className={`text-lg font-bold ${
+                  molecule.type === 'alkene' ? 'text-green-600' : 'text-purple-600'
+                }`}>
+                  {molecule.type === 'alkene' ? '🟢 Tvítengi (C=C)' : '🟣 Þrítengi (C≡C)'}
+                </span>
+                <span className="text-sm text-gray-600">
+                  á stað {molecule.doublePosition || molecule.triplePosition}
+                </span>
+              </div>
+              <p className="text-xs text-center mt-1 text-gray-500">
+                {molecule.type === 'alkene'
+                  ? 'Viðskeytið -en gefur til kynna tvítengi (ómettað)'
+                  : 'Viðskeytið -yn gefur til kynna þrítengi (ómettað)'}
+              </p>
+            </div>
+          )}
         </div>
 
         {showHint && (

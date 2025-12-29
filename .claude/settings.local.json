@@ -12,7 +12,24 @@
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
       "Bash(npx vite build:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm test)",
+      "Bash(git commit:*)",
+      "Bash(dir:*)",
+      "Bash(git push:*)",
+      "Bash(git restore:*)",
+      "Bash(npx pnpm run build:*)",
+      "Bash(cd:*)",
+      "Bash(find:*)",
+      "Bash(for game in hess-law kinetics lewis-structures vsepr-geometry intermolecular-forces redox-reactions organic-nomenclature)",
+      "Bash(do echo \"=== $game ===\")",
+      "Bash(for level in 1 2 3)",
+      "Bash(do wc -l \"$game/src/components/Level$level.tsx\")",
+      "Bash(done)",
+      "Bash(git show:*)",
+      "Bash(npx vite:*)",
+      "Bash(pnpm build:*)"
     ]
   }
 }

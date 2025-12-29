@@ -31,7 +31,7 @@
 | Unit cancellation animation | ⬜ | High | Medium | Show units "crossing out" |
 | Drag-and-drop unit builder | ⬜ | High | High | Build conversions visually |
 | Real-world context scenarios | ⬜ | Medium | Low | Cooking, pharmacy examples |
-| Step-by-step solution display | ⬜ | Medium | Low | Show factor-label method |
+| Step-by-step solution display | ✅ | Medium | Low | Shows factor-label method with correctMethod/requiredSteps in feedback |
 
 #### Molar Mass (Mólmassi)
 
@@ -67,7 +67,7 @@
 | Reaction animation | ⬜ | High | High | Molecules using up reactants |
 | Visual stoichiometry | ⬜ | High | Medium | Particle count representation |
 | Factory game mode | ⬜ | Medium | Medium | Production optimization |
-| Excess reactant display | ⬜ | Medium | Low | Show what remains |
+| Excess reactant display | ✅ | Medium | Low | Visual display with molecules showing what remains after reaction |
 
 ---
 
@@ -125,7 +125,7 @@
 | Interactive molecule builder | ⬜ | High | High | With auto-naming |
 | Draw structure from name | ⬜ | High | High | Reverse challenge |
 | Carbon chain numbering | ⬜ | Medium | Medium | Visual annotation |
-| Functional group highlighting | ⬜ | Medium | Low | Color-coded groups |
+| Functional group highlighting | ✅ | Medium | Low | Double/triple bonds highlighted with colors and glow effect, legend added |
 
 #### Redox Reactions
 
@@ -154,7 +154,7 @@
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
 | Polyprotic acid curves | ⬜ | Medium | Medium | H2SO4, H3PO4 |
-| Buffer region identification | ⬜ | High | Low | Highlight on curve |
+| Buffer region identification | ✅ | High | Low | Highlighted pKa ± 1 region on curve with shading and labels |
 | Equivalence volume prediction | ⬜ | Medium | Low | Accuracy game |
 | Indicator optimization | ⬜ | Medium | Medium | Best indicator selection |
 
@@ -202,28 +202,28 @@
 
 | Priority | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
-| High | 42 | 1 | 2.4% |
-| Medium | 45 | 2 | 4.4% |
+| High | 42 | 2 | 4.8% |
+| Medium | 45 | 5 | 11.1% |
 | Low | 21 | 1 | 4.8% |
-| **Total** | **108** | **4** | **3.7%** |
+| **Total** | **108** | **8** | **7.4%** |
 
 ### By Year
 
 | Year | Total | Completed | Percentage |
 |------|-------|-----------|------------|
 | Shared | 8 | 0 | 0% |
-| Year 1 | 20 | 0 | 0% |
-| Year 2 | 40 | 2 | 5.0% |
-| Year 3 | 32 | 2 | 6.3% |
+| Year 1 | 20 | 2 | 10% |
+| Year 2 | 40 | 3 | 7.5% |
+| Year 3 | 32 | 3 | 9.4% |
 
 ### By Category
 
 | Category | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
-| Visualization | 45 | 1 | 2.2% |
+| Visualization | 45 | 3 | 6.7% |
 | Interactivity | 30 | 0 | 0% |
 | Content | 18 | 3 | 16.7% |
-| Gamification | 15 | 0 | 0% |
+| Gamification | 15 | 2 | 13.3% |
 
 ---
 
@@ -231,11 +231,11 @@
 
 These improvements can be implemented quickly:
 
-1. ⬜ Add step-by-step solution display to Dimensional Analysis
-2. ⬜ Show excess reactant in Limiting Reactants
-3. ⬜ Add buffer region highlight to pH Titration Master
+1. ✅ Add step-by-step solution display to Dimensional Analysis
+2. ✅ Show excess reactant in Limiting Reactants
+3. ✅ Add buffer region highlight to pH Titration Master
 4. ✅ Add industrial examples to Hess's Law
-5. ⬜ Add functional group highlighting to Organic Nomenclature
+5. ✅ Add functional group highlighting to Organic Nomenclature
 6. ✅ Add atmospheric applications to Gas Laws
 7. ⬜ Add crossover temperature finder to Thermodynamics
 8. ✅ Add biological buffer examples to Buffer Creator
@@ -263,6 +263,10 @@ Building these once benefits multiple games:
 | 2025-12-29 | Added atmospheric applications to Gas Laws (5 new questions) |
 | 2025-12-29 | Added biological buffer examples to Buffer Creator |
 | 2025-12-29 | Added industrial examples to Hess's Law (6 puzzles enhanced) |
+| 2025-12-29 | Added step-by-step solution display to Dimensional Analysis (correctMethod in feedback) |
+| 2025-12-29 | Added visual excess reactant display to Limiting Reactants |
+| 2025-12-29 | Added functional group highlighting to Organic Nomenclature (double/triple bonds with colors) |
+| 2025-12-29 | Marked buffer region highlight as complete (already implemented in TitrationCurve) |
 
 ---
 

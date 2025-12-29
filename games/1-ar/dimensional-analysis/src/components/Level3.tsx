@@ -543,6 +543,56 @@ export function Level3({ onComplete, onBack, initialProgress, onCorrectAnswer, o
                 </div>
               )}
 
+              {/* Step-by-step solution display */}
+              {'correctMethod' in problem && problem.correctMethod && (
+                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                  <p className="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
+                    <span>📝</span> Rétt aðferð (stuðlaleiðin):
+                  </p>
+                  <div className="space-y-2">
+                    {problem.correctMethod.map((step, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <span className="font-mono bg-white px-3 py-2 rounded-lg border border-blue-200 flex-1">
+                          × {step}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-white rounded-lg border border-blue-100">
+                    <p className="text-xs text-gray-600">
+                      <span className="font-bold text-blue-700">Mundu:</span> Einingin sem á að hverfa fer í nefnara,
+                      einingin sem á að koma út fer í teljara. Margfaldaðu gildið með öllum stuðlum.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {'requiredSteps' in problem && problem.requiredSteps && !('correctMethod' in problem) && (
+                <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                  <p className="text-sm font-bold text-green-800 mb-3 flex items-center gap-2">
+                    <span>📋</span> Nauðsynleg skref:
+                  </p>
+                  <div className="space-y-2">
+                    {problem.requiredSteps.map((step, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <span className="bg-white px-3 py-2 rounded-lg border border-green-200 flex-1 text-sm">
+                          {step === 'multiply by density' && '🧪 Margfaldaðu með eðlismassa (g = mL × g/mL)'}
+                          {step === 'convert g to kg' && '⚖️ Umbreyttu g í kg (deila með 1000)'}
+                          {step === 'convert cm³ to m³' && '📐 Umbreyttu cm³ í m³ (deila með 1000000)'}
+                          {!['multiply by density', 'convert g to kg', 'convert cm³ to m³'].includes(step) && step}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Significant figures feedback */}
               {problem.type === 'synthesis' && problem.significantFigures && scores.sigFig !== null && (
                 <div className={`mb-6 p-4 rounded-xl ${scores.sigFig === 1 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
