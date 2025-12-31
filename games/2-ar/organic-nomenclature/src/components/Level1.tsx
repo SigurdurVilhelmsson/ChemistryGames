@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 interface Level1Props {
   onComplete: (score: number, maxScore: number, hintsUsed: number) => void;
@@ -46,6 +48,7 @@ interface QuizQuestion {
   question: string;
   correctAnswer: string;
   options: string[];
+  hints: TieredHints;
 }
 
 const quizQuestions: QuizQuestion[] = [

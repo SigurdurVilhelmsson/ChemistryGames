@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { UnitBlock, ConversionFactorBlock, EquivalenceDisplay } from './UnitBlock';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 interface Level1Progress {
   questionsAnswered: number;
@@ -23,7 +25,7 @@ interface Challenge {
   type: 'equivalence' | 'factor_building' | 'cancellation' | 'orientation';
   title: string;
   instruction: string;
-  hint?: string;
+  hints: TieredHints;
 }
 
 const challenges: Challenge[] = [
@@ -32,42 +34,72 @@ const challenges: Challenge[] = [
     type: 'equivalence',
     title: 'Jafngildi eininga',
     instruction: 'Finndu hversu margir LÍTRAR jafngilda 1000 mL. Notaðu takkana til að stilla.',
-    hint: 'Mundu: 1000 mL = 1 L. Lítrar og millilítrar mæla sama rúmmál, bara með mismunandi tölum.'
+    hints: {
+      topic: 'Þetta snýst um jafngildi milli mismunandi einingakerfa.',
+      strategy: 'Hugsaðu um hvernig mismunandi tölur geta táknað sama rúmmál.',
+      method: 'Mundu: 1 L = 1000 mL. Lítrar og millilítrar mæla sama rúmmál.',
+      solution: '1000 mL = 1 L. Stilltu á 1 lítra.'
+    }
   },
   {
     id: 'C2',
     type: 'factor_building',
     title: 'Byggja umbreytingarstuðul',
     instruction: 'Dragðu einingar í brotið til að búa til stuðul sem jafngildir 1.',
-    hint: 'Stuðull jafngildir 1 þegar teljari og nefnari tákna sama magn.'
+    hints: {
+      topic: 'Þetta snýst um umbreytingarstuðla og hvernig þeir virka.',
+      strategy: 'Stuðull jafngildir 1 þegar teljari og nefnari tákna sama magn.',
+      method: 'Veldu tvær einingar sem tákna nákvæmlega sama rúmmál.',
+      solution: '1000 mL / 1 L = 1 eða 1 L / 1000 mL = 1'
+    }
   },
   {
     id: 'C3',
     type: 'cancellation',
     title: 'Strikun eininga',
     instruction: 'Veldu réttan stuðul til að breyta mL í L. Horfðu á hvernig einingarnar strikast út!',
-    hint: 'Einingin sem þú vilt losna við þarf að vera í nefnara stuðulsins.'
+    hints: {
+      topic: 'Þetta snýst um strikun eininga í einingagreiningu.',
+      strategy: 'Einingin sem þú vilt losna við þarf að vera í nefnara stuðulsins.',
+      method: 'mL í byrjunargildi þarf að para við mL í nefnara stuðulsins.',
+      solution: 'Veldu (1 L / 1000 mL) þar sem mL er í nefnara og strikast út.'
+    }
   },
   {
     id: 'C4',
     type: 'orientation',
     title: 'Snúningur stuðuls',
     instruction: 'Prófaðu báða stuðla. Hver virkar til að breyta km í m?',
-    hint: 'Prófaðu og sjáðu hvað gerist! Rangur stuðull gefur vitlaust.'
+    hints: {
+      topic: 'Þetta snýst um stefnu umbreytingarstuðla.',
+      strategy: 'Einingin sem á að hverfa þarf að vera í nefnara.',
+      method: 'km er í byrjunargildi, svo km þarf að vera í nefnara stuðulsins.',
+      solution: 'Veldu (1000 m / 1 km) þar sem km í nefnara strikast út með km í teljara.'
+    }
   },
   {
     id: 'C5',
     type: 'cancellation',
     title: 'Keðjubreyting',
     instruction: 'Notaðu tvo stuðla til að breyta mg í kg.',
-    hint: 'Fyrst mg → g, síðan g → kg. Fylgstu með hvernig einingarnar hverfa.'
+    hints: {
+      topic: 'Þetta snýst um keðjubreytingar með mörgum stuðlum.',
+      strategy: 'Fyrst mg → g, síðan g → kg. Fylgstu með hvernig einingarnar hverfa.',
+      method: 'Í hverju skrefi þarf einingin sem á að hverfa að vera í nefnara.',
+      solution: 'Skref 1: (1 g / 1000 mg), Skref 2: (1 kg / 1000 g)'
+    }
   },
   {
     id: 'C6',
     type: 'cancellation',
     title: 'Keðjubreyting - Tími',
     instruction: 'Byggðu keðjuna til að breyta 1 klukkustund í sekúndur. Veldu rétta stuðla!',
-    hint: 'Byrjaðu með klst → mín, síðan mín → s. Einingin sem á að hverfa fer í nefnara.'
+    hints: {
+      topic: 'Þetta snýst um keðjubreytingar með tímaeiningum.',
+      strategy: 'Byrjaðu með klst → mín, síðan mín → s. Einingin sem á að hverfa fer í nefnara.',
+      method: 'klst strikast út með klst í nefnara, mín strikast út með mín í nefnara.',
+      solution: 'Skref 1: (60 mín / 1 klst), Skref 2: (60 s / 1 mín)'
+    }
   }
 ];
 
@@ -137,20 +169,19 @@ export function Level1Conceptual({ onComplete, onBack, initialProgress, onCorrec
   );
 
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [attempts, setAttempts] = useState(0);
   const [showIntro, setShowIntro] = useState(!initialProgress?.questionsAnswered);
   const [showSummary, setShowSummary] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
 
   const challenge = challenges[currentChallengeIndex];
 
   // Reset state when challenge changes
   useEffect(() => {
     setShowSuccess(false);
-    setShowHint(false);
-    setAttempts(0);
+    setHintMultiplier(1.0);
+    setHintsUsedTier(0);
   }, [currentChallengeIndex]);
 
   const handleSuccess = () => {

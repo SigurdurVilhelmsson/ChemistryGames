@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 interface Level1Props {
   onComplete: (score: number, maxScore: number, hintsUsed: number) => void;
@@ -21,7 +23,7 @@ interface Challenge {
     unit: string;
   };
   orderItems?: { id: string; text: string; correctOrder: number }[];
-  hint: string;
+  hints: TieredHints;
   conceptExplanation: string;
 }
 
@@ -37,7 +39,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: '5.0 M/s', correct: false, explanation: 'Þú margfaldaðir í stað þess að deila' },
       { id: 'd', text: '0.1 M/s', correct: false, explanation: 'Athugaðu útreikninginn aftur: 0.5/10 = 0.05' },
     ],
-    hint: 'Rate = Δ[styrk]/Δ[tími]',
+    hints: {
+      topic: 'Þetta snýst um hvarfhraða og styrkbreytingu',
+      strategy: 'Reiknaðu breytingu á styrk og deildu með tíma',
+      method: 'Rate = Δ[styrk]/Δ[tími]',
+      solution: 'Rate = (1.0 - 0.5) M / 10 s = 0.5/10 = 0.05 M/s',
+    },
     conceptExplanation: 'Hvarfhraði mælist í styrkbreytingu á tímaeiningu (M/s eða mol/L·s).'
   },
   {
@@ -51,7 +58,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Hraðinn fjórfaldast', correct: false, explanation: 'Þetta myndi gilda fyrir 2. stigs hvörf.' },
       { id: 'd', text: 'Hraðinn helmingast', correct: false, explanation: 'Hærri styrkur leiðir til hraðari hvörfunar.' },
     ],
-    hint: 'Í 1. stigs hvörf er veldisvísir = 1',
+    hints: {
+      topic: 'Þetta snýst um hvörfunarröð (reaction order)',
+      strategy: 'Hugsaðu um sambandið milli styrks og hraða í hvarfhraðajöfnu',
+      method: 'Í 1. stigs hvörf er veldisvísir = 1, þ.e. Rate = k[A]^1',
+      solution: 'Rate = k[A]. Ef [A] tvöfaldast: Rate_new = k(2[A]) = 2k[A] = 2 x Rate_old',
+    },
     conceptExplanation: 'Röð hvörfunar (order) segir til um hversu mikið styrkur hefur áhrif. 1. stig: línuleg, 2. stig: ferning.'
   },
   {
@@ -65,7 +77,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Hraðafastinn k minnkar', correct: false, explanation: 'k hækkar með hitastigi samkvæmt Arrhenius jöfnunni.' },
       { id: 'd', text: 'Sameidir verða stærri', correct: false, explanation: 'Hitastig breytir hreyfiorku, ekki stærð sameinda.' },
     ],
-    hint: 'Hugsaðu um orkudreifingu Maxwell-Boltzmann',
+    hints: {
+      topic: 'Þetta snýst um hitastig og hvarfhraða',
+      strategy: 'Hugsaðu um orkudreifingu Maxwell-Boltzmann',
+      method: 'Arrhenius jafnan: k = Ae^(-Ea/RT) - hærra T hækkar k',
+      solution: 'Hærra hitastig eykur hreyfiorku, þannig fleiri sameidir hafa E ≥ Ea',
+    },
     conceptExplanation: 'Arrhenius jafnan: k = Ae^(-Ea/RT). Þegar T hækkar, hækkar k veldisvísislega.'
   },
   {
@@ -79,7 +96,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Hvati eykur styrk hvarfefna', correct: false, explanation: 'Hvatar breyta ekki styrk.' },
       { id: 'd', text: 'Hvati breytir jafnvæginu til hægri', correct: false, explanation: 'Hvatar hraðar bæði fram- og bakhvörf jafnt.' },
     ],
-    hint: 'Hvatar taka þátt en myndast aftur í lok hvarfsins',
+    hints: {
+      topic: 'Þetta snýst um hvata (catalysts)',
+      strategy: 'Hvatar taka þátt en myndast aftur í lok hvarfsins',
+      method: 'Hvati lækkar virkjunarorku (Ea) með öðrum hvarfgangshátt',
+      solution: 'Hvati býður upp á annan hvarfgangshátt með lægri Ea, þannig fleiri árekstur hafa nóga orku',
+    },
     conceptExplanation: 'Hvati lækkar Ea en breytir ekki ΔH eða jafnvægi. Hann hraðar bara leiðina að jafnvægi.'
   },
   {
@@ -93,7 +115,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Járnduft hefur aðra efnaformúlu', correct: false, explanation: 'Báðar eru Fe - sama efnið.' },
       { id: 'd', text: 'Duftið hefur meiri massa', correct: false, explanation: 'Massi getur verið sá sami.' },
     ],
-    hint: 'Hvörf gerast á yfirborði fastra efna',
+    hints: {
+      topic: 'Þetta snýst um yfirborðsflatarmál og hvörf',
+      strategy: 'Hvörf gerast á yfirborði fastra efna',
+      method: 'Meira yfirborð = fleiri árekstrarmöguleikar með hvarfefni',
+      solution: 'Járnduft hefur miklu meira yfirborð en kubbur, þannig fleiri árekstur við O2 = hraðari hvörf',
+    },
     conceptExplanation: 'Meira yfirborð = fleiri árekstrar = hraðari hvörf. Þess vegna eru lítil agnir hættulegri.'
   },
   {
@@ -107,7 +134,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Aðeins rétt stefna', correct: false, explanation: 'Orkukrafan er nauðsynleg til að rjúfa tengsl.' },
       { id: 'd', text: 'Hvatar verða alltaf að vera til staðar', correct: false, explanation: 'Hvatar hraða, en hvörf geta gerst án þeirra.' },
     ],
-    hint: 'Hugsaðu um bílárekstur - stefna og hraði skipta báðir máli',
+    hints: {
+      topic: 'Þetta snýst um árekstrarkenningu (collision theory)',
+      strategy: 'Hugsaðu um bílárekstur - stefna og hraði skipta báðir máli',
+      method: 'Tveir þættir: orka ≥ Ea OG rétt stefna (orientation)',
+      solution: 'Árekstur verður að hafa nógu mikla orku til að rjúfa tengsl OG sameidir þurfa að snerta á réttum stað',
+    },
     conceptExplanation: 'Árekstrartíðni ákvarðar hversu oft sameidir mætast. En aðeins brot þeirra hefur nóga orku og rétta stefnu.'
   },
 ];
@@ -118,9 +150,9 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
   const [score, setScore] = useState(0);
-  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
 
   const challenge = challenges[currentChallenge];
 

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Reaction } from '../types';
 import { REACTIONS } from '../data/reactions';
 import { Molecule } from './Molecule';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 interface Level1Props {
   onComplete: (score: number, maxScore: number, hintsUsed: number) => void;
@@ -65,8 +67,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [selectedAnswer, setSelectedAnswer] = useState<string | number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
 
   const totalChallenges = 8;
   const masteryThreshold = 6;
@@ -112,7 +114,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     setShowFeedback(true);
 
     if (correct) {
-      setScore(prev => prev + 10);
+      const points = Math.round(10 * hintMultiplier);
+      setScore(prev => prev + points);
       setCorrectCount(prev => prev + 1);
       onCorrectAnswer?.();
     } else {
@@ -127,7 +130,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
       setChallenge(generateChallenge(next));
       setSelectedAnswer(null);
       setShowFeedback(false);
-      setShowHint(false);
+      setHintMultiplier(1.0);
+      setHintsUsedTier(0);
     }
   };
 
@@ -206,7 +210,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
             <div className="space-y-3">
               {passedLevel ? (
                 <button
-                  onClick={() => onComplete(score, totalChallenges * 10, totalHintsUsed)}
+                  onClick={() => onComplete(score, totalChallenges * 10, hintsUsedTier)}
                   className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-colors"
                 >
                   Halda áfram í Stig 2 →
@@ -220,7 +224,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
                     setChallenge(generateChallenge(0));
                     setSelectedAnswer(null);
                     setShowFeedback(false);
-                    setTotalHintsUsed(0);
+                    setHintMultiplier(1.0);
+                    setHintsUsedTier(0);
                   }}
                   className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl transition-colors"
                 >
@@ -240,47 +245,77 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     );
   }
 
-  // Get challenge title and instructions
-  const getChallengeInfo = () => {
+  // Get challenge title and instructions with tiered hints
+  const getChallengeInfo = (): { title: string; instruction: string; hints: TieredHints } => {
     switch (challenge.type) {
       case 'which_runs_out':
         return {
           title: 'Hvort hvarfefnið eyðist fyrst?',
           instruction: 'Ímyndaðu þér að hvörfin gerist. Hvort hvarfefnið mun klárast fyrst?',
-          hint: 'Líttu á stuðlana í jöfnunni. Ef þú þarft 2 af A fyrir hvert 1 af B, þá eyðist A hraðar.'
+          hints: {
+            topic: 'Þetta snýst um takmarkandi hvarfefni og stökefnafræðileg hlutföll.',
+            strategy: 'Berðu saman hversu oft hvert hvarfefni getur brugðist miðað við stuðlana.',
+            method: 'Líttu á stuðlana í jöfnunni. Ef þú þarft 2 af A fyrir hvert 1 af B, þá eyðist A hraðar.',
+            solution: `${challenge.reaction.reactant1.formula}: ${challenge.r1Count}÷${challenge.reaction.reactant1.coeff}=${timesR1} skipti. ${challenge.reaction.reactant2.formula}: ${challenge.r2Count}÷${challenge.reaction.reactant2.coeff}=${timesR2} skipti. ${timesR1 <= timesR2 ? challenge.reaction.reactant1.formula : challenge.reaction.reactant2.formula} eyðist fyrst.`
+          }
         };
       case 'count_times_r1':
         return {
           title: `Hversu oft getur ${challenge.reaction.reactant1.formula} hvarfast?`,
           instruction: `Ef þú hefur ${challenge.r1Count} ${challenge.reaction.reactant1.formula} og þarft ${challenge.reaction.reactant1.coeff} fyrir hvert hvarf, hversu oft getur hvörfin gerst?`,
-          hint: `Deilið fjölda sameinda með stuðlinum: ${challenge.r1Count} ÷ ${challenge.reaction.reactant1.coeff} = ?`
+          hints: {
+            topic: 'Þetta snýst um mólhlutföll og stökefnafræði.',
+            strategy: 'Deildu fjölda sameinda með stuðlinum til að finna fjölda skipta.',
+            method: `Notaðu: fjöldi sameinda ÷ stuðull = fjöldi skipta`,
+            solution: `${challenge.r1Count} ÷ ${challenge.reaction.reactant1.coeff} = ${timesR1} skipti`
+          }
         };
       case 'count_times_r2':
         return {
           title: `Hversu oft getur ${challenge.reaction.reactant2.formula} hvarfast?`,
           instruction: `Ef þú hefur ${challenge.r2Count} ${challenge.reaction.reactant2.formula} og þarft ${challenge.reaction.reactant2.coeff} fyrir hvert hvarf, hversu oft getur hvörfin gerst?`,
-          hint: `Deilið fjölda sameinda með stuðlinum: ${challenge.r2Count} ÷ ${challenge.reaction.reactant2.coeff} = ?`
+          hints: {
+            topic: 'Þetta snýst um mólhlutföll og stökefnafræði.',
+            strategy: 'Deildu fjölda sameinda með stuðlinum til að finna fjölda skipta.',
+            method: `Notaðu: fjöldi sameinda ÷ stuðull = fjöldi skipta`,
+            solution: `${challenge.r2Count} ÷ ${challenge.reaction.reactant2.coeff} = ${timesR2} skipti`
+          }
         };
       case 'which_is_limiting':
         return {
           title: 'Hvort er takmarkandi hvarfefnið?',
           instruction: `${challenge.reaction.reactant1.formula} getur hvarfast ${timesR1} sinnum, ${challenge.reaction.reactant2.formula} getur hvarfast ${timesR2} sinnum. Hvort takmarkar hvörfin?`,
-          hint: 'Takmarkandi hvarfefnið er það sem gefur FÆRRI hvarfaskipti.'
+          hints: {
+            topic: 'Þetta snýst um að bera kennsl á takmarkandi hvarfefni.',
+            strategy: 'Takmarkandi hvarfefnið er það sem gefur FÆRRI hvarfaskipti.',
+            method: 'Berðu saman fjölda skipta. Lægri talan ákvarðar takmarkandi hvarfefnið.',
+            solution: `${challenge.reaction.reactant1.formula}: ${timesR1} skipti. ${challenge.reaction.reactant2.formula}: ${timesR2} skipti. ${timesR1 < timesR2 ? timesR1 : timesR2} < ${timesR1 < timesR2 ? timesR2 : timesR1}, svo ${limitingReactant} er takmarkandi.`
+          }
         };
       case 'count_products':
         return {
           title: `Hversu margar ${challenge.reaction.products[0].formula} myndast?`,
           instruction: `Hvörfin geta gerst ${timesReactionRuns} sinnum. Stuðull ${challenge.reaction.products[0].formula} er ${challenge.reaction.products[0].coeff}. Hversu margar myndast?`,
-          hint: `Margfaldaðu fjölda skipta með stuðli afurðar: ${timesReactionRuns} × ${challenge.reaction.products[0].coeff} = ?`
+          hints: {
+            topic: 'Þetta snýst um að reikna afurðir úr stökefnafræði.',
+            strategy: 'Margfaldaðu fjölda skipta með stuðli afurðar.',
+            method: `Notaðu: afurðir = fjöldi skipta × stuðull afurðar`,
+            solution: `${timesReactionRuns} × ${challenge.reaction.products[0].coeff} = ${productCount} ${challenge.reaction.products[0].formula}`
+          }
         };
       case 'count_excess':
         return {
           title: 'Hversu margar sameindur verða eftir?',
           instruction: `Hvörfin geta gerst ${timesReactionRuns} sinnum. Hversu margar sameindur af afgangshvarfefninu verða eftir?`,
-          hint: `Afgangur = upphaflegur fjöldi - (fjöldi skipta × stuðull)`
+          hints: {
+            topic: 'Þetta snýst um að reikna afgang hvarfefnis.',
+            strategy: 'Finndu hversu mikið var notað og dragðu frá upphaflegu magni.',
+            method: `Afgangur = upphaflegur fjöldi - (fjöldi skipta × stuðull)`,
+            solution: `Afgangshvarfefni: ${timesR1 <= timesR2 ? challenge.reaction.reactant2.formula : challenge.reaction.reactant1.formula}. Afgangur = ${timesR1 <= timesR2 ? challenge.r2Count : challenge.r1Count} - (${timesReactionRuns} × ${timesR1 <= timesR2 ? challenge.reaction.reactant2.coeff : challenge.reaction.reactant1.coeff}) = ${excessCount}`
+          }
         };
       default:
-        return { title: '', instruction: '', hint: '' };
+        return { title: '', instruction: '', hints: { topic: '', strategy: '', method: '', solution: '' } };
     }
   };
 
@@ -475,26 +510,16 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
           </div>
         )}
 
-        {/* Hint */}
-        {!showFeedback && (
-          <button
-            onClick={() => {
-              if (!showHint) {
-                setTotalHintsUsed(prev => prev + 1);
-              }
-              setShowHint(!showHint);
-            }}
-            className="w-full bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-semibold py-3 px-4 rounded-xl transition-colors mb-4"
-          >
-            {showHint ? 'Fela vísbendingu' : '💡 Sýna vísbendingu'}
-          </button>
-        )}
-
-        {showHint && !showFeedback && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-4">
-            <p className="text-yellow-800 text-sm">{info.hint}</p>
-          </div>
-        )}
+        {/* Tiered Hint System */}
+        <HintSystem
+          hints={info.hints}
+          basePoints={10}
+          onHintUsed={(tier) => setHintsUsedTier(tier)}
+          onPointsChange={setHintMultiplier}
+          disabled={showFeedback}
+          resetKey={challengeIndex}
+          className="mb-4"
+        />
 
         {/* Educational note */}
         <div className="bg-blue-50 rounded-xl p-4 mb-4">

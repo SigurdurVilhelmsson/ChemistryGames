@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 /**
  * Multiplies all coefficients in a chemical equation string
@@ -70,7 +72,7 @@ interface Challenge {
   equation: Equation;
   question: string;
   options: { text: string; correct: boolean; explanation: string }[];
-  hint: string;
+  hints: TieredHints;
 }
 
 const CHALLENGES: Challenge[] = [
@@ -92,7 +94,12 @@ const CHALLENGES: Challenge[] = [
       { text: 'Exothermic (gefur frá sér varma)', correct: true, explanation: 'Rétt! Neikvætt ΔH þýðir að kerfið gefur frá sér orku til umhverfisins.' },
       { text: 'Endothermic (tekur til sín varma)', correct: false, explanation: 'Rangt. Neikvætt ΔH þýðir að orka fer ÚT úr kerfinu, ekki inn.' }
     ],
-    hint: 'Hugsaðu um formerki ΔH. Mínus þýðir að orka fer út.'
+    hints: {
+      topic: 'Þetta snýst um formerki ΔH og hvað það þýðir.',
+      strategy: 'Hugsaðu um hvort orka fer inn í kerfið eða út úr því.',
+      method: 'Neikvætt ΔH = orka fer út (exothermic). Jákvætt ΔH = orka fer inn (endothermic).',
+      solution: 'ΔH = -890 kJ er neikvætt, svo orka fer ÚT úr kerfinu. Þetta er exothermic hvarf.'
+    }
   },
   {
     id: 2,
@@ -114,7 +121,12 @@ const CHALLENGES: Challenge[] = [
       { text: '-572 kJ', correct: false, explanation: 'Rangt. Þú ert að margfalda, ekki snúa við.' },
       { text: '+572 kJ', correct: false, explanation: 'Rangt. Þú ert bæði að margfalda og snúa við, en við erum bara að snúa.' }
     ],
-    hint: 'Þegar hvörf ganga öfugt, þá gengur orkan einnig öfugt.'
+    hints: {
+      topic: 'Þetta snýst um að snúa við efnahvörfum og áhrif á ΔH.',
+      strategy: 'Þegar hvörf ganga öfugt, þá gengur orkan einnig öfugt.',
+      method: 'Snúðu formerkinu á ΔH. Ef ΔH = -X, þá er öfugt hvarf ΔH = +X.',
+      solution: 'Myndun vatns: ΔH = -286 kJ. Sundrun er öfug, svo ΔH = +286 kJ.'
+    }
   },
   {
     id: 3,
@@ -136,7 +148,12 @@ const CHALLENGES: Challenge[] = [
       { text: '-131 kJ', correct: false, explanation: 'Rangt. Þú ert að deila, ekki margfalda.' },
       { text: '+1182 kJ', correct: false, explanation: 'Rangt. Formerkið breytist ekki við margföldun.' }
     ],
-    hint: 'Meiri efnismagn = meiri orka. Margfalda ΔH með sama stuðli.'
+    hints: {
+      topic: 'Þetta snýst um að margfalda efnahvörf og áhrif á ΔH.',
+      strategy: 'Meiri efnismagn = meiri orka. Margfaldaðu ΔH með sama stuðli.',
+      method: 'Ef jafna hefur ΔH = X, þá hefur n× jafnan ΔH = n×X. Formerkið helst.',
+      solution: '3 mól af C: ΔH = 3 × (-394) = -1182 kJ. Formerkið er enn neikvætt.'
+    }
   },
   {
     id: 4,

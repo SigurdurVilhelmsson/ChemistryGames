@@ -3,6 +3,8 @@ import { useProgress, useAccessibility, useI18n } from '@shared/hooks';
 import { useAchievements } from '@shared/hooks/useAchievements';
 import { AchievementsButton, AchievementsPanel } from '@shared/components/AchievementsPanel';
 import { AchievementNotificationsContainer } from '@shared/components/AchievementNotificationPopup';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 import {
   Equilibrium,
   Stress,
@@ -53,7 +55,9 @@ function App() {
   const [userPrediction, setUserPrediction] = useState<ShiftDirection | null>(null);
   const [correctShift, setCorrectShift] = useState<ShiftResult | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
+  const [hintResetKey, setHintResetKey] = useState(0);
 
   // Stats
   const [stats, setStats] = useState<GameStats>({
@@ -150,8 +154,109 @@ function App() {
 
     setUserPrediction(null);
     setShowExplanation(false);
-    setShowHint(false);
+    setHintMultiplier(1.0);
+    setHintsUsedTier(0);
+    setHintResetKey(prev => prev + 1);
     setIsCorrect(null);
+  };
+
+  // Generate tiered hints based on current equilibrium and stress
+  const generateHints = (): TieredHints => {
+    if (!currentEquilibrium || !appliedStress) {
+      return {
+        topic: 'Le Chatelier meginreglan fjallar um hvernig jafnvægi bregst við álagi.',
+        strategy: 'Hugsaðu um hvernig kerfið reynir að minnka áhrif álagsins.',
+        method: 'Athugaðu hvort álagið eykur eða minnkar magn á hvorri hlið.',
+        solution: 'Veldu álag til að sjá vísbendingu.'
+      };
+    }
+
+    const eq = currentEquilibrium;
+    const stress = appliedStress;
+    const isExothermic = eq.thermodynamics.type === 'exothermic';
+    const moreGasOnRight = (eq.gasMoles?.products || 0) > (eq.gasMoles?.reactants || 0);
+    const moreGasOnLeft = (eq.gasMoles?.reactants || 0) > (eq.gasMoles?.products || 0);
+
+    // Topic hint - general concept area
+    let topic = 'Þetta snýst um Le Chatelier meginregluna og hvernig jafnvægi bregst við álagi.';
+    if (stress.type.includes('temp')) {
+      topic = 'Þetta snýst um áhrif hitastigsbreytinga á jafnvægi og varmalosandi/varmabindandi hvörf.';
+    } else if (stress.type.includes('pressure')) {
+      topic = 'Þetta snýst um áhrif þrýstingsbreytinga á gasjafnvægi og fjölda móla.';
+    } else if (stress.type.includes('catalyst')) {
+      topic = 'Þetta snýst um hlutverk hvata í efnahvörfum.';
+    } else {
+      topic = 'Þetta snýst um áhrif styrkbreytinga á jafnvægi.';
+    }
+
+    // Strategy hint - approach to solve
+    let strategy = 'Hugsaðu um hvernig kerfið reynir að minnka áhrif álagsins.';
+    if (stress.type.includes('temp')) {
+      strategy = isExothermic
+        ? 'Hvarf sem losar varma (varmalosandi) mun hliðrast í áttina sem „eyðir" viðbættu varmanum.'
+        : 'Hvarf sem bindur varma (varmabindandi) mun hliðrast í áttina sem „nýtir" viðbættu varmanum.';
+    } else if (stress.type === 'increase-pressure') {
+      strategy = 'Hærri þrýstingur mun hliðra jafnvæginu í áttina með FÆRRI móla af gasi.';
+    } else if (stress.type === 'decrease-pressure') {
+      strategy = 'Lægri þrýstingur mun hliðra jafnvæginu í áttina með FLEIRI móla af gasi.';
+    } else if (stress.type === 'add-catalyst') {
+      strategy = 'Hvatar flýta fyrir bæði fram- og bakhvarfi jafnt mikið.';
+    } else if (stress.type.includes('add')) {
+      strategy = 'Að bæta við efni veldur hliðrun BURTfrá þeirri hlið.';
+    } else if (stress.type.includes('remove')) {
+      strategy = 'Að fjarlægja efni veldur hliðrun Í ÁTTINA að þeirri hlið.';
+    }
+
+    // Method hint - specific technique/formula
+    let method = '';
+    if (stress.type === 'increase-temp') {
+      method = isExothermic
+        ? 'Varmalosandi hvarf: Varmi er „afurð". Meira varma → hliðrun til vinstri.'
+        : 'Varmabindandi hvarf: Varmi er „hvarfefni". Meira varma → hliðrun til hægri.';
+    } else if (stress.type === 'decrease-temp') {
+      method = isExothermic
+        ? 'Varmalosandi hvarf: Minna varma → hliðrun til hægri til að framleiða varma.'
+        : 'Varmabindandi hvarf: Minna varma → hliðrun til vinstri.';
+    } else if (stress.type === 'increase-pressure') {
+      if (moreGasOnRight) {
+        method = `Hvarfefni: ${eq.gasMoles?.reactants} mól gas. Afurðir: ${eq.gasMoles?.products} mól gas. Hliðrun til vinstri (færri mól).`;
+      } else if (moreGasOnLeft) {
+        method = `Hvarfefni: ${eq.gasMoles?.reactants} mól gas. Afurðir: ${eq.gasMoles?.products} mól gas. Hliðrun til hægri (færri mól).`;
+      } else {
+        method = `Hvarfefni: ${eq.gasMoles?.reactants || 0} mól gas. Afurðir: ${eq.gasMoles?.products || 0} mól gas. Jafnt → engin hliðrun.`;
+      }
+    } else if (stress.type === 'decrease-pressure') {
+      if (moreGasOnRight) {
+        method = `Afurðir hafa fleiri mól gas (${eq.gasMoles?.products}). Hliðrun til hægri.`;
+      } else if (moreGasOnLeft) {
+        method = `Hvarfefni hafa fleiri mól gas (${eq.gasMoles?.reactants}). Hliðrun til vinstri.`;
+      } else {
+        method = `Jafnt magn gass beggja megin → engin hliðrun.`;
+      }
+    } else if (stress.type === 'add-catalyst') {
+      method = 'Hvati breytir EKKI jafnvæginu - aðeins hraða til að ná því.';
+    } else if (stress.type === 'add-reactant') {
+      method = `Bætt við hvarfefni (${stress.target}). Kerfið eyðir því → hliðrun til hægri.`;
+    } else if (stress.type === 'add-product') {
+      method = `Bætt við afurð (${stress.target}). Kerfið eyðir henni → hliðrun til vinstri.`;
+    } else if (stress.type === 'remove-reactant') {
+      method = `Hvarfefni fjarlægt (${stress.target}). Kerfið bætir upp → hliðrun til vinstri.`;
+    } else if (stress.type === 'remove-product') {
+      method = `Afurð fjarlægð (${stress.target}). Kerfið bætir upp → hliðrun til hægri.`;
+    }
+
+    // Solution hint - full worked answer
+    let solution = '';
+    if (correctShift) {
+      const directionText = correctShift.direction === 'left' ? 'til vinstri ←'
+        : correctShift.direction === 'right' ? 'til hægri →'
+        : 'engin hliðrun ⇌';
+      solution = `Rétt svar: ${directionText}. ${correctShift.explanationIs || ''}`;
+    } else {
+      solution = 'Veldu spá til að sjá lausn.';
+    }
+
+    return { topic, strategy, method, solution };
   };
 
   // Learning mode: Apply stress
@@ -176,13 +281,14 @@ function App() {
 
     // Track achievements
     if (correct) {
-      trackCorrectAnswer({ firstAttempt: !showHint });
+      trackCorrectAnswer({ firstAttempt: hintsUsedTier === 0 });
     } else {
       trackIncorrectAnswer();
     }
 
-    // Update stats
-    const points = calculatePoints(correct, currentEquilibrium.difficulty);
+    // Update stats - apply hint multiplier to points
+    const basePoints = calculatePoints(correct, currentEquilibrium.difficulty);
+    const points = Math.round(basePoints * hintMultiplier);
 
     setStats(prev => ({
       ...prev,
@@ -242,8 +348,9 @@ function App() {
     }
   };
 
-  const handleUseHint = () => {
-    setShowHint(true);
+  // Handle hint usage from HintSystem
+  const handleHintUsed = (tier: 1 | 2 | 3 | 4) => {
+    setHintsUsedTier(tier);
     setStats(prev => ({
       ...prev,
       hintsUsed: prev.hintsUsed + 1
@@ -475,30 +582,17 @@ function App() {
                     </button>
                   </div>
 
-                  {/* Hint Button (Learning Mode Only) */}
-                  {gameMode === 'learning' && !showHint && (
-                    <div className="text-center">
-                      <button
-                        onClick={handleUseHint}
-                        className="bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-6 py-2 transition-colors"
-                      >
-                        💡 Fá vísbendingu
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Show Hint */}
-                  {showHint && (
-                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4 mb-4">
-                      <div className="font-semibold text-purple-800 mb-2">💡 Vísbending:</div>
-                      <p className="text-gray-700 text-sm">
-                        Hugsa um Le Chatelier meginregluna: Þegar álagi er beitt á kerfi í jafnvægi, hliðrast kerfið til að minnka áhrifin af álaginu.
-                      </p>
-                      {currentEquilibrium.thermodynamics && appliedStress.type.includes('temp') && (
-                        <p className="text-gray-700 text-sm mt-2">
-                          Þetta hvarf er <strong>{currentEquilibrium.thermodynamics.type === 'exothermic' ? 'varmalosandi' : 'varmabindandi'}</strong> (ΔH {currentEquilibrium.thermodynamics.deltaH > 0 ? '> 0' : '< 0'}).
-                        </p>
-                      )}
+                  {/* Tiered Hint System (Learning Mode Only) */}
+                  {gameMode === 'learning' && (
+                    <div className="mt-4">
+                      <HintSystem
+                        hints={generateHints()}
+                        basePoints={calculatePoints(true, currentEquilibrium.difficulty)}
+                        onHintUsed={handleHintUsed}
+                        onPointsChange={setHintMultiplier}
+                        disabled={showExplanation}
+                        resetKey={hintResetKey}
+                      />
                     </div>
                   )}
                 </div>

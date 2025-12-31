@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 // Types for Level 1
 interface Challenge {
@@ -22,7 +24,7 @@ interface Challenge {
     canChangeMolecules: boolean;
     canChangeVolume: boolean;
   };
-  hint: string;
+  hints: TieredHints;
   conceptMessage: string;
 }
 
@@ -44,7 +46,12 @@ const CHALLENGES: Challenge[] = [
       canChangeMolecules: false,
       canChangeVolume: true
     },
-    hint: 'Þegar þú bætir við vatni, dreifast sameindir á stærra svæði. Styrkurinn lækkar!',
+    hints: {
+      topic: 'Þetta snýst um útþynningu og hvernig styrkur breytist með rúmmáli.',
+      strategy: 'Þegar þú bætir við vatni, dreifast sameindir á stærra svæði.',
+      method: 'Styrkur = sameindir / rúmmál. Finndu rúmmálið sem gefur 2.0 M.',
+      solution: '50 sameindir × 0.01 = 0.5 mól. 0.5 mól / 2.0 M = 0.25 L = 250 mL'
+    },
     conceptMessage: 'pH = pKa þegar [Base] = [Acid]'
   },
   // Challenge 2: Build concentration from scratch
@@ -64,7 +71,12 @@ const CHALLENGES: Challenge[] = [
       canChangeMolecules: true,
       canChangeVolume: true
     },
-    hint: 'Styrkur = sameindir / rúmmál. Prófaðu að breyta báðum!',
+    hints: {
+      topic: 'Þetta snýst um að búa til lausn með ákveðnum styrk.',
+      strategy: 'Þú getur breytt bæði sameindum og rúmmáli til að ná markmiði.',
+      method: 'Styrkur = sameindir × 0.01 / (rúmmál í lítrum). Prófaðu mismunandi samsetningar.',
+      solution: 'Til dæmis: 30 sameindir í 200 mL gefur 0.3 mól / 0.2 L = 1.5 M'
+    },
     conceptMessage: 'Meira af sameindum í sama rúmmáli = hærri styrkur'
   },
   // Challenge 3: More dilution practice
@@ -84,7 +96,12 @@ const CHALLENGES: Challenge[] = [
       canChangeMolecules: false,
       canChangeVolume: true
     },
-    hint: 'Sameindir haldast óbreyttar. Aðeins rúmmálið breytist!',
+    hints: {
+      topic: 'Þetta snýst um útþynningu sterkar lausnar.',
+      strategy: 'Sameindir haldast óbreyttar. Aðeins rúmmálið breytist!',
+      method: 'Styrkur = (sameindir × 0.01) / rúmmál í lítrum. Leysðu fyrir rúmmál.',
+      solution: '40 × 0.01 = 0.4 mól. 0.4 mól / 0.8 M = 0.5 L = 500 mL'
+    },
     conceptMessage: 'Við útþynningu: sameindir haldast, styrkur minnkar'
   },
   // Challenge 4: Concentration matching with molecules
@@ -104,7 +121,12 @@ const CHALLENGES: Challenge[] = [
       canChangeMolecules: true,
       canChangeVolume: false
     },
-    hint: 'Rúmmálið er fast. Hversu margar sameindir þarftu fyrir 3.0 M?',
+    hints: {
+      topic: 'Þetta snýst um að stilla fjölda sameinda til að ná ákveðnum styrk.',
+      strategy: 'Rúmmálið er fast. Þú þarft að finna réttan fjölda sameinda.',
+      method: 'sameindir = Styrkur × rúmmál í lítrum / 0.01',
+      solution: '3.0 M × 0.15 L = 0.45 mól. 0.45 / 0.01 = 45 sameindir'
+    },
     conceptMessage: 'Fleiri sameindir í sama rúmmáli = hærri styrkur'
   },
   // Challenge 5: Advanced dilution
@@ -124,7 +146,12 @@ const CHALLENGES: Challenge[] = [
       canChangeMolecules: false,
       canChangeVolume: true
     },
-    hint: 'Til að þynna í þriðjung þarftu þrefalt meira rúmmál!',
+    hints: {
+      topic: 'Þetta snýst um hlutfallslega útþynningu.',
+      strategy: 'Til að þynna í þriðjung þarftu þrefalt meira rúmmál!',
+      method: 'Upphaflegt: 5 M í 100 mL. Markmiðsstyrkur er ~1.67 M (þriðjungur).',
+      solution: 'Þrefalda rúmmálið: 100 mL × 3 = 300 mL gefur ~1.67 M'
+    },
     conceptMessage: 'Styrkur × rúmmál = fasti (heildarmagn sameinda)'
   },
   // Challenge 6: Build specific concentration
@@ -144,7 +171,12 @@ const CHALLENGES: Challenge[] = [
       canChangeMolecules: true,
       canChangeVolume: true
     },
-    hint: 'Margar samsetningar virka! Finndu eina þar sem sameindir/rúmmál = 2.5',
+    hints: {
+      topic: 'Þetta snýst um að búa til nákvæman styrk með tveimur breytum.',
+      strategy: 'Margar samsetningar virka! Finndu eina þar sem niðurstaðan er 2.5 M.',
+      method: 'Styrkur = (sameindir × 0.01) / rúmmál í lítrum. Prófaðu auðveldar tölur.',
+      solution: 'Til dæmis: 50 sameindir í 200 mL: 0.5 mól / 0.2 L = 2.5 M'
+    },
     conceptMessage: 'Sama styrkur getur orðið með mismunandi magni'
   }
 ];
@@ -373,12 +405,12 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [molecules, setMolecules] = useState(50);
   const [volumeML, setVolumeML] = useState(100);
-  const [showHint, setShowHint] = useState(false);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
   const [score, setScore] = useState(0);
   const [showConcept, setShowConcept] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
-  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
 
   const challenge = CHALLENGES[currentChallenge];
 
@@ -395,7 +427,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     if (challenge) {
       setMolecules(challenge.initialState.molecules);
       setVolumeML(challenge.initialState.volumeML);
-      setShowHint(false);
+      setHintMultiplier(1.0);
+      setHintsUsedTier(0);
       setShowConcept(false);
     }
   }, [currentChallenge, challenge]);
@@ -421,7 +454,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   // Submit answer
   const checkAnswer = useCallback(() => {
     if (isCorrect) {
-      const pointsEarned = showHint ? 50 : 100;
+      const pointsEarned = Math.round(100 * hintMultiplier);
       setScore(prev => prev + pointsEarned);
       setCompleted(prev => [...prev, challenge.id]);
       setShowConcept(true);
@@ -438,7 +471,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     } else {
       onIncorrectAnswer?.();
     }
-  }, [isCorrect, showHint, challenge.id, currentChallenge, onCorrectAnswer, onIncorrectAnswer]);
+  }, [isCorrect, hintMultiplier, challenge.id, currentChallenge, onCorrectAnswer, onIncorrectAnswer]);
 
   // Game complete screen
   if (gameComplete) {

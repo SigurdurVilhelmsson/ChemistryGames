@@ -4,6 +4,8 @@ import { EntropyVisualization } from './components/EntropyVisualization';
 import { useAchievements } from '@shared/hooks/useAchievements';
 import { AchievementsButton, AchievementsPanel } from '@shared/components/AchievementsPanel';
 import { AchievementNotificationsContainer } from '@shared/components/AchievementNotificationPopup';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 import type { Difficulty, GameMode, Spontaneity, Problem } from './types';
 
 interface ThermoProgress {

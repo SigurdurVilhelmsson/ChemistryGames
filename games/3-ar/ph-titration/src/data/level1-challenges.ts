@@ -1,5 +1,7 @@
 // Level 1: Conceptual challenges for understanding titration curves
 
+import type { TieredHints } from '@shared/types';
+
 export interface Level1Challenge {
   id: number;
   type: 'match-curve' | 'predict-color' | 'find-equivalence' | 'curve-feature';
@@ -19,8 +21,7 @@ export interface Level1Challenge {
   pH?: number;
   indicatorId?: string;
 
-  hintIs: string;
-  hint: string;
+  hints: TieredHints;
   explanationIs: string;
   explanation: string;
 }
@@ -52,8 +53,12 @@ export const LEVEL1_CHALLENGES: Level1Challenge[] = [
       }
     ],
     curveType: 'strong-strong',
-    hintIs: 'Sterk sýra hefur mjög lágt upphafs-pH (u.þ.b. 1). Jafngildispunktur er nákvæmlega við pH 7.',
-    hint: 'Strong acid has very low initial pH (~1). Equivalence point is exactly at pH 7.',
+    hints: {
+      topic: 'Þetta snýst um títrunarkúrfur sterkra sýra og basa.',
+      strategy: 'Hugsaðu um upphafs-pH og hvar jafngildispunkturinn er.',
+      method: 'Sterk sýra hefur mjög lágt upphafs-pH (u.þ.b. 1). Jafngildispunktur er nákvæmlega við pH 7.',
+      solution: 'Kúrfa A: pH byrjar við ~1, jafngildispunktur við pH 7. Sterk sýra + sterk basi.'
+    },
     explanationIs: 'Sterk sýra + sterk basi hefur jafngildispunkt við pH = 7 vegna þess að saltið sem myndast (t.d. NaCl) er hlutlaust. Upphafs-pH er lágt (~1) vegna þess að sýran er alveg sundurgreind.',
     explanation: 'Strong acid + strong base has equivalence point at pH = 7 because the salt formed (e.g., NaCl) is neutral. Initial pH is low (~1) because the acid is fully dissociated.'
   },

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { AnimatedMolecule } from '@shared/components';
+import { AnimatedMolecule, HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 import { imfToMolecule } from '../utils/imfConverter';
 
 interface Level1Props {

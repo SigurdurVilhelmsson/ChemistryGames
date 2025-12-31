@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 interface Level1Props {
   onComplete: (score: number, maxScore: number, hintsUsed: number) => void;
@@ -94,7 +96,7 @@ interface QuizQuestion {
   formula?: string;
   options: string[];
   correctIndex: number;
-  explanation: string;
+  hints: TieredHints;
   ruleId: string;
 }
 
@@ -104,7 +106,12 @@ const quizQuestions: QuizQuestion[] = [
     question: 'Hvaða ending fær klór í jónefnum?',
     options: ['-íð (klóríð)', '-at (klórat)', '-ít (klórít)', '-an (klóran)'],
     correctIndex: 0,
-    explanation: 'Einatóma málmleysingjar fá endinguna -íð. Klór → klóríð.',
+    hints: {
+      topic: 'Þetta snýst um endingar málmleysinga í jónefnum.',
+      strategy: 'Einatóma málmleysingjar fá alltaf sömu endinguna í jónefnum.',
+      method: 'Endingin er -íð. Breyttu nafni frumefnisins: klór → klór + íð.',
+      solution: 'Klór → klóríð. Einatóma málmleysingjar fá endinguna -íð.'
+    },
     ruleId: 'ionic-simple'
   },
   {
@@ -113,7 +120,12 @@ const quizQuestions: QuizQuestion[] = [
     formula: 'MgO',
     options: ['Magnesíumoxíð', 'Magnesíumoxat', 'Dímagnesíumoxíð', 'Magnesíum(II)oxíð'],
     correctIndex: 0,
-    explanation: 'Mg er í hópi 2 og hefur alltaf +2 hleðslu, svo við notum ekki rómverskar tölur.',
+    hints: {
+      topic: 'Þetta er jónefni - málmur og málmleysingi.',
+      strategy: 'Mg er í hópi 2 og hefur alltaf sömu hleðslu. Þarf ekki rómverskar tölur.',
+      method: 'Nafn málmsins + nafn málmleysingsins með endingu -íð. Súrefni → oxíð.',
+      solution: 'Magnesíum + oxíð = Magnesíumoxíð. Ekki þarf grísk forskeyti eða rómverskar tölur.'
+    },
     ruleId: 'ionic-simple'
   },
   {
@@ -127,7 +139,12 @@ const quizQuestions: QuizQuestion[] = [
       'Klór er tvígilt'
     ],
     correctIndex: 0,
-    explanation: 'Járn getur verið Fe²⁺ eða Fe³⁺. Rómverska talan (II) sýnir að þetta er Fe²⁺.',
+    hints: {
+      topic: 'Þetta snýst um málma með breytilega hleðslu.',
+      strategy: 'Sumir málmar geta haft mismunandi jónhleðslu. Við þurfum að tilgreina hvaða hleðslu.',
+      method: 'Rómverska talan sýnir hleðslu málmsins: (II) þýðir +2, (III) þýðir +3.',
+      solution: 'Járn getur verið Fe²⁺ eða Fe³⁺. Talan (II) segir okkur að þetta er Fe²⁺.'
+    },
     ruleId: 'ionic-variable'
   },
   {
@@ -136,7 +153,12 @@ const quizQuestions: QuizQuestion[] = [
     formula: 'CuO',
     options: ['Kopar(II)oxíð', 'Kopar(I)oxíð', 'Koparoxíð', 'Díkoparoxíð'],
     correctIndex: 0,
-    explanation: 'O er -2, svo Cu verður að vera +2. Þess vegna kopar(II).',
+    hints: {
+      topic: 'Þetta snýst um málma með breytilega hleðslu.',
+      strategy: 'Kopar getur verið Cu⁺ eða Cu²⁺. Þú þarft að finna hleðsluna.',
+      method: 'Súrefni er alltaf O²⁻. Heildin þarf að vera hlutlaus. CuO → Cu + O²⁻ = 0.',
+      solution: 'O er -2, svo Cu verður að vera +2. Svarið er Kopar(II)oxíð.'
+    },
     ruleId: 'ionic-variable'
   },
   {
@@ -144,7 +166,12 @@ const quizQuestions: QuizQuestion[] = [
     question: 'Hver er formúlan fyrir natríumsúlfat?',
     options: ['Na₂SO₄', 'NaSO₄', 'Na₂SO₃', 'NaS'],
     correctIndex: 0,
-    explanation: 'Súlfat er SO₄²⁻. Natríum er Na⁺. Þarf 2 Na⁺ til að jafna -2 hleðsluna.',
+    hints: {
+      topic: 'Þetta snýst um fjölatóma jónir.',
+      strategy: 'Súlfat er fjölatóma jón með sína eigin formúlu og hleðslu.',
+      method: 'Súlfat = SO₄²⁻. Natríum = Na⁺. Jafnaðu hleðslurnar.',
+      solution: 'Súlfat er SO₄²⁻. Natríum er Na⁺. Þarf 2 Na⁺ til að jafna -2 hleðsluna: Na₂SO₄.'
+    },
     ruleId: 'ionic-polyatomic'
   },
   {
@@ -152,7 +179,12 @@ const quizQuestions: QuizQuestion[] = [
     question: 'Hvað þýðir "dí-" í nafni sameindar?',
     options: ['Tvö atóm', 'Eitt atóm', 'Þrjú atóm', 'Fjögur atóm'],
     correctIndex: 0,
-    explanation: 'Grísku forskeytirnar: mono=1, dí=2, trí=3, tetra=4, penta=5, hexa=6.',
+    hints: {
+      topic: 'Þetta snýst um grísk forskeyti í sameindum.',
+      strategy: 'Grísk forskeyti segja okkur fjölda atóma.',
+      method: 'Listi: mono=1, dí=2, trí=3, tetra=4, penta=5, hexa=6.',
+      solution: 'Dí þýðir 2. Dæmi: koldíoxíð hefur 2 súrefnisatóm.'
+    },
     ruleId: 'molecular'
   },
   {
@@ -161,7 +193,12 @@ const quizQuestions: QuizQuestion[] = [
     formula: 'N₂O₅',
     options: ['Díniturpentoxíð', 'Niturpentoxíð', 'Dínituroxíð', 'Niturdíoxíð'],
     correctIndex: 0,
-    explanation: 'N₂ = dínitur, O₅ = pentoxíð. Sameind = grísk forskeyti fyrir bæði.',
+    hints: {
+      topic: 'Þetta er sameind - tveir málmleysingjar.',
+      strategy: 'Sameindir nota grísk forskeyti til að sýna fjölda atóma.',
+      method: 'N₂ = 2 nitur → "dí" forskeyti. O₅ = 5 súrefni → "penta" forskeyti + oxíð ending.',
+      solution: 'N₂ = dínitur, O₅ = pentoxíð. Saman: Díniturpentoxíð.'
+    },
     ruleId: 'molecular'
   },
   {
@@ -175,7 +212,12 @@ const quizQuestions: QuizQuestion[] = [
       'Dí þýðir líka eitt'
     ],
     correctIndex: 0,
-    explanation: 'Í sameindum sleppum við "mono-" fyrir fyrra frumefnið, en síðara frumefnið fær alltaf forskeyti.',
+    hints: {
+      topic: 'Þetta snýst um notkun grísku forskeytanna í sameindum.',
+      strategy: 'Það er sérstök regla um hvenær við notum "mono-" forskeytið.',
+      method: 'Við sleppum "mono-" fyrir FYRRA frumefnið, en síðara frumefnið fær alltaf forskeyti.',
+      solution: 'Reglan: Fyrra frumefnið fær ekki "mono-". Þess vegna koldíoxíð en ekki monokoldíoxíð.'
+    },
     ruleId: 'molecular'
   },
   {
@@ -188,7 +230,12 @@ const quizQuestions: QuizQuestion[] = [
       'Það er engin leið að sjá það'
     ],
     correctIndex: 0,
-    explanation: 'Jónefni myndast þegar málmur (gefur e⁻) bindst málmleysingi (tekur e⁻). Sameindir eru málmleysingjar sem deila e⁻.',
+    hints: {
+      topic: 'Þetta snýst um greinarmun á jónefnum og sameindum.',
+      strategy: 'Líttu á hvaða frumefni eru í efnasambandinu - málmar eða málmleysingjar.',
+      method: 'Málmar gefa rafeindir, málmleysingjar taka. Ef báðir eru málmleysingjar, deila þeir.',
+      solution: 'Jónefni: málmur + málmleysingi (jónabindingar). Sameind: tveir málmleysingjar (samgild binding).'
+    },
     ruleId: 'ionic-simple'
   },
   {
@@ -197,7 +244,12 @@ const quizQuestions: QuizQuestion[] = [
     formula: 'Ca(OH)₂',
     options: ['Kalsíumhýdroxíð', 'Kalsíumdíhýdroxíð', 'Kalsíum(II)hýdroxíð', 'Díkalsíumhýdroxíð'],
     correctIndex: 0,
-    explanation: 'OH⁻ er hýdroxíð jónin. Við notum ekki grísk forskeyti í jónefnum, bara í sameindum.',
+    hints: {
+      topic: 'Þetta snýst um fjölatóma jónir í jónefnum.',
+      strategy: 'OH⁻ er fjölatóma jón með sérstakt nafn. Jónefni nota ekki grísk forskeyti.',
+      method: 'Fjölatóma jónin: OH⁻ = hýdroxíð. Nafnið: málmur + nafn jónar.',
+      solution: 'OH⁻ er hýdroxíð jónin. Nafnið er kalsíumhýdroxíð. Ekki grísk forskeyti í jónefnum.'
+    },
     ruleId: 'ionic-polyatomic'
   }
 ];
@@ -209,7 +261,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
-  const [totalHintsUsed] = useState(0); // Level1 has no hints in quiz phase
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
 
   const rule = namingRules[currentRule];
   const question = quizQuestions[currentQuestion];
@@ -234,7 +287,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     setShowFeedback(true);
 
     if (index === question.correctIndex) {
-      setScore(prev => prev + 1);
+      const points = Math.round(10 * hintMultiplier);
+      setScore(prev => prev + points);
       onCorrectAnswer?.();
     } else {
       onIncorrectAnswer?.();
@@ -246,8 +300,10 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
       setCurrentQuestion(prev => prev + 1);
       setSelectedAnswer(null);
       setShowFeedback(false);
+      setHintMultiplier(1.0);
+      setHintsUsedTier(0);
     } else {
-      onComplete(score, quizQuestions.length, totalHintsUsed);
+      onComplete(score, quizQuestions.length * 10, hintsUsedTier);
     }
   };
 
@@ -473,7 +529,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
               </span>
             </div>
             <p className={selectedAnswer === question.correctIndex ? 'text-green-700' : 'text-amber-700'}>
-              {question.explanation}
+              {question.hints.solution}
             </p>
           </div>
         )}

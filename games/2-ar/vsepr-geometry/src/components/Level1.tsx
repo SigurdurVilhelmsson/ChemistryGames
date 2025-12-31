@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { AnimatedMolecule } from '@shared/components';
+import { AnimatedMolecule, HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 import { geometryToMolecule } from '../utils/vseprConverter';
 
 interface Level1Props {
@@ -154,7 +155,7 @@ interface Challenge {
   question: string;
   geometryId?: string;
   options: { id: string; text: string; correct: boolean; explanation: string }[];
-  hint: string;
+  hints: TieredHints;
 }
 
 const challenges: Challenge[] = [
@@ -169,7 +170,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Þríhyrnd slétt', correct: false, explanation: 'Þríhyrnd slétt hefur 3 rafeinasvið, ekki 2.' },
       { id: 'd', text: 'Fjórflötungur', correct: false, explanation: 'Fjórflötungur hefur 4 rafeinasvið.' }
     ],
-    hint: 'CO₂ hefur tvöföld tenging við hvort súrefnisatóm.'
+    hints: {
+      topic: 'Þetta snýst um VSEPR lögun miðað við fjölda rafeinasviða.',
+      strategy: 'Teldu rafeinasvið á miðatóminu (C). Tvöföldar tengingar telja sem eitt svið.',
+      method: 'CO₂ hefur tvöföld tenging við hvort súrefnisatóm = 2 rafeinasvið.',
+      solution: '2 rafeinasvið staðsetjast 180° í sundur = línuleg lögun.'
+    }
   },
   {
     id: 2,
@@ -182,7 +188,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: '4 rafeinasvið', correct: true, explanation: 'Rétt! 2 bindandi pör + 2 einstæð pör = 4 rafeinasvið.' },
       { id: 'd', text: '6 rafeinasvið', correct: false, explanation: 'Það eru aðeins 4 rafeinapör í ystu skel súrefnis.' }
     ],
-    hint: 'Mundu: rafeinasvið = bindandi pör + einstæð pör.'
+    hints: {
+      topic: 'Mundu að telja bæði bindandi og einstæð pör.',
+      strategy: 'Rafeinasvið = bindandi pör + einstæð pör á miðatóminu.',
+      method: 'Súrefni hefur 6 gildisrafeindir. 2 fara í O-H tengingar, 4 mynda 2 einstæð pör.',
+      solution: '2 bindandi pör + 2 einstæð pör = 4 rafeinasvið.'
+    }
   },
   {
     id: 3,
@@ -195,7 +206,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Þríhyrnd slétt', correct: false, explanation: 'Þríhyrnd slétt er 2D, NH₃ er 3D pýramída.' },
       { id: 'd', text: 'Línuleg', correct: false, explanation: 'Línuleg hefur aðeins 2 rafeinasvið.' }
     ],
-    hint: 'Sameindarlögun lýsir aðeins stöðu atóma, ekki einstæðra para.'
+    hints: {
+      topic: 'Munurinn á rafeinalögun og sameindarlögun.',
+      strategy: 'Sameindarlögun lýsir aðeins stöðu atóma, ekki einstæðra para.',
+      method: 'NH₃: 4 rafeinasvið (3 bp + 1 lp). Sameindarlögun sýnir aðeins 3 bindandi pörin.',
+      solution: 'Þríhyrnd pýramída - 3 H atóm í botninum, N á toppnum, einstætt par ósýnilegt.'
+    }
   },
   {
     id: 4,
@@ -208,7 +224,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: '120°', correct: false, explanation: '120° er fyrir þríhyrnd slétta lögun.' },
       { id: 'd', text: '180°', correct: false, explanation: '180° er fyrir línulega lögun.' }
     ],
-    hint: 'Þetta horn er milli 90° og 120°.'
+    hints: {
+      topic: 'Tengihorn ákvarðast af fjölda rafeinasviða.',
+      strategy: 'Hornið hámarkar fjarlægð milli rafeinasviða í þrívíðri röðun.',
+      method: '4 rafeinasvið í þrívídd = fjórflötungur. Hornið er milli 90° og 120°.',
+      solution: '109.5° - þetta er nákvæmt fjórflötungshorn.'
+    }
   },
   {
     id: 5,
@@ -220,7 +241,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Vatn er fljótandi', correct: false, explanation: 'Eðlisástand hefur ekki áhrif á lögun.' },
       { id: 'd', text: 'Vetni er léttara en kolefni', correct: false, explanation: 'Massinn hefur ekki áhrif á tengihorn.' }
     ],
-    hint: 'Hugsaðu um það sem „tekur meira pláss" — bindandi pör eða einstæð pör?'
+    hints: {
+      topic: 'Áhrif einstæðra para á tengihorn.',
+      strategy: 'Hugsaðu um það sem „tekur meira pláss" í kringum miðatómið.',
+      method: 'Einstæð pör eru nær kjarna og dreifa sér meira en bindandi pör.',
+      solution: 'Einstæð pör hrinda meira og ýta bindandi pörum saman = minna horn.'
+    }
   },
   {
     id: 6,
@@ -233,7 +259,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Beygð', correct: false, explanation: 'Beygð lögun hefur einstæð pör.' },
       { id: 'd', text: 'Fjórflötungur', correct: false, explanation: 'Fjórflötungur hefur 4 rafeinasvið, ekki 3.' }
     ],
-    hint: 'Bór hefur aðeins 3 gildisrafeindir og myndar ekki einstæð pör.'
+    hints: {
+      topic: 'VSEPR lögun með 3 rafeinasvið.',
+      strategy: 'Athugaðu hvort miðatómið hefur einstæð pör.',
+      method: 'Bór hefur aðeins 3 gildisrafeindir og myndar ekki einstæð pör.',
+      solution: '3 bindandi pör, 0 einstæð = þríhyrnd slétt lögun (120°).'
+    }
   },
   {
     id: 7,
@@ -246,7 +277,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Þríhyrnd tvípýramída', correct: false, explanation: 'Þríhyrnd tvípýramída hefur 5 rafeinasvið.' },
       { id: 'd', text: 'Kúla', correct: false, explanation: 'Kúla er ekki VSEPR lögun.' }
     ],
-    hint: 'Nafnið kemur frá fjölda flata á fasta efninu sem lýsir þessari lögun.'
+    hints: {
+      topic: 'VSEPR lögun með 6 rafeinasvið.',
+      strategy: 'Nafnið kemur frá fjölda flata á fasta efninu sem lýsir þessari röðun.',
+      method: '6 rafeinasvið í samhverfri röðun, öll 90° frá hvoru öðru.',
+      solution: 'Áttflötungur (octahedral) - fasti efnið hefur 8 fleti.'
+    }
   },
   {
     id: 8,
@@ -259,7 +295,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: 'Þríhyrnd tvípýramída', correct: true, explanation: 'Rétt! 3 á miðsléttu (120°) + 2 lóðrétt (90°).' },
       { id: 'd', text: 'Fjórflötungur', correct: false, explanation: 'Fjórflötungur hefur 4 rafeinasvið.' }
     ],
-    hint: 'Hugsaðu þrjár stöður á miðsléttu og tvær á ásnum.'
+    hints: {
+      topic: 'VSEPR lögun með 5 rafeinasvið.',
+      strategy: 'Hugsaðu um tvær mismunandi stöður - miðslétta og ás.',
+      method: '3 stöður á miðsléttu (120°) + 2 stöður lóðrétt á ásnum (90°).',
+      solution: 'Þríhyrnd tvípýramída - trigonal bipyramidal.'
+    }
   }
 ];
 
@@ -269,7 +310,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
   const [score, setScore] = useState(0);
   const [totalHintsUsed, setTotalHintsUsed] = useState(0);
@@ -277,17 +319,16 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const challenge = challenges[currentChallenge];
   const maxScore = challenges.length * 15; // 15 points per question without hints
 
+  const basePoints = 15;
+
   const checkAnswer = () => {
     const selected = challenge.options.find(opt => opt.id === selectedOption);
     const correct = selected?.correct ?? false;
     setIsCorrect(correct);
     if (correct) {
       onCorrectAnswer?.();
-      if (!showHint) {
-        setScore(prev => prev + 15);
-      } else {
-        setScore(prev => prev + 8);
-      }
+      const earnedPoints = Math.round(basePoints * hintMultiplier);
+      setScore(prev => prev + earnedPoints);
     } else {
       onIncorrectAnswer?.();
     }
@@ -295,14 +336,20 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   };
 
   const nextChallenge = () => {
+    // Track hints used for this question
+    if (hintsUsedTier > 0) {
+      setTotalHintsUsed(prev => prev + hintsUsedTier);
+    }
+
     if (currentChallenge < challenges.length - 1) {
       setCurrentChallenge(prev => prev + 1);
       setSelectedOption(null);
       setShowResult(false);
-      setShowHint(false);
+      setHintMultiplier(1.0);
+      setHintsUsedTier(0);
       setIsCorrect(false);
     } else {
-      onComplete(score, maxScore, totalHintsUsed);
+      onComplete(score, maxScore, totalHintsUsed + hintsUsedTier);
     }
   };
 

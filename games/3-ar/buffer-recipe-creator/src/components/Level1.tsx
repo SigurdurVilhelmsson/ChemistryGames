@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { LEVEL1_CHALLENGES, type Level1Challenge } from '../data';
+import { HintSystem } from '@shared/components';
 
 interface Level1Props {
   onCorrectAnswer?: () => void;
@@ -25,13 +26,14 @@ export default function Level1({
   const [currentChallenge, setCurrentChallenge] = useState<Level1Challenge>(LEVEL1_CHALLENGES[0]);
   const [acidCount, setAcidCount] = useState(5);
   const [baseCount, setBaseCount] = useState(5);
-  const [showHint, setShowHint] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [challengesCompleted, setChallengesCompleted] = useState(0);
   const [hintsUsedTotal, setHintsUsedTotal] = useState(0);
-  const [hintUsedForCurrentChallenge, setHintUsedForCurrentChallenge] = useState(false);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [, setHintsUsedTier] = useState(0);
+  const [hintResetKey, setHintResetKey] = useState(0);
   const levelCompleteReported = useRef(false);
 
   // Calculate current ratio [Base]/[Acid]
@@ -86,6 +88,12 @@ export default function Level1({
     setShowExplanation(false);
   };
 
+  // Handle hint usage from HintSystem
+  const handleHintUsed = (tier: 1 | 2 | 3 | 4) => {
+    setHintsUsedTier(tier);
+    setHintsUsedTotal(prev => prev + 1);
+  };
+
   // Check answer
   const checkBuffer = () => {
     if (acidCount === 0 || baseCount === 0) {
@@ -95,7 +103,8 @@ export default function Level1({
     }
 
     if (isCorrect) {
-      const points = 100;
+      const basePoints = 100;
+      const points = Math.round(basePoints * hintMultiplier);
       setScore(score + points);
       setFeedback(`Frábært! Stuðpúðinn er tilbúinn! +${points} stig`);
       setChallengesCompleted(challengesCompleted + 1);
@@ -122,18 +131,10 @@ export default function Level1({
     setAcidCount(5);
     setBaseCount(5);
     setFeedback(null);
-    setShowHint(false);
     setShowExplanation(false);
-    setHintUsedForCurrentChallenge(false);
-  };
-
-  // Handle hint toggle and track usage
-  const toggleHint = () => {
-    if (!showHint && !hintUsedForCurrentChallenge) {
-      setHintsUsedTotal(prev => prev + 1);
-      setHintUsedForCurrentChallenge(true);
-    }
-    setShowHint(!showHint);
+    setHintMultiplier(1.0);
+    setHintsUsedTier(0);
+    setHintResetKey(prev => prev + 1);
   };
 
   // Track level completion when all challenges are done
@@ -206,19 +207,17 @@ export default function Level1({
               </div>
             </div>
 
-            {/* Hint Button */}
-            <button
-              onClick={toggleHint}
-              className="w-full py-2 px-4 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors mb-3"
-            >
-              {showHint ? 'Fela vísbendingu' : 'Sýna vísbendingu'}
-            </button>
-
-            {showHint && (
-              <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4 mb-4">
-                <p className="text-purple-800 font-medium">{currentChallenge.hint}</p>
-              </div>
-            )}
+            {/* Tiered Hint System */}
+            <div className="mb-4">
+              <HintSystem
+                hints={currentChallenge.hints}
+                basePoints={100}
+                onHintUsed={handleHintUsed}
+                onPointsChange={setHintMultiplier}
+                disabled={showExplanation}
+                resetKey={hintResetKey}
+              />
+            </div>
 
             {/* Key Concept */}
             <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">

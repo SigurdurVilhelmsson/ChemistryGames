@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 interface Level1Props {
   onComplete: (score: number, maxScore: number, hintsUsed: number) => void;
@@ -17,7 +19,7 @@ interface Challenge {
   charge?: number;
   correctAnswer: number | string;
   options?: { id: string; text: string; correct: boolean; explanation: string }[];
-  hint: string;
+  hints: TieredHints;
   explanation: string;
 }
 
@@ -40,7 +42,12 @@ const challenges: Challenge[] = [
     type: 'count_valence',
     question: 'Hversu margar gildisrafeindir hefur kolefni (C)?',
     correctAnswer: 4,
-    hint: 'Kolefni er í hópi 14 (IV A)',
+    hints: {
+      topic: 'Gildisrafeindir tengjast hópnúmeri frumefnisins í lotukerfinu.',
+      strategy: 'Finndu kolefni (C) í lotukerfinu og athugaðu hvaða hóp það er í.',
+      method: 'Kolefni er í hópi 14 (IV A). Fyrir aðalflokksfrumefni: gildisrafeindir = hópnúmer - 10.',
+      solution: 'C er í hópi 14: 14 - 10 = 4 gildisrafeindir.',
+    },
     explanation: 'C er í hópi 14, sem þýðir 4 gildisrafeindir. Hópnúmerið (1-8 fyrir aðalflokka) segir beint til um gildisrafeindafjöldann.'
   },
   {
@@ -49,7 +56,12 @@ const challenges: Challenge[] = [
     type: 'count_valence',
     question: 'Hversu margar gildisrafeindir hefur klór (Cl)?',
     correctAnswer: 7,
-    hint: 'Klór er halógen í hópi 17',
+    hints: {
+      topic: 'Halógenar eru í hópi 17 í lotukerfinu.',
+      strategy: 'Finndu klór og athugaðu hvaða hóp það tilheyrir.',
+      method: 'Klór er halógen í hópi 17 (VII A). Gildisrafeindir = 17 - 10 = 7.',
+      solution: 'Cl hefur 7 gildisrafeindir og þarf því 1 rafeind til að ná áttureglunni.',
+    },
     explanation: 'Cl er í hópi 17 (VII A), sem þýðir 7 gildisrafeindir. Halógenar þurfa 1 rafeind til að ná áttureglunni.'
   },
   {
@@ -63,7 +75,12 @@ const challenges: Challenge[] = [
       { symbol: 'O', count: 1, valence: 6 },
     ],
     correctAnswer: 8,
-    hint: 'Leggðu saman: 2×H + 1×O',
+    hints: {
+      topic: 'Heildarfjöldi gildisrafeinda er summa allra atóma í sameindinni.',
+      strategy: 'Leggðu saman gildisrafeindir hvers atóms: fjöldi × gildisrafeindir.',
+      method: 'H₂O: 2×H + 1×O = 2×(1) + 1×(6)',
+      solution: '2(1) + 1(6) = 2 + 6 = 8 gildisrafeindir.',
+    },
     explanation: 'H₂O: 2(1) + 1(6) = 2 + 6 = 8 gildisrafeindir. Þetta er lykilskref áður en þú teiknar Lewis-formúlu.'
   },
   {
@@ -77,7 +94,12 @@ const challenges: Challenge[] = [
       { symbol: 'H', count: 3, valence: 1 },
     ],
     correctAnswer: 8,
-    hint: '1×N + 3×H',
+    hints: {
+      topic: 'Nitur (N) er í hópi 15, vetni (H) í hópi 1.',
+      strategy: 'Margfaldaðu fjölda hvers atóms með gildisrafeindafjölda þess.',
+      method: 'NH₃: 1×N + 3×H = 1×(5) + 3×(1)',
+      solution: '1(5) + 3(1) = 5 + 3 = 8 gildisrafeindir.',
+    },
     explanation: 'NH₃: 1(5) + 3(1) = 5 + 3 = 8 gildisrafeindir. Nitur hefur 5 og hvert vetni 1.'
   },
   {
@@ -91,7 +113,12 @@ const challenges: Challenge[] = [
       { symbol: 'O', count: 2, valence: 6 },
     ],
     correctAnswer: 16,
-    hint: '1×C + 2×O',
+    hints: {
+      topic: 'Kolefni (C) hefur 4 gildisrafeindir, súrefni (O) hefur 6.',
+      strategy: 'Leggðu saman: fjöldi hvers atóms × gildisrafeindir þess.',
+      method: 'CO₂: 1×C + 2×O = 1×(4) + 2×(6)',
+      solution: '1(4) + 2(6) = 4 + 12 = 16 gildisrafeindir (8 rafeindarapör).',
+    },
     explanation: 'CO₂: 1(4) + 2(6) = 4 + 12 = 16 gildisrafeindir. Þetta eru 8 rafeindarapör til að skipta á milli atóma.'
   },
   {
@@ -106,7 +133,12 @@ const challenges: Challenge[] = [
     ],
     charge: -1,
     correctAnswer: 8,
-    hint: 'Neikvæð hleðsla bætir við rafeindum',
+    hints: {
+      topic: 'Hleðsla jónar hefur áhrif á heildarfjölda gildisrafeinda.',
+      strategy: 'Neikvæð hleðsla bætir við rafeindum, jákvæð dregur frá.',
+      method: 'OH⁻: O + H + hleðsla = 6 + 1 + 1 (vegna -1)',
+      solution: '6 + 1 + 1 = 8 gildisrafeindir. Neikvæð hleðsla = fleiri rafeindir.',
+    },
     explanation: 'OH⁻: 6 + 1 + 1 (vegna -1 hleðslu) = 8 gildisrafeindir. Neikvæð hleðsla = fleiri rafeindir.'
   },
   {
@@ -121,7 +153,12 @@ const challenges: Challenge[] = [
       { id: 'c', text: '8 rafeindir', correct: true, explanation: 'Rétt! Áttureglan segir að atóm vilja hafa 8 rafeindir í ystu skel.' },
       { id: 'd', text: '18 rafeindir', correct: false, explanation: '18 er fyrir d-undirskeljar, ekki s og p.' },
     ],
-    hint: 'Þetta er "áttureglan" (octet rule)',
+    hints: {
+      topic: 'Áttureglan (octet rule) er grundvallarregla í efnafræði.',
+      strategy: 'Hugsaðu um eðalgastegundir - þær eru stöðugar vegna fullrar ystu skeljar.',
+      method: 'Flest atóm vilja líkja eftir eðalgastegundum með 8 rafeindir í ystu skel.',
+      solution: 'Súrefni vill hafa 8 rafeindir í ystu skel (áttureglan).',
+    },
     explanation: 'Áttureglan: Atóm vilja hafa 8 rafeindir í ystu skel til að vera stöðug (eins og eðalgastegundir).'
   },
   {
@@ -130,7 +167,12 @@ const challenges: Challenge[] = [
     type: 'electron_need',
     question: 'Ef klór hefur 7 gildisrafeindir, hversu margar rafeindir vantar til að uppfylla átturegluna?',
     correctAnswer: 1,
-    hint: '8 - 7 = ?',
+    hints: {
+      topic: 'Áttureglan segir að atóm vilja hafa 8 rafeindir í ystu skel.',
+      strategy: 'Reiknaðu mismuninn á milli 8 og núverandi gildisrafeinda.',
+      method: 'Rafeindir sem vantar = 8 - gildisrafeindir',
+      solution: '8 - 7 = 1 rafeind. Þess vegna myndar Cl eitt efnatengi.',
+    },
     explanation: 'Klór þarf 8 - 7 = 1 rafeind til að uppfylla átturegluna. Þess vegna myndar Cl gjarnan eitt efnatengi.'
   },
 ];
@@ -143,12 +185,13 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [userAnswer, setUserAnswer] = useState('');
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
   const [score, setScore] = useState(0);
-  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
 
   const challenge = challenges[currentChallenge];
+  const basePoints = 15;
 
   const checkAnswer = () => {
     let correct = false;
@@ -164,11 +207,8 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     setIsCorrect(correct);
     if (correct) {
       onCorrectAnswer?.();
-      if (!showHint) {
-        setScore(prev => prev + 15);
-      } else {
-        setScore(prev => prev + 8);
-      }
+      const earnedPoints = Math.round(basePoints * hintMultiplier);
+      setScore(prev => prev + earnedPoints);
     } else {
       onIncorrectAnswer?.();
     }
@@ -181,10 +221,11 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
       setUserAnswer('');
       setSelectedOption(null);
       setShowResult(false);
-      setShowHint(false);
+      setHintMultiplier(1.0);
+      setHintsUsedTier(0);
       setIsCorrect(false);
     } else {
-      onComplete(score, MAX_SCORE, totalHintsUsed);
+      onComplete(score, MAX_SCORE, hintsUsedTier);
     }
   };
 
@@ -299,25 +340,17 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
             </div>
           )}
 
-          {/* Hint button */}
-          {!showResult && !showHint && (
-            <button
-              onClick={() => {
-                setShowHint(true);
-                setTotalHintsUsed(prev => prev + 1);
-              }}
-              className="text-blue-600 hover:text-blue-800 text-sm underline mb-4"
-            >
-              Sýna vísbendingu (-7 stig)
-            </button>
-          )}
-
-          {showHint && !showResult && (
-            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl mb-4">
-              <span className="font-bold text-yellow-800">Vísbending: </span>
-              <span className="text-yellow-900">{challenge.hint}</span>
-            </div>
-          )}
+          {/* Tiered Hint System */}
+          <div className="mb-4">
+            <HintSystem
+              hints={challenge.hints}
+              basePoints={basePoints}
+              onHintUsed={(tier) => setHintsUsedTier(tier)}
+              onPointsChange={setHintMultiplier}
+              disabled={showResult}
+              resetKey={currentChallenge}
+            />
+          </div>
 
           {/* Check answer button */}
           {!showResult && (

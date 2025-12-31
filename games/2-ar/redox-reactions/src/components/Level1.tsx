@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 
 interface Level1Props {
   onComplete: (score: number, maxScore: number, hintsUsed: number) => void;
@@ -20,7 +22,7 @@ interface OxidationProblem {
   compoundDisplay: string;
   targetElement: string;
   correctAnswer: number;
-  hint: string;
+  hints: TieredHints;
 }
 
 const oxidationRules: OxidationRule[] = [

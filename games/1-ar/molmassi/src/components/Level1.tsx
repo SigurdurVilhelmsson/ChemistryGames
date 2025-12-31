@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { AnimatedMolecule, ELEMENT_VISUALS } from '@shared/components';
+import { AnimatedMolecule, ELEMENT_VISUALS, HintSystem } from '@shared/components';
+import type { TieredHints } from '@shared/types';
 import { elementsToAtomCluster } from '../utils/moleculeConverter';
 
 // Icelandic names for elements
@@ -249,8 +250,8 @@ export function Level1({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | string | null>(null);
-  const [showHint, setShowHint] = useState(false);
-  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+  const [hintMultiplier, setHintMultiplier] = useState(1.0);
+  const [hintsUsedTier, setHintsUsedTier] = useState(0);
 
   // For build_molecule challenge
   const [builtAtoms, setBuiltAtoms] = useState<{ symbol: string; count: number }[]>([]);
@@ -265,7 +266,8 @@ export function Level1({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
     setBuiltAtoms([]);
     setSelectedAnswer(null);
     setShowFeedback(false);
-    setShowHint(false);
+    setHintMultiplier(1.0);
+    setHintsUsedTier(0);
   }, [challenge]);
 
   const checkAnswer = (answer: number | string) => {
@@ -298,7 +300,8 @@ export function Level1({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
     setShowFeedback(true);
 
     if (correct) {
-      setScore(prev => prev + 10);
+      const points = Math.round(10 * hintMultiplier);
+      setScore(prev => prev + points);
       setCorrectCount(prev => prev + 1);
       onCorrectAnswer?.();
     } else {
@@ -413,7 +416,7 @@ export function Level1({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
           <div className="space-y-3 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
             {passedLevel ? (
               <button
-                onClick={() => onComplete(score, totalChallenges * 10, totalHintsUsed)}
+                onClick={() => onComplete(score, totalChallenges * 10, hintsUsedTier)}
                 className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl transition-colors btn-press"
               >
                 Halda áfram í Stig 2 →
@@ -425,6 +428,8 @@ export function Level1({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
                   setScore(0);
                   setCorrectCount(0);
                   setChallenge(generateChallenge(0));
+                  setHintMultiplier(1.0);
+                  setHintsUsedTier(0);
                 }}
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl transition-colors btn-press"
               >
@@ -438,6 +443,8 @@ export function Level1({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
                   setScore(0);
                   setCorrectCount(0);
                   setChallenge(generateChallenge(0));
+                  setHintMultiplier(1.0);
+                  setHintsUsedTier(0);
                 }}
                 className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl transition-colors"
               >
@@ -709,6 +716,54 @@ export function Level1({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
       default: return 'Áskorun';
     }
   };
+
+  // Get tiered hints for each challenge type
+  const getChallengeHints = (): TieredHints => {
+    const elementName = ATOM_VISUALS[challenge.targetElement!]?.name || challenge.targetElement;
+
+    switch (challenge.type) {
+      case 'count_atoms':
+        return {
+          topic: 'Þetta snýst um að lesa efnaformúlur og finna fjölda frumefna.',
+          strategy: 'Líttu á lítlu tölurnar (subscripts) í formúlunni við hliðina á hverju frumefni.',
+          method: `Finndu táknið ${challenge.targetElement} í formúlunni. Talan við hliðina á því segir þér fjöldann. Ef engin tala er, þá er 1.`,
+          solution: `Í ${challenge.compound.formula} eru ${challenge.correctCount} ${elementName} (${challenge.targetElement}) frumeindir.`
+        };
+      case 'compare_mass':
+        const heavier = challenge.compound.molarMass > (challenge.compareCompound?.molarMass || 0)
+          ? challenge.compound.name
+          : challenge.compareCompound?.name;
+        return {
+          topic: 'Þetta snýst um að bera saman mólmassa sameinda.',
+          strategy: 'Hugsaðu um stærð og fjölda frumefna. Stærri frumeindir og fleiri frumeindir þýðir meiri massa.',
+          method: `Berðu saman stærð frumefnanna: O≈16, C≈12, N≈14, Cl≈35, Na≈23 g/mol. Leggðu saman fjölda × massa.`,
+          solution: `${challenge.compound.name} (${challenge.compound.molarMass.toFixed(1)} g/mol) vs ${challenge.compareCompound?.name} (${challenge.compareCompound?.molarMass.toFixed(1)} g/mol). ${heavier} er þyngri.`
+        };
+      case 'build_molecule':
+        const buildFormula = challenge.compound.elements.map(e =>
+          `${e.count} ${ATOM_VISUALS[e.symbol]?.name || e.symbol}`
+        ).join(', ');
+        return {
+          topic: 'Þetta snýst um að lesa efnaformúlur og byggja sameindir.',
+          strategy: 'Lestu formúluna vandlega. Hver bókstafur er frumefni og tölurnar segja fjöldann.',
+          method: `Í ${challenge.compound.formula}: líttu á hvern bókstaf og tölu. Enginn tala þýðir 1.`,
+          solution: `${challenge.compound.name} (${challenge.compound.formula}) inniheldur: ${buildFormula}.`
+        };
+      case 'estimate_range':
+        const mass = challenge.compound.molarMass;
+        const correctRange = challenge.ranges?.[challenge.correctRangeIndex!];
+        return {
+          topic: 'Þetta snýst um að áætla mólmassa sameinda.',
+          strategy: 'Notaðu atómmassamina: H≈1, C≈12, N≈14, O≈16 g/mol. Leggðu saman.',
+          method: `Reiknaðu: ${challenge.compound.elements.map(e => `${e.count}×${ATOMIC_MASSES[e.symbol]?.toFixed(0) || '?'}`).join(' + ')} g/mol`,
+          solution: `${challenge.compound.name} = ${mass.toFixed(1)} g/mol, sem fellur í bilið ${correctRange?.label}.`
+        };
+      default:
+        return { topic: '', strategy: '', method: '', solution: '' };
+    }
+  };
+
+  const challengeHints = getChallengeHints();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
