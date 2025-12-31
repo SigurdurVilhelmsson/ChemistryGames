@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GasLawQuestion, GameMode, GameStats, QuestionFeedback } from './types';
 import { questions, getRandomQuestion } from './data';
 import { checkAnswer, calculateError, getUnit, getVariableName } from './utils/gas-calculations';
 import { useAchievements } from '@shared/hooks/useAchievements';
 import { AchievementsButton, AchievementsPanel } from '@shared/components/AchievementsPanel';
 import { AchievementNotificationsContainer } from '@shared/components/AchievementNotificationPopup';
-import { HintSystem } from '@shared/components';
-import type { TieredHints } from '@shared/types';
+import { ParticleSimulation, PARTICLE_TYPES, PHYSICS_PRESETS } from '@shared/components';
 
 const STORAGE_KEY = 'gas-law-challenge-progress';
 
@@ -36,53 +35,6 @@ function getDefaultStats(): GameStats {
 
 function saveStats(stats: GameStats): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
-}
-
-/**
- * Particle class for gas visualization
- */
-class Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  color: string;
-
-  constructor(width: number, height: number, speed: number) {
-    this.x = Math.random() * width;
-    this.y = Math.random() * height;
-    const angle = Math.random() * Math.PI * 2;
-    this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed;
-    this.radius = 4;
-    this.color = '#3b82f6';
-  }
-
-  update(width: number, height: number) {
-    this.x += this.vx;
-    this.y += this.vy;
-
-    // Bounce off walls
-    if (this.x - this.radius < 0 || this.x + this.radius > width) {
-      this.vx *= -1;
-      this.x = Math.max(this.radius, Math.min(width - this.radius, this.x));
-    }
-    if (this.y - this.radius < 0 || this.y + this.radius > height) {
-      this.vy *= -1;
-      this.y = Math.max(this.radius, Math.min(height - this.radius, this.y));
-    }
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.strokeStyle = '#1e40af';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
 }
 
 function App() {
@@ -126,11 +78,6 @@ function App() {
     saveStats(newStats);
   };
 
-  // Particle visualization
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const animationRef = useRef<number>();
-
   // Start new question
   const startNewQuestion = (mode: GameMode) => {
     const question = getRandomQuestion();
@@ -142,18 +89,6 @@ function App() {
     setFeedback(null);
     setTimeRemaining(mode === 'challenge' ? 90 : null);
     setScreen('game');
-
-    // Initialize particles based on question
-    if (question.given.n) {
-      const numParticles = Math.floor(question.given.n.value * 50);
-      const speed = question.given.T ? Math.sqrt(question.given.T.value) / 10 : 2;
-      const canvas = canvasRef.current;
-      if (canvas) {
-        particlesRef.current = Array.from({ length: numParticles }, () =>
-          new Particle(canvas.width, canvas.height, speed)
-        );
-      }
-    }
   };
 
   // Timer for challenge mode
@@ -168,62 +103,32 @@ function App() {
     }
   }, [screen, gameMode, timeRemaining]);
 
-  // Particle animation
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || screen !== 'game') return;
+  // Calculate particle configuration based on current question
+  const particleConfig = useMemo(() => {
+    if (!currentQuestion) return null;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    // Determine number of particles based on moles
+    const numParticles = currentQuestion.given.n
+      ? Math.min(Math.max(Math.floor(currentQuestion.given.n.value * 30), 10), 80)
+      : 40;
 
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Determine temperature for particle speed
+    const temperature = currentQuestion.given.T?.value || 300;
 
-      // Draw container
-      ctx.strokeStyle = getPressureColor();
-      ctx.lineWidth = getPressureThickness();
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-      // Update and draw particles
-      particlesRef.current.forEach(particle => {
-        particle.update(canvas.width, canvas.height);
-        particle.draw(ctx);
-      });
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [screen, currentQuestion]);
-
-  // Get pressure-based color for container
-  const getPressureColor = (): string => {
-    if (!currentQuestion) return '#3b82f6';
+    // Determine pressure for container styling
     const pressure = currentQuestion.find === 'P'
       ? currentQuestion.answer
       : currentQuestion.given.P?.value || 1;
 
-    if (pressure < 1) return '#3b82f6'; // Blue
-    if (pressure < 5) return '#22c55e'; // Green
-    return '#ef4444'; // Red
-  };
+    const pressureLevel: 'low' | 'normal' | 'high' =
+      pressure < 1 ? 'low' : pressure < 5 ? 'normal' : 'high';
 
-  const getPressureThickness = (): number => {
-    if (!currentQuestion) return 2;
-    const pressure = currentQuestion.find === 'P'
-      ? currentQuestion.answer
-      : currentQuestion.given.P?.value || 1;
-
-    if (pressure < 1) return 2;
-    if (pressure < 5) return 4;
-    return 6;
-  };
+    return {
+      numParticles,
+      temperature,
+      pressureLevel
+    };
+  }, [currentQuestion]);
 
   // Check user answer
   const checkUserAnswer = () => {
@@ -525,16 +430,26 @@ function App() {
                   <p className="text-sm text-gray-600">{currentQuestion.scenario_en}</p>
                 </div>
 
-                {/* Particle Canvas */}
+                {/* Particle Simulation */}
                 <div className="bg-gray-900 rounded-lg p-4">
-                  <canvas
-                    ref={canvasRef}
-                    width={400}
-                    height={300}
-                    className="w-full rounded"
-                  />
+                  {particleConfig && (
+                    <ParticleSimulation
+                      container={{
+                        width: 400,
+                        height: 280,
+                        pressure: particleConfig.pressureLevel,
+                        backgroundColor: '#0f172a'
+                      }}
+                      particleTypes={[PARTICLE_TYPES.reactantA]}
+                      particles={[{ typeId: 'A', count: particleConfig.numParticles }]}
+                      physics={PHYSICS_PRESETS.idealGas}
+                      temperature={particleConfig.temperature}
+                      running={screen === 'game'}
+                      ariaLabel="Gas particle simulation showing ideal gas behavior"
+                    />
+                  )}
                   <p className="text-xs text-gray-400 mt-2 text-center">
-                    Lítlar agnir tákna lofttegundir • Litur: þrýstingur
+                    Agnir tákna lofttegundir • Rammi: þrýstingur (blátt=lágt, grænt=venjulegt, rautt=hátt)
                   </p>
                 </div>
 

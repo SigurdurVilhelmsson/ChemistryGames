@@ -21,3 +21,27 @@ export type {
   VerticalLineConfig,
   InteractiveGraphProps
 } from './InteractiveGraph';
+
+// ParticleSimulation component - physics-based particle visualization
+export {
+  ParticleSimulation,
+  useParticleSimulation,
+  PARTICLE_TYPES,
+  PHYSICS_PRESETS,
+  CONTAINER_PRESETS,
+  createGasSimulation,
+  createGasMixture,
+  createKineticsSimulation,
+  createEquilibriumSimulation
+} from './ParticleSimulation';
+export type {
+  ParticleType,
+  Particle,
+  ContainerConfig,
+  PhysicsConfig,
+  ParticleGroup,
+  ReactionConfig,
+  RegionHighlight as ParticleRegionHighlight,
+  ParticleSimulationProps,
+  SimulationControls
+} from './ParticleSimulation';
