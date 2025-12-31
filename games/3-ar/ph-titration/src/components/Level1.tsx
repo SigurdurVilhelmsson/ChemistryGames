@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { LEVEL1_CHALLENGES } from '../data/level1-challenges';
 import { generateTitrationCurve } from '../utils/ph-calculations';
 import { titrations } from '../data/titrations';
 import type { MonoproticTitration } from '../types';
-import { HintSystem } from '@shared/components';
+import { HintSystem, InteractiveGraph } from '@shared/components';
+import type { DataPoint, DataSeries, MarkerConfig } from '@shared/components';
 
 interface Level1Props {
   onComplete: (score: number, maxScore?: number, hintsUsed?: number) => void;
@@ -249,28 +250,9 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   );
 }
 
-// Simple curve preview component
+// Curve preview using InteractiveGraph
 function TitrationCurvePreview({ curveType }: { curveType?: string }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const margin = { top: 20, right: 20, bottom: 40, left: 50 };
-    const plotWidth = width - margin.left - margin.right;
-    const plotHeight = height - margin.top - margin.bottom;
-
-    // Clear
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(0, 0, width, height);
-
-    // Get curve data based on type
+  const { series, marker } = useMemo(() => {
     let curveData: { volume: number; pH: number }[] = [];
     let equivVolume = 25;
     let equivPH = 7;
@@ -291,101 +273,44 @@ function TitrationCurvePreview({ curveType }: { curveType?: string }) {
       }));
     }
 
-    const maxVolume = 50;
-    const xScale = (v: number) => margin.left + (v / maxVolume) * plotWidth;
-    const yScale = (pH: number) => margin.top + ((14 - pH) / 14) * plotHeight;
+    const dataPoints: DataPoint[] = curveData.map(pt => ({ x: pt.volume, y: pt.pH }));
 
-    // Grid lines
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
+    const curveSeries: DataSeries = {
+      id: 'titration',
+      data: dataPoints,
+      color: '#3b82f6',
+      lineWidth: 3
+    };
 
-    for (let pH = 0; pH <= 14; pH += 2) {
-      ctx.beginPath();
-      ctx.moveTo(margin.left, yScale(pH));
-      ctx.lineTo(width - margin.right, yScale(pH));
-      ctx.stroke();
-    }
+    const equivMarker: MarkerConfig = {
+      x: equivVolume,
+      y: equivPH,
+      color: '#22c55e',
+      radius: 6,
+      label: 'Jafngildispunktur'
+    };
 
-    for (let v = 0; v <= maxVolume; v += 10) {
-      ctx.beginPath();
-      ctx.moveTo(xScale(v), margin.top);
-      ctx.lineTo(xScale(v), height - margin.bottom);
-      ctx.stroke();
-    }
-
-    // pH 7 reference line
-    ctx.strokeStyle = '#94a3b8';
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(margin.left, yScale(7));
-    ctx.lineTo(width - margin.right, yScale(7));
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Curve
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    curveData.forEach((point, i) => {
-      const x = xScale(point.volume);
-      const y = yScale(Math.max(0, Math.min(14, point.pH)));
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    });
-    ctx.stroke();
-
-    // Equivalence point marker
-    ctx.fillStyle = '#22c55e';
-    ctx.beginPath();
-    ctx.arc(xScale(equivVolume), yScale(equivPH), 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Axes
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(margin.left, margin.top);
-    ctx.lineTo(margin.left, height - margin.bottom);
-    ctx.lineTo(width - margin.right, height - margin.bottom);
-    ctx.stroke();
-
-    // Labels
-    ctx.fillStyle = '#475569';
-    ctx.font = '12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Rúmmál (mL)', width / 2, height - 5);
-
-    ctx.save();
-    ctx.translate(15, height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('pH', 0, 0);
-    ctx.restore();
-
-    // pH scale numbers
-    ctx.textAlign = 'right';
-    for (let pH = 0; pH <= 14; pH += 2) {
-      ctx.fillText(pH.toString(), margin.left - 5, yScale(pH) + 4);
-    }
-
+    return { series: [curveSeries], marker: equivMarker };
   }, [curveType]);
 
   return (
     <div className="bg-white rounded-lg p-2 border border-gray-200">
-      <canvas
-        ref={canvasRef}
+      <InteractiveGraph
         width={500}
         height={300}
-        className="w-full max-w-lg mx-auto"
+        series={series}
+        xAxis={{ min: 0, max: 50, label: 'Rúmmál (mL)', tickInterval: 10 }}
+        yAxis={{ min: 0, max: 14, label: 'pH', tickInterval: 2 }}
+        markers={[marker]}
+        horizontalLines={[{
+          y: 7,
+          color: '#94a3b8',
+          lineDash: [5, 5],
+          label: 'pH 7',
+          labelPosition: 'right'
+        }]}
+        ariaLabel="Títrunarkúrfa"
       />
-      <div className="text-center text-sm text-gray-500 mt-2">
-        <span className="inline-flex items-center gap-2">
-          <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-          Jafngildispunktur
-        </span>
-      </div>
     </div>
   );
 }
