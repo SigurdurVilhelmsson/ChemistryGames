@@ -17,7 +17,7 @@
 | Add shared audio utilities | ⬜ | Low | Medium | Medium | TTS for pronunciations |
 | Implement tiered hint system | ✅ | High | Medium | High | 4-level progressive hints. All 17 games migrated |
 | Add detailed feedback explanations | ⬜ | High | Medium | High | Why correct/incorrect |
-| Create particle simulation library | ✅ | Medium | High | High | ParticleSimulation component with physics, presets, reactions. Integrated into: gas-law-challenge |
+| Create particle simulation library | ✅ | Medium | High | High | ParticleSimulation component with physics, presets, reactions. Integrated into: gas-law-challenge, lausnir, kinetics, equilibrium-shifter, thermodynamics-predictor |
 | Add 3D molecule viewer (Three.js) | ⬜ | Medium | High | High | For VSEPR, Lewis, IMF |
 
 ---
@@ -55,7 +55,7 @@
 
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
-| Particle animation (Brownian) | ⬜ | High | High | Moving molecules |
+| Particle animation (Brownian) | ✅ | High | High | ParticleBeaker with animated solute particles |
 | Pipette/dropper tool | ⬜ | Medium | Medium | Lab-realistic interaction |
 | Concentration-based color | ⬜ | Low | Low | Like adding indicator |
 | Temperature effects | ⬜ | Low | Medium | Solubility changes |
@@ -86,7 +86,7 @@
 
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
-| Collision simulation | ⬜ | High | High | Activation energy visual |
+| Collision simulation | ✅ | High | High | CollisionDemo with activation energy visual |
 | Maxwell-Boltzmann visualization | ⬜ | High | Medium | Distribution curve |
 | Concentration vs time graph | ⬜ | Medium | Medium | Interactive builder |
 | Catalyst effect demo | ⬜ | Medium | Medium | Before/after comparison |
@@ -173,7 +173,7 @@
 | Improvement | Status | Priority | Effort | Notes |
 |-------------|--------|----------|--------|-------|
 | Q vs K visualization | ⬜ | High | Medium | Direction indicator |
-| Dynamic equilibrium animation | ⬜ | High | High | Forward/reverse rates |
+| Dynamic equilibrium animation | ✅ | High | High | ParticleEquilibrium showing reactant/product particles |
 | Industrial process scenarios | ⬜ | Medium | Low | Haber, Contact process |
 | K expression builder | ⬜ | Medium | Medium | Interactive formula |
 
@@ -203,19 +203,19 @@
 
 | Priority | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
-| High | 42 | 4 | 9.5% |
+| High | 42 | 7 | 16.7% |
 | Medium | 45 | 8 | 17.8% |
 | Low | 21 | 1 | 4.8% |
-| **Total** | **108** | **13** | **12.0%** |
+| **Total** | **108** | **16** | **14.8%** |
 
 ### By Year
 
 | Year | Total | Completed | Percentage |
 |------|-------|-----------|------------|
 | Shared | 8 | 4 | 50% |
-| Year 1 | 20 | 2 | 10% |
-| Year 2 | 40 | 3 | 7.5% |
-| Year 3 | 32 | 4 | 12.5% |
+| Year 1 | 20 | 3 | 15% |
+| Year 2 | 40 | 4 | 10% |
+| Year 3 | 32 | 5 | 15.6% |
 
 ### By Category
 
@@ -291,6 +291,10 @@ Building these once benefits multiple games:
 | 2025-12-31 | InteractiveGraph integrated into: ph-titration Level 1, ph-titration TitrationCurve (Level 2), thermodynamics-predictor |
 | 2025-12-31 | **ParticleSimulation COMPLETE** - Canvas-based physics simulation with collisions, temperature, reactions, presets |
 | 2025-12-31 | ParticleSimulation integrated into: gas-law-challenge (replaces custom Particle class) |
+| 2025-12-31 | ParticleSimulation integrated into: lausnir (ParticleBeaker with Brownian motion) |
+| 2025-12-31 | ParticleSimulation integrated into: kinetics (CollisionDemo with activation energy visual) |
+| 2025-12-31 | ParticleSimulation integrated into: equilibrium-shifter (ParticleEquilibrium with shift direction feedback) |
+| 2025-12-31 | ParticleSimulation integrated into: thermodynamics-predictor (EntropyVisualization replaced CSS with canvas) |
 
 ---
 
