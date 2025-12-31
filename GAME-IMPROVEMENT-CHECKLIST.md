@@ -12,7 +12,7 @@
 | Task | Status | Priority | Effort | Impact | Notes |
 |------|--------|----------|--------|--------|-------|
 | Create AnimatedMolecule component | ✅ | High | High | High | All 5 phases complete. Integrated into: Molmassi, Lewis Structures, VSEPR Geometry, IMF, Organic Nomenclature |
-| Create InteractiveGraph component | ⬜ | Medium | Medium | Medium | For titration, thermodynamics, kinetics |
+| Create InteractiveGraph component | ✅ | Medium | Medium | Medium | Canvas-based reusable graph. Integrated into: ph-titration (Level 1 & TitrationCurve), thermodynamics-predictor |
 | Create DragDropBuilder component | ⬜ | Medium | High | High | For equations, nomenclature |
 | Add shared audio utilities | ⬜ | Low | Medium | Medium | TTS for pronunciations |
 | Implement tiered hint system | ✅ | High | Medium | High | 4-level progressive hints. All 17 games migrated |
@@ -203,16 +203,16 @@
 
 | Priority | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
-| High | 42 | 2 | 4.8% |
-| Medium | 45 | 6 | 13.3% |
+| High | 42 | 4 | 9.5% |
+| Medium | 45 | 7 | 15.6% |
 | Low | 21 | 1 | 4.8% |
-| **Total** | **108** | **9** | **8.3%** |
+| **Total** | **108** | **12** | **11.1%** |
 
 ### By Year
 
 | Year | Total | Completed | Percentage |
 |------|-------|-----------|------------|
-| Shared | 8 | 0 | 0% |
+| Shared | 8 | 3 | 37.5% |
 | Year 1 | 20 | 2 | 10% |
 | Year 2 | 40 | 3 | 7.5% |
 | Year 3 | 32 | 4 | 12.5% |
@@ -254,10 +254,10 @@ These improvements can be implemented quickly:
 
 Building these once benefits multiple games:
 
-1. ⬜ **AnimatedMolecule** → Lewis, VSEPR, IMF, Organic, Molar Mass
+1. ✅ **AnimatedMolecule** → Lewis, VSEPR, IMF, Organic, Molar Mass
 2. ⬜ **ParticleSimulation** → Solutions, Gas Laws, Kinetics, Equilibrium
 3. ⬜ **DragDropBuilder** → Hess's Law, Nomenclature, Redox
-4. ⬜ **InteractiveGraph** → Titration, Thermodynamics, Kinetics
+4. ✅ **InteractiveGraph** → Titration, Thermodynamics, Kinetics
 5. ⬜ **3DMoleculeViewer** → VSEPR, Lewis, IMF, Organic
 
 ---
@@ -287,6 +287,8 @@ Building these once benefits multiple games:
 | 2025-12-29 | AnimatedMolecule Phase 5: Organic mode with carbon chain layout, colored bonds, glow effects |
 | 2025-12-29 | **AnimatedMolecule COMPLETE** - All 5 phases implemented, ready for game migrations |
 | 2025-12-31 | **Tiered Hint System COMPLETE** - HintSystem component created, all 17 games migrated |
+| 2025-12-31 | **InteractiveGraph COMPLETE** - Canvas-based reusable graph component with series, markers, regions, reference lines |
+| 2025-12-31 | InteractiveGraph integrated into: ph-titration Level 1, ph-titration TitrationCurve (Level 2), thermodynamics-predictor |
 
 ---
 
