@@ -17,7 +17,7 @@
 | Add shared audio utilities | ⬜ | Low | Medium | Medium | TTS for pronunciations |
 | Implement tiered hint system | ✅ | High | Medium | High | 4-level progressive hints. All 17 games migrated |
 | Add detailed feedback explanations | ⬜ | High | Medium | High | Why correct/incorrect |
-| Create particle simulation library | ⬜ | Medium | High | High | For solutions, gas laws, kinetics |
+| Create particle simulation library | ✅ | Medium | High | High | ParticleSimulation component with physics, presets, reactions. Integrated into: gas-law-challenge |
 | Add 3D molecule viewer (Three.js) | ⬜ | Medium | High | High | For VSEPR, Lewis, IMF |
 
 ---
@@ -204,15 +204,15 @@
 | Priority | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
 | High | 42 | 4 | 9.5% |
-| Medium | 45 | 7 | 15.6% |
+| Medium | 45 | 8 | 17.8% |
 | Low | 21 | 1 | 4.8% |
-| **Total** | **108** | **12** | **11.1%** |
+| **Total** | **108** | **13** | **12.0%** |
 
 ### By Year
 
 | Year | Total | Completed | Percentage |
 |------|-------|-----------|------------|
-| Shared | 8 | 3 | 37.5% |
+| Shared | 8 | 4 | 50% |
 | Year 1 | 20 | 2 | 10% |
 | Year 2 | 40 | 3 | 7.5% |
 | Year 3 | 32 | 4 | 12.5% |
@@ -221,7 +221,7 @@
 
 | Category | Total | Completed | Percentage |
 |----------|-------|-----------|------------|
-| Visualization | 45 | 4 | 8.9% |
+| Visualization | 45 | 5 | 11.1% |
 | Interactivity | 30 | 0 | 0% |
 | Content | 18 | 3 | 16.7% |
 | Gamification | 15 | 2 | 13.3% |
@@ -255,7 +255,7 @@ These improvements can be implemented quickly:
 Building these once benefits multiple games:
 
 1. ✅ **AnimatedMolecule** → Lewis, VSEPR, IMF, Organic, Molar Mass
-2. ⬜ **ParticleSimulation** → Solutions, Gas Laws, Kinetics, Equilibrium
+2. ✅ **ParticleSimulation** → Gas Laws (integrated), Solutions, Kinetics, Equilibrium
 3. ⬜ **DragDropBuilder** → Hess's Law, Nomenclature, Redox
 4. ✅ **InteractiveGraph** → Titration, Thermodynamics, Kinetics
 5. ⬜ **3DMoleculeViewer** → VSEPR, Lewis, IMF, Organic
@@ -289,6 +289,8 @@ Building these once benefits multiple games:
 | 2025-12-31 | **Tiered Hint System COMPLETE** - HintSystem component created, all 17 games migrated |
 | 2025-12-31 | **InteractiveGraph COMPLETE** - Canvas-based reusable graph component with series, markers, regions, reference lines |
 | 2025-12-31 | InteractiveGraph integrated into: ph-titration Level 1, ph-titration TitrationCurve (Level 2), thermodynamics-predictor |
+| 2025-12-31 | **ParticleSimulation COMPLETE** - Canvas-based physics simulation with collisions, temperature, reactions, presets |
+| 2025-12-31 | ParticleSimulation integrated into: gas-law-challenge (replaces custom Particle class) |
 
 ---
 
