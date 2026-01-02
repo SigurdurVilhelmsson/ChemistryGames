@@ -167,7 +167,7 @@ function App() {
     const totalScore = progress.level1Score + progress.level2Score + progress.level3Score;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4 md:p-8">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-purple-600">
             Til hamingju!
@@ -237,8 +237,9 @@ function App() {
   const totalScore = progress.level1Score + progress.level2Score + progress.level3Score;
   const levelsCompleted = [progress.level1Completed, progress.level2Completed, progress.level3Completed].filter(Boolean).length;
 
+  // Year 3: Purple/Indigo theme
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4 md:p-8">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
         {/* Header with achievements button */}
         <div className="flex justify-between items-start mb-4">

@@ -166,9 +166,9 @@ function App() {
     const totalScore = progress.level1Score + progress.level2Score + progress.level3Score;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 p-4 md:p-8">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-indigo-600">
+          <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-teal-600">
             Til hamingju!
           </h1>
 
@@ -210,9 +210,9 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-indigo-50 p-6 rounded-xl mb-6">
-            <h2 className="font-bold text-indigo-800 mb-3">Hvað lærðir þú?</h2>
-            <ul className="space-y-2 text-indigo-900 text-sm">
+          <div className="bg-teal-50 p-6 rounded-xl mb-6">
+            <h2 className="font-bold text-teal-800 mb-3">Hvað lærðir þú?</h2>
+            <ul className="space-y-2 text-teal-900 text-sm">
               <li>✓ <strong>Gildisrafeindir:</strong> Rafeindir í ystu skel ákvarða efnatengsl</li>
               <li>✓ <strong>Áttureglann:</strong> Atóm vilja hafa 8 rafeindir (H vill 2)</li>
               <li>✓ <strong>Lewis-formúlur:</strong> Sýna hvernig rafeindir dreifast í sameindum</li>
@@ -223,7 +223,7 @@ function App() {
 
           <button
             onClick={() => setActiveLevel('menu')}
-            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
           >
             Til baka í valmynd
           </button>
@@ -236,8 +236,9 @@ function App() {
   const totalScore = progress.level1Score + progress.level2Score + progress.level3Score;
   const levelsCompleted = [progress.level1Completed, progress.level2Completed, progress.level3Completed].filter(Boolean).length;
 
+  // Year 2: Teal/Cyan theme
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 p-4 md:p-8">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
         {/* Header with achievements button */}
         <div className="flex justify-end mb-4">
@@ -247,7 +248,7 @@ function App() {
           />
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-indigo-600">
+        <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-teal-600">
           ⚛️ Lewis-formúlur
         </h1>
         <p className="text-center text-gray-600 mb-8">
@@ -255,15 +256,15 @@ function App() {
         </p>
 
         {/* Pedagogical explanation */}
-        <div className="bg-indigo-50 p-6 rounded-xl mb-8">
-          <h2 className="font-bold text-indigo-800 mb-3">Hvað eru Lewis-formúlur?</h2>
-          <p className="text-indigo-900 text-sm mb-4">
+        <div className="bg-teal-50 p-6 rounded-xl mb-8">
+          <h2 className="font-bold text-teal-800 mb-3">Hvað eru Lewis-formúlur?</h2>
+          <p className="text-teal-900 text-sm mb-4">
             <strong>Lewis-formúlur</strong> (eða rafeinapunktaformúlur) sýna hvernig gildisrafeindir
             dreifast á milli atóma í sameind. Þær hjálpa okkur að skilja efnatengsl og
             lögun sameinda.
           </p>
-          <div className="bg-white p-3 rounded-lg border border-indigo-200">
-            <p className="text-sm text-indigo-800 font-mono text-center">
+          <div className="bg-white p-3 rounded-lg border border-teal-200">
+            <p className="text-sm text-teal-800 font-mono text-center">
               Alls rafeindir = Σ gildisrafeindir - hleðsla
             </p>
           </div>

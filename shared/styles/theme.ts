@@ -143,6 +143,115 @@ export const generateCSSVariables = (): string => {
   `;
 };
 
+/**
+ * Year-based color themes for consistent styling across games
+ *
+ * Year 1 (1-ar): Orange/Amber - Kvennaskólinn brand identity
+ * Year 2 (2-ar): Teal/Cyan - Distinct from Year 1, fresh and engaging
+ * Year 3 (3-ar): Purple/Indigo - Advanced, sophisticated appearance
+ */
+export const yearThemes = {
+  '1-ar': {
+    // Background gradient: from-orange-50 to-amber-100
+    gradient: 'bg-gradient-to-br from-orange-50 to-amber-100',
+    gradientFrom: 'from-orange-50',
+    gradientTo: 'to-amber-100',
+    // Primary accent color
+    primary: 'orange',
+    primaryBg: 'bg-orange-500',
+    primaryBgHover: 'hover:bg-orange-600',
+    primaryText: 'text-orange-600',
+    primaryTextDark: 'text-orange-800',
+    primaryBorder: 'border-orange-400',
+    primaryBorderHover: 'hover:border-orange-500',
+    primaryLight: 'bg-orange-50',
+    primaryLightHover: 'hover:bg-orange-100',
+    // Pedagogical section
+    pedagogicalBg: 'bg-orange-50',
+    pedagogicalBorder: 'border-orange-200',
+    pedagogicalText: 'text-orange-900',
+    pedagogicalTitle: 'text-orange-800',
+  },
+  '2-ar': {
+    // Background gradient: from-teal-50 to-cyan-100
+    gradient: 'bg-gradient-to-br from-teal-50 to-cyan-100',
+    gradientFrom: 'from-teal-50',
+    gradientTo: 'to-cyan-100',
+    // Primary accent color
+    primary: 'teal',
+    primaryBg: 'bg-teal-500',
+    primaryBgHover: 'hover:bg-teal-600',
+    primaryText: 'text-teal-600',
+    primaryTextDark: 'text-teal-800',
+    primaryBorder: 'border-teal-400',
+    primaryBorderHover: 'hover:border-teal-500',
+    primaryLight: 'bg-teal-50',
+    primaryLightHover: 'hover:bg-teal-100',
+    // Pedagogical section
+    pedagogicalBg: 'bg-teal-50',
+    pedagogicalBorder: 'border-teal-200',
+    pedagogicalText: 'text-teal-900',
+    pedagogicalTitle: 'text-teal-800',
+  },
+  '3-ar': {
+    // Background gradient: from-purple-50 to-indigo-100
+    gradient: 'bg-gradient-to-br from-purple-50 to-indigo-100',
+    gradientFrom: 'from-purple-50',
+    gradientTo: 'to-indigo-100',
+    // Primary accent color
+    primary: 'purple',
+    primaryBg: 'bg-purple-500',
+    primaryBgHover: 'hover:bg-purple-600',
+    primaryText: 'text-purple-600',
+    primaryTextDark: 'text-purple-800',
+    primaryBorder: 'border-purple-400',
+    primaryBorderHover: 'hover:border-purple-500',
+    primaryLight: 'bg-purple-50',
+    primaryLightHover: 'hover:bg-purple-100',
+    // Pedagogical section
+    pedagogicalBg: 'bg-purple-50',
+    pedagogicalBorder: 'border-purple-200',
+    pedagogicalText: 'text-purple-900',
+    pedagogicalTitle: 'text-purple-800',
+  },
+} as const;
+
+export type YearTheme = keyof typeof yearThemes;
+
+/**
+ * Level colors for consistent level distinction within games
+ * These are used across all years for level 1, 2, 3 buttons
+ */
+export const levelColors = {
+  level1: {
+    bg: 'bg-blue-50',
+    bgHover: 'hover:bg-blue-100',
+    border: 'border-blue-400',
+    borderHover: 'hover:border-blue-500',
+    text: 'text-blue-600',
+    textDark: 'text-blue-800',
+    badge: 'bg-blue-500',
+  },
+  level2: {
+    bg: 'bg-green-50',
+    bgHover: 'hover:bg-green-100',
+    border: 'border-green-400',
+    borderHover: 'hover:border-green-500',
+    text: 'text-green-600',
+    textDark: 'text-green-800',
+    badge: 'bg-green-500',
+  },
+  level3: {
+    bg: 'bg-amber-50',
+    bgHover: 'hover:bg-amber-100',
+    border: 'border-amber-400',
+    borderHover: 'hover:border-amber-500',
+    text: 'text-amber-600',
+    textDark: 'text-amber-800',
+    badge: 'bg-amber-500',
+  },
+} as const;
+
 export const theme = {
   colors,
   spacing,
@@ -150,6 +259,8 @@ export const theme = {
   fontSize,
   shadows,
   transitions,
+  yearThemes,
+  levelColors,
 };
 
 export default theme;

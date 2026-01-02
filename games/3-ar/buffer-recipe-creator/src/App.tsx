@@ -33,7 +33,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
       {/* Achievements button in top-right corner */}
       <div className="fixed top-4 right-4 z-40">
         <AchievementsButton
