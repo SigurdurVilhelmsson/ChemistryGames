@@ -170,9 +170,9 @@ function App() {
     const totalScore = progress.level1Score + progress.level2Score + progress.level3Score;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-orange-100 p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 p-4 md:p-8">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-orange-600">
+          <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-teal-600">
             Til hamingju!
           </h1>
 
@@ -214,9 +214,9 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-purple-50 p-6 rounded-xl mb-6">
-            <h2 className="font-bold text-purple-800 mb-3">Hvað lærðir þú?</h2>
-            <ul className="space-y-2 text-purple-900 text-sm">
+          <div className="bg-teal-50 p-6 rounded-xl mb-6">
+            <h2 className="font-bold text-teal-800 mb-3">Hvað lærðir þú?</h2>
+            <ul className="space-y-2 text-teal-900 text-sm">
               <li>✓ <strong>Lögmál Hess:</strong> ΔH fer sama leiðina óháð hvörfunarferlinu</li>
               <li>✓ <strong>Snúa við:</strong> Ef þú snýrð við hvörfum, snýrðu einnig formerki ΔH</li>
               <li>✓ <strong>Margfalda:</strong> Ef þú margfaldar jöfnu, margfaldar þú einnig ΔH</li>
@@ -226,7 +226,7 @@ function App() {
 
           <button
             onClick={() => setActiveLevel('menu')}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
           >
             Til baka í valmynd
           </button>
@@ -239,13 +239,14 @@ function App() {
   const totalScore = progress.level1Score + progress.level2Score + progress.level3Score;
   const levelsCompleted = [progress.level1Completed, progress.level2Completed, progress.level3Completed].filter(Boolean).length;
 
+  // Year 2: Teal/Cyan theme
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-orange-100 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 p-4 md:p-8">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
         {/* Header with achievements button */}
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-bold text-orange-600">
+            <h1 className="text-3xl md:text-4xl font-bold text-teal-600">
               ⚗️ Lögmál Hess
             </h1>
             <p className="text-gray-600">
@@ -259,15 +260,15 @@ function App() {
         </div>
 
         {/* Pedagogical explanation */}
-        <div className="bg-purple-50 p-6 rounded-xl mb-8">
-          <h2 className="font-bold text-purple-800 mb-3">Hvað er lögmál Hess?</h2>
-          <p className="text-purple-900 text-sm mb-4">
+        <div className="bg-teal-50 p-6 rounded-xl mb-8">
+          <h2 className="font-bold text-teal-800 mb-3">Hvað er lögmál Hess?</h2>
+          <p className="text-teal-900 text-sm mb-4">
             <strong>Skammtavarmi (ΔH)</strong> er ástandsfall — það skiptir ekki máli hvaða leið
             efnahvörfin taka, aðeins upphafs- og lokaaðstæður skipta máli. Þetta þýðir að við
             getum <em>sameinað</em> jöfnur til að finna ΔH fyrir hvörf sem erfitt er að mæla beint.
           </p>
-          <div className="bg-white p-3 rounded-lg border border-purple-200">
-            <p className="text-sm text-purple-800 font-mono text-center">
+          <div className="bg-white p-3 rounded-lg border border-teal-200">
+            <p className="text-sm text-teal-800 font-mono text-center">
               ΔH<sub>heild</sub> = ΔH<sub>1</sub> + ΔH<sub>2</sub> + ΔH<sub>3</sub> + ...
             </p>
           </div>

@@ -240,7 +240,7 @@ function App() {
   // Menu Screen
   if (screen === 'menu') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
         <main className="max-w-5xl mx-auto px-4 py-8">
           <div className="bg-white rounded-xl shadow-lg p-8">
             {/* Header with achievements button */}
@@ -370,7 +370,7 @@ function App() {
   // Game Screen
   if (screen === 'game' && currentQuestion) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
         <main className="max-w-5xl mx-auto px-4 py-8">
           <div className="bg-white rounded-xl shadow-lg p-8">
             {/* Header */}
@@ -602,7 +602,7 @@ function App() {
   // Feedback Screen
   if (screen === 'feedback' && feedback && currentQuestion) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
         <main className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-white rounded-xl shadow-lg p-8">
             {/* Result Header */}

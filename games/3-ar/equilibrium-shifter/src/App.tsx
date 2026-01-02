@@ -774,7 +774,7 @@ function App() {
   );
 
   return (
-    <div className={`min-h-screen bg-gray-50 ${settings.highContrast ? 'high-contrast' : ''} ${settings.reducedMotion ? 'reduced-motion' : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 ${settings.highContrast ? 'high-contrast' : ''} ${settings.reducedMotion ? 'reduced-motion' : ''}`}>
       {/* Accessibility Skip Link */}
       <a href="#main-content" className="skip-link">
         {t('accessibility.skipToContent', 'Fara beint í efní')}
