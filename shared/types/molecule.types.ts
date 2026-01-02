@@ -57,6 +57,8 @@ export interface ElementVisual {
   name?: string;
   /** Atomic mass (g/mol) */
   mass?: number;
+  /** Optional stroke/border color for better visibility */
+  strokeColor?: string;
 }
 
 /**

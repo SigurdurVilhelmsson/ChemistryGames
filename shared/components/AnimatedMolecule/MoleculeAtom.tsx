@@ -72,8 +72,9 @@ export function MoleculeAtom({
   // Highlight glow filter
   const highlightFilter = isHighlighted ? 'url(#atomHighlightGlow)' : undefined;
 
-  // Border for light-colored atoms (like H)
-  const needsBorder = visual.color === '#FFFFFF' || visual.color.toLowerCase() === '#fff';
+  // Use strokeColor from element visual for better visibility on any background
+  const strokeColor = visual.strokeColor;
+  const strokeWidth = strokeColor ? 2 : 0;
 
   return (
     <g
@@ -89,8 +90,8 @@ export function MoleculeAtom({
         cy={position.y}
         r={radius}
         fill={visual.color}
-        stroke={needsBorder ? '#CBD5E1' : 'transparent'}
-        strokeWidth={needsBorder ? 2 : 0}
+        stroke={strokeColor || 'transparent'}
+        strokeWidth={strokeWidth}
         filter={highlightFilter}
         style={animationStyle}
       />

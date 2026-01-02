@@ -45,3 +45,11 @@ export type {
   ParticleSimulationProps,
   SimulationControls
 } from './ParticleSimulation';
+
+// ResponsiveContainer - wrapper for responsive sizing of fixed-dimension components
+export { ResponsiveContainer, useResponsiveSize } from './ResponsiveContainer';
+export type { ResponsiveContainerProps } from './ResponsiveContainer';
+
+// MoleculeViewer - standardized molecule display with dark background
+export { MoleculeViewer, MoleculeViewerGrid } from './MoleculeViewer';
+export type { MoleculeViewerProps, MoleculeViewerGridProps } from './MoleculeViewer';

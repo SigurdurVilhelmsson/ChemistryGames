@@ -9,9 +9,9 @@ import type { ElementVisual, MolecularGeometry, Position3D } from '@shared/types
  * with adjustments for educational clarity
  */
 export const ELEMENT_VISUALS: Record<string, ElementVisual> = {
-  // Common elements
-  H:  { color: '#FFFFFF', radius: 0.6, name: 'Hydrogen', mass: 1.008 },
-  C:  { color: '#333333', radius: 1.0, name: 'Carbon', mass: 12.011 },
+  // Common elements - H and C have stroke colors for visibility on any background
+  H:  { color: '#F3F4F6', radius: 0.6, name: 'Hydrogen', mass: 1.008, strokeColor: '#9CA3AF' },
+  C:  { color: '#4B5563', radius: 1.0, name: 'Carbon', mass: 12.011, strokeColor: '#D1D5DB' },
   N:  { color: '#3B82F6', radius: 0.95, name: 'Nitrogen', mass: 14.007 },
   O:  { color: '#EF4444', radius: 0.9, name: 'Oxygen', mass: 15.999 },
   F:  { color: '#84CC16', radius: 0.7, name: 'Fluorine', mass: 18.998 },

@@ -417,12 +417,12 @@ export const ParticleSimulation: React.FC<ParticleSimulationProps> = ({
       {particleTypes.length > 1 && (
         <div className="flex flex-wrap gap-3 mt-2">
           {particleTypes.map(type => (
-            <div key={type.id} className="flex items-center gap-1 text-xs">
+            <div key={type.id} className="flex items-center gap-1.5 text-xs">
               <div
-                className="w-3 h-3 rounded-full"
+                className="w-3 h-3 rounded-full border border-white/20"
                 style={{ backgroundColor: type.color }}
               />
-              <span className="text-gray-300">
+              <span className="text-gray-100 font-medium">
                 {type.label || type.id}: {particleCounts[type.id] || 0}
               </span>
             </div>
