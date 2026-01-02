@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AnimatedMolecule, HintSystem } from '@shared/components';
+import { AnimatedMolecule } from '@shared/components';
 import type { TieredHints } from '@shared/types';
 import { geometryToMolecule } from '../utils/vseprConverter';
 
@@ -310,6 +310,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [hintMultiplier, setHintMultiplier] = useState(1.0);
   const [hintsUsedTier, setHintsUsedTier] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -345,6 +346,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
       setCurrentChallenge(prev => prev + 1);
       setSelectedOption(null);
       setShowResult(false);
+      setShowHint(false);
       setHintMultiplier(1.0);
       setHintsUsedTier(0);
       setIsCorrect(false);
@@ -500,7 +502,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
             const geo = GEOMETRIES.find(g => g.id === challenge.geometryId);
             if (!geo) return null;
             return (
-              <div className="bg-gray-100 p-4 rounded-xl mb-6 flex justify-center">
+              <div className="bg-slate-900 p-4 rounded-xl mb-6 flex flex-col items-center">
                 <AnimatedMolecule
                   molecule={geometryToMolecule({
                     id: geo.id,
@@ -515,6 +517,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
                   showLonePairs={true}
                   ariaLabel={`${geo.name} lögun`}
                 />
+                <div className="text-slate-300 text-sm mt-2 font-medium">{geo.example}</div>
               </div>
             );
           })()}
@@ -565,7 +568,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
           {showHint && !showResult && (
             <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl mb-4">
               <span className="font-bold text-yellow-800">Vísbending: </span>
-              <span className="text-yellow-900">{challenge.hint}</span>
+              <span className="text-yellow-900">{challenge.hints.topic}</span>
             </div>
           )}
 

@@ -5,6 +5,8 @@ interface MaxwellBoltzmannProps {
   activationEnergy: number;
   compareTemperature?: number;
   className?: string;
+  /** Make the graph fill its container width */
+  responsive?: boolean;
 }
 
 // Gas constant in kJ/(mol·K)
@@ -78,7 +80,8 @@ export function MaxwellBoltzmann({
   temperature,
   activationEnergy,
   compareTemperature,
-  className = ''
+  className = '',
+  responsive = true
 }: MaxwellBoltzmannProps) {
   // Generate curve data
   const { mainCurve, compareCurve, maxY } = useMemo(() => {
@@ -179,9 +182,12 @@ export function MaxwellBoltzmann({
       </div>
 
       <svg
-        width={width}
-        height={height}
-        className="bg-slate-950 rounded-lg"
+        width={responsive ? '100%' : width}
+        height={responsive ? 'auto' : height}
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="bg-slate-950 rounded-lg w-full"
+        style={responsive ? { aspectRatio: `${width}/${height}` } : undefined}
         role="img"
         aria-label={`Maxwell-Boltzmann dreifing við ${temperature} K. ${percentAboveEa}% sameinda hafa orku yfir virkjunarorku.`}
       >
@@ -338,13 +344,13 @@ export function MaxwellBoltzmann({
             {percentAboveEa}% sameinda með E ≥ Ea
           </span>
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-400">
           Ea = {activationEnergy} kJ/mol
         </div>
       </div>
 
       {/* Educational note */}
-      <div className="mt-2 text-xs text-gray-500 text-center">
+      <div className="mt-2 text-xs text-gray-400 text-center">
         Hærra hitastig → fleiri sameidir með nóga orku
       </div>
     </div>
