@@ -100,6 +100,25 @@ interface QuizQuestion {
   ruleId: string;
 }
 
+// Classification warm-up questions
+interface WarmupQuestion {
+  symbol: string;
+  name: string;
+  isMetal: boolean;
+  hint: string;
+}
+
+const warmupQuestions: WarmupQuestion[] = [
+  { symbol: 'Na', name: 'Natríum', isMetal: true, hint: 'Í hópi 1 (alkalímálmar) - alltaf málmur!' },
+  { symbol: 'Cl', name: 'Klór', isMetal: false, hint: 'Í hópi 17 (halógein) - alltaf málmleysingi!' },
+  { symbol: 'Mg', name: 'Magnesíum', isMetal: true, hint: 'Í hópi 2 (jarðalkalímálmar) - alltaf málmur!' },
+  { symbol: 'O', name: 'Súrefni', isMetal: false, hint: 'Í hópi 16 - málmleysingi!' },
+  { symbol: 'Fe', name: 'Járn', isMetal: true, hint: 'Þróunarmálmur - einn þekktur málmanna!' },
+  { symbol: 'S', name: 'Brennisteinn', isMetal: false, hint: 'Í hópi 16 - málmleysingi!' },
+  { symbol: 'Ca', name: 'Kalsíum', isMetal: true, hint: 'Í hópi 2 - jarðalkalímálmur!' },
+  { symbol: 'N', name: 'Köfnunarefni', isMetal: false, hint: 'Í hópi 15 - málmleysingi!' },
+];
+
 const quizQuestions: QuizQuestion[] = [
   {
     id: 1,
@@ -255,7 +274,7 @@ const quizQuestions: QuizQuestion[] = [
 ];
 
 export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer }: Level1Props) {
-  const [phase, setPhase] = useState<'learn' | 'quiz'>('learn');
+  const [phase, setPhase] = useState<'learn' | 'warmup' | 'quiz'>('learn');
   const [currentRule, setCurrentRule] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -264,20 +283,52 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [hintMultiplier, setHintMultiplier] = useState(1.0);
   const [hintsUsedTier, setHintsUsedTier] = useState(0);
 
+  // Warmup state
+  const [currentWarmup, setCurrentWarmup] = useState(0);
+  const [warmupAnswer, setWarmupAnswer] = useState<boolean | null>(null);
+  const [warmupFeedback, setWarmupFeedback] = useState<string | null>(null);
+  const [warmupCorrect, setWarmupCorrect] = useState(0);
+
   const rule = namingRules[currentRule];
   const question = quizQuestions[currentQuestion];
+  const warmupQ = warmupQuestions[currentWarmup];
 
   const handleNextRule = () => {
     if (currentRule < namingRules.length - 1) {
       setCurrentRule(prev => prev + 1);
     } else {
-      setPhase('quiz');
+      setPhase('warmup'); // Go to warmup before quiz
     }
   };
 
   const handlePrevRule = () => {
     if (currentRule > 0) {
       setCurrentRule(prev => prev - 1);
+    }
+  };
+
+  // Warmup handlers
+  const handleWarmupAnswer = (isMetal: boolean) => {
+    if (warmupFeedback !== null) return;
+
+    setWarmupAnswer(isMetal);
+    const correct = isMetal === warmupQ.isMetal;
+
+    if (correct) {
+      setWarmupFeedback(`Rétt! ${warmupQ.hint}`);
+      setWarmupCorrect(prev => prev + 1);
+    } else {
+      setWarmupFeedback(`Ekki rétt. ${warmupQ.name} er ${warmupQ.isMetal ? 'málmur' : 'málmleysingi'}. ${warmupQ.hint}`);
+    }
+  };
+
+  const handleNextWarmup = () => {
+    if (currentWarmup < warmupQuestions.length - 1) {
+      setCurrentWarmup(prev => prev + 1);
+      setWarmupAnswer(null);
+      setWarmupFeedback(null);
+    } else {
+      setPhase('quiz');
     }
   };
 
@@ -435,6 +486,129 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
                   <div className={`font-bold ${getColorClasses(r.color).text} text-xs`}>{r.title}</div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Warmup phase - metal/nonmetal classification
+  if (phase === 'warmup') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 p-4 md:p-8">
+        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8">
+          <div className="flex justify-between items-center mb-6">
+            <button onClick={() => setPhase('learn')} className="text-gray-500 hover:text-gray-700 flex items-center gap-2">
+              <span>←</span> Til baka í reglur
+            </button>
+            <div className="text-sm text-gray-500">
+              {currentWarmup + 1} af {warmupQuestions.length}
+            </div>
+          </div>
+
+          <div className="text-center mb-6">
+            <div className="text-4xl mb-2">🔬</div>
+            <h1 className="text-2xl md:text-3xl font-bold text-indigo-600 mb-2">
+              Upphitun: Málmur eða málmleysingi?
+            </h1>
+            <p className="text-gray-600">
+              Þetta er mikilvægt til að velja rétta nafnareglu!
+            </p>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div
+              className="bg-indigo-500 h-2 rounded-full transition-all"
+              style={{ width: `${((currentWarmup + 1) / warmupQuestions.length) * 100}%` }}
+            />
+          </div>
+
+          {/* Question card */}
+          <div className="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-6 mb-6 text-center">
+            <div className="text-6xl font-mono font-bold text-gray-800 mb-2">
+              {warmupQ.symbol}
+            </div>
+            <div className="text-xl text-gray-600">
+              {warmupQ.name}
+            </div>
+          </div>
+
+          {/* Answer buttons */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <button
+              onClick={() => handleWarmupAnswer(true)}
+              disabled={warmupFeedback !== null}
+              className={`p-6 rounded-xl border-3 transition-all ${
+                warmupFeedback !== null && warmupAnswer === true
+                  ? warmupQ.isMetal
+                    ? 'bg-green-100 border-green-500 text-green-800'
+                    : 'bg-red-100 border-red-500 text-red-800'
+                  : warmupFeedback !== null && warmupQ.isMetal
+                    ? 'bg-green-100 border-green-500 text-green-800'
+                    : 'bg-blue-50 border-blue-300 hover:border-blue-500 hover:bg-blue-100'
+              }`}
+            >
+              <div className="text-3xl mb-2">⚙️</div>
+              <div className="font-bold text-lg">Málmur</div>
+              <div className="text-xs text-gray-500">(gefur rafeindir)</div>
+            </button>
+            <button
+              onClick={() => handleWarmupAnswer(false)}
+              disabled={warmupFeedback !== null}
+              className={`p-6 rounded-xl border-3 transition-all ${
+                warmupFeedback !== null && warmupAnswer === false
+                  ? !warmupQ.isMetal
+                    ? 'bg-green-100 border-green-500 text-green-800'
+                    : 'bg-red-100 border-red-500 text-red-800'
+                  : warmupFeedback !== null && !warmupQ.isMetal
+                    ? 'bg-green-100 border-green-500 text-green-800'
+                    : 'bg-orange-50 border-orange-300 hover:border-orange-500 hover:bg-orange-100'
+              }`}
+            >
+              <div className="text-3xl mb-2">💨</div>
+              <div className="font-bold text-lg">Málmleysingi</div>
+              <div className="text-xs text-gray-500">(tekur rafeindir)</div>
+            </button>
+          </div>
+
+          {/* Feedback */}
+          {warmupFeedback && (
+            <div className={`p-4 rounded-xl mb-4 ${
+              warmupAnswer === warmupQ.isMetal
+                ? 'bg-green-100 border-2 border-green-400 text-green-800'
+                : 'bg-amber-100 border-2 border-amber-400 text-amber-800'
+            }`}>
+              {warmupFeedback}
+            </div>
+          )}
+
+          {/* Next button */}
+          {warmupFeedback && (
+            <button
+              onClick={handleNextWarmup}
+              className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl transition-all"
+            >
+              {currentWarmup < warmupQuestions.length - 1 ? 'Næsta frumefni →' : 'Hefja próf →'}
+            </button>
+          )}
+
+          {/* Score summary */}
+          <div className="mt-6 text-center text-sm text-gray-500">
+            Rétt: {warmupCorrect} / {currentWarmup + (warmupFeedback ? 1 : 0)}
+          </div>
+
+          {/* Key reminder */}
+          <div className="mt-4 bg-gray-50 rounded-xl p-4">
+            <h3 className="font-semibold text-gray-700 mb-2 text-sm">Mundu:</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-blue-50 p-2 rounded">
+                <span className="font-bold text-blue-700">Málmar:</span> hópar 1, 2, 3-12
+              </div>
+              <div className="bg-orange-50 p-2 rounded">
+                <span className="font-bold text-orange-700">Málmleysingjar:</span> hópar 15-18
+              </div>
             </div>
           </div>
         </div>

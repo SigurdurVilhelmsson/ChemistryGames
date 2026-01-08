@@ -194,6 +194,38 @@ interface Level2Props {
   onIncorrectAnswer?: () => void;
 }
 
+// Generate reasoning options for estimate_mass challenges
+function generateReasoningOptions(compound: Compound): { text: string; isCorrect: boolean }[] {
+  // Find the heaviest contributing element
+  let maxContribution = 0;
+  let heaviestElement = '';
+  for (const el of compound.elements) {
+    const atom = ATOM_DATA[el.symbol];
+    const contribution = atom ? atom.approxMass * el.count : 0;
+    if (contribution > maxContribution) {
+      maxContribution = contribution;
+      heaviestElement = el.symbol;
+    }
+  }
+
+  const atomName = ATOM_DATA[heaviestElement]?.name || heaviestElement;
+  const correctReason = `${atomName} (${heaviestElement}) leggur mest til massans`;
+
+  const distractors = [
+    'Ég giskaði bara',
+    'Flestar sameindir eru léttar',
+    'Allar frumeindir eru jafnþungar'
+  ];
+
+  const options = [
+    { text: correctReason, isCorrect: true },
+    ...distractors.map(text => ({ text, isCorrect: false }))
+  ];
+
+  // Shuffle options
+  return shuffle(options);
+}
+
 // Main Level 2 Component
 export function Level2({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer }: Level2Props) {
   const [challengeNumber, setChallengeNumber] = useState(0);
@@ -205,6 +237,12 @@ export function Level2({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
   const [showHint, setShowHint] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+
+  // For estimate_mass reasoning phase
+  const [showReasoningPrompt, setShowReasoningPrompt] = useState(false);
+  const [selectedReasoning, setSelectedReasoning] = useState<string | null>(null);
+  const [reasoningOptions, setReasoningOptions] = useState<{ text: string; isCorrect: boolean }[]>([]);
+  const [reasoningFeedback, setReasoningFeedback] = useState<string | null>(null);
 
   // For order_molecules
   const [orderedCompounds, setOrderedCompounds] = useState<Compound[]>([]);
@@ -218,6 +256,11 @@ export function Level2({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
     setShowFeedback(false);
     setShowHint(false);
     setUserInput('');
+    // Reset reasoning state
+    setShowReasoningPrompt(false);
+    setSelectedReasoning(null);
+    setReasoningOptions([]);
+    setReasoningFeedback(null);
     if (challenge.compounds) {
       setOrderedCompounds([...challenge.compounds]);
     }
@@ -232,6 +275,15 @@ export function Level2({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
         const options = generateEstimateOptions(approxMass);
         correct = options[answer as number] === approxMass;
         setSelectedAnswer(answer as number);
+        setIsCorrect(correct);
+
+        // For estimate_mass, show reasoning prompt instead of immediate feedback
+        if (correct) {
+          setReasoningOptions(generateReasoningOptions(challenge.compound));
+          setShowReasoningPrompt(true);
+          return; // Don't show feedback yet
+        }
+        // If wrong, show feedback immediately
         break;
       }
 
@@ -279,6 +331,28 @@ export function Level2({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
     } else {
       onIncorrectAnswer?.();
     }
+  };
+
+  // Handle reasoning submission for estimate_mass
+  const handleReasoningSubmit = () => {
+    if (!selectedReasoning) return;
+
+    const selected = reasoningOptions.find(opt => opt.text === selectedReasoning);
+    const reasoningCorrect = selected?.isCorrect || false;
+
+    if (reasoningCorrect) {
+      setReasoningFeedback('Rétt! Þú skilur hvaða frumefni leggur mest til massans.');
+      setScore(prev => prev + 15);
+      onCorrectAnswer?.();
+    } else {
+      setReasoningFeedback('Ekki alveg. Hugsaðu um hvaða frumefni er þyngst og hversu mörg eru af því.');
+    }
+
+    // Show full feedback after reasoning
+    setTimeout(() => {
+      setShowReasoningPrompt(false);
+      setShowFeedback(true);
+    }, 1500);
   };
 
   const nextChallenge = () => {
@@ -400,26 +474,74 @@ export function Level2({ onBack, onComplete, onCorrectAnswer, onIncorrectAnswer 
 
             <MoleculeWithBreakdown elements={challenge.compound.elements} />
 
-            <div className="grid grid-cols-2 gap-3">
-              {options.map((opt, index) => (
-                <button
-                  key={index}
-                  onClick={() => !showFeedback && checkAnswer(index)}
-                  disabled={showFeedback}
-                  className={`py-4 px-6 rounded-xl font-bold text-lg transition-all ${
-                    showFeedback && options[selectedAnswer as number] === opt
-                      ? isCorrect
-                        ? 'bg-green-500 text-white'
-                        : 'bg-red-500 text-white'
-                      : showFeedback && opt === approxMass
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                  }`}
-                >
-                  ≈ {opt} g/mol
-                </button>
-              ))}
-            </div>
+            {/* Answer options */}
+            {!showReasoningPrompt && (
+              <div className="grid grid-cols-2 gap-3">
+                {options.map((opt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => !showFeedback && !showReasoningPrompt && checkAnswer(index)}
+                    disabled={showFeedback || showReasoningPrompt}
+                    className={`py-4 px-6 rounded-xl font-bold text-lg transition-all ${
+                      (showFeedback || showReasoningPrompt) && options[selectedAnswer as number] === opt
+                        ? isCorrect
+                          ? 'bg-green-500 text-white'
+                          : 'bg-red-500 text-white'
+                        : showFeedback && opt === approxMass
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                    }`}
+                  >
+                    ≈ {opt} g/mol
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Reasoning phase - only shown for correct answers */}
+            {showReasoningPrompt && (
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 space-y-4">
+                <div className="text-center">
+                  <div className="text-2xl mb-2">🧠</div>
+                  <h3 className="font-bold text-blue-800">Rétt svar! En af hverju?</h3>
+                  <p className="text-sm text-blue-600 mt-1">Veldu bestu skýringuna</p>
+                </div>
+
+                <div className="space-y-2">
+                  {reasoningOptions.map((option, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedReasoning(option.text)}
+                      className={`w-full p-3 rounded-lg text-left transition-all border-2 ${
+                        selectedReasoning === option.text
+                          ? 'border-blue-500 bg-blue-100 text-blue-800'
+                          : 'border-gray-200 hover:border-gray-300 text-gray-700 bg-white'
+                      }`}
+                    >
+                      {option.text}
+                    </button>
+                  ))}
+                </div>
+
+                {reasoningFeedback && (
+                  <div className={`p-3 rounded-lg text-center ${
+                    reasoningFeedback.includes('Rétt') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {reasoningFeedback}
+                  </div>
+                )}
+
+                {!reasoningFeedback && (
+                  <button
+                    onClick={handleReasoningSubmit}
+                    disabled={!selectedReasoning}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                  >
+                    Staðfesta skýringu
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         );
       }

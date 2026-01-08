@@ -253,6 +253,38 @@ interface Level1Props {
   onIncorrectAnswer?: () => void;
 }
 
+// Prediction question types based on challenge type
+type PredictionAnswer = 'increase' | 'decrease' | 'unchanged';
+
+interface PredictionQuestion {
+  question: string;
+  correctAnswer: PredictionAnswer;
+  explanation: string;
+}
+
+function getPredictionQuestion(challenge: Challenge): PredictionQuestion {
+  if (challenge.type === 'dilution') {
+    return {
+      question: 'Ef þú bætir við vatni (eykur rúmmál), hvað gerist við styrkinn?',
+      correctAnswer: 'decrease',
+      explanation: 'Rétt! Þegar þú bætir við vatni, dreifast sameindir á stærra svæði og styrkur MINNKAR.'
+    };
+  } else if (challenge.type === 'concentrationMatch') {
+    return {
+      question: 'Ef þú bætir við fleiri sameindum í sama rúmmáli, hvað gerist við styrkinn?',
+      correctAnswer: 'increase',
+      explanation: 'Rétt! Fleiri sameindir í sama rúmmáli þýðir HÆRRI styrk.'
+    };
+  } else {
+    // buildSolution
+    return {
+      question: 'Til að auka styrk, hvað getur þú gert?',
+      correctAnswer: 'increase',
+      explanation: 'Rétt! Þú getur bætt við sameindum EÐA minnkað rúmmálið til að auka styrk.'
+    };
+  }
+}
+
 // Main Level1 component
 export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer }: Level1Props) {
   const [currentChallenge, setCurrentChallenge] = useState(0);
@@ -265,7 +297,14 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
   const [showConcept, setShowConcept] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
 
+  // Prediction phase state
+  const [showPrediction, setShowPrediction] = useState(true);
+  const [predictionAnswer, setPredictionAnswer] = useState<PredictionAnswer | null>(null);
+  const [predictionFeedback, setPredictionFeedback] = useState<string | null>(null);
+  const [predictionComplete, setPredictionComplete] = useState(false);
+
   const challenge = CHALLENGES[currentChallenge];
+  const predictionQuestion = getPredictionQuestion(challenge);
 
   // Calculate current concentration (molecules per liter)
   // Using a scale where 10 molecules = 0.1 mol for simplicity
@@ -282,8 +321,36 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
       setVolumeML(challenge.initialState.volumeML);
       setShowHint(false);
       setShowConcept(false);
+      // Reset prediction state
+      setShowPrediction(true);
+      setPredictionAnswer(null);
+      setPredictionFeedback(null);
+      setPredictionComplete(false);
     }
   }, [currentChallenge, challenge]);
+
+  // Handle prediction submission
+  const handlePredictionSubmit = () => {
+    if (!predictionAnswer) return;
+
+    const isCorrect = predictionAnswer === predictionQuestion.correctAnswer;
+    if (isCorrect) {
+      setPredictionFeedback(predictionQuestion.explanation);
+      setPredictionComplete(true);
+    } else {
+      const wrongFeedback = predictionAnswer === 'increase'
+        ? 'Ekki rétt. Hugsaðu um hvað gerist þegar rúmmál eykst en sameindir haldast óbreyttar.'
+        : predictionAnswer === 'decrease'
+        ? 'Ekki rétt. Hugsaðu um vensl sameinda og styrks.'
+        : 'Ekki rétt. Breytingar á rúmmáli eða sameindum hafa áhrif á styrk.';
+      setPredictionFeedback(wrongFeedback);
+    }
+  };
+
+  // Continue to main challenge after prediction
+  const handleContinueToChallenge = () => {
+    setShowPrediction(false);
+  };
 
   // Handle molecule change
   const changeMolecules = useCallback((delta: number) => {
@@ -420,7 +487,95 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
           </div>
         </div>
 
+        {/* Prediction Phase */}
+        {showPrediction && (
+          <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 mb-6">
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-2">🤔</div>
+              <h2 className="text-2xl font-bold text-blue-800">Hugsaðu fyrst!</h2>
+              <p className="text-gray-600 mt-2">Áður en þú byrjar, spáðu fyrir um útkomunna</p>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-xl mb-6">
+              <div className="text-sm text-gray-600 mb-2">Verkefni {currentChallenge + 1}: {challenge.title}</div>
+              <p className="font-semibold text-gray-800">{challenge.description}</p>
+            </div>
+
+            <div className="mb-6">
+              <p className="font-semibold text-gray-700 mb-4 text-center text-lg">
+                {predictionQuestion.question}
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  onClick={() => setPredictionAnswer('increase')}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    predictionAnswer === 'increase'
+                      ? 'border-blue-500 bg-blue-50 text-blue-800'
+                      : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">📈</div>
+                  <div className="font-semibold">Eykst</div>
+                </button>
+                <button
+                  onClick={() => setPredictionAnswer('decrease')}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    predictionAnswer === 'decrease'
+                      ? 'border-blue-500 bg-blue-50 text-blue-800'
+                      : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">📉</div>
+                  <div className="font-semibold">Minnkar</div>
+                </button>
+                <button
+                  onClick={() => setPredictionAnswer('unchanged')}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    predictionAnswer === 'unchanged'
+                      ? 'border-blue-500 bg-blue-50 text-blue-800'
+                      : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">➡️</div>
+                  <div className="font-semibold">Óbreytt</div>
+                </button>
+              </div>
+            </div>
+
+            {predictionFeedback && (
+              <div className={`p-4 rounded-xl mb-4 ${
+                predictionComplete
+                  ? 'bg-green-100 border-2 border-green-400 text-green-800'
+                  : 'bg-yellow-100 border-2 border-yellow-400 text-yellow-800'
+              }`}>
+                {predictionFeedback}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              {!predictionComplete ? (
+                <button
+                  onClick={handlePredictionSubmit}
+                  disabled={!predictionAnswer}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                >
+                  Athuga spá
+                </button>
+              ) : (
+                <button
+                  onClick={handleContinueToChallenge}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                >
+                  Áfram í verkefni →
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Challenge area */}
+        {!showPrediction && (
         <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
           {/* Challenge header */}
           <div className="mb-6">
@@ -593,6 +748,7 @@ export function Level1({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
             </p>
           </div>
         </div>
+        )}
 
         {/* Challenge navigation */}
         <div className="mt-6 flex justify-center gap-2">

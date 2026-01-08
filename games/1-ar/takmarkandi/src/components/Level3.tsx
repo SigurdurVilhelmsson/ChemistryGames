@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Reaction, Difficulty } from '../types';
 import { REACTIONS } from '../data/reactions';
+import { getMolarMass, roundMass } from '../data/molar-masses';
 import { calculateCorrectAnswer, generateReactantCounts, calculatePoints } from '../utils/calculations';
 import { Molecule } from './Molecule';
+
+type UnitMode = 'molecules' | 'grams';
 
 interface Level3Props {
   onComplete: (score: number, correctAnswers: number, totalQuestions: number, maxScore: number, hintsUsed: number) => void;
@@ -15,6 +18,11 @@ interface GameState {
   currentReaction: Reaction | null;
   reactant1Count: number;
   reactant2Count: number;
+  // For grams mode
+  reactant1Grams: number;
+  reactant2Grams: number;
+  reactant1MolarMass: number;
+  reactant2MolarMass: number;
   userLimiting: string;
   userProducts: Record<string, string>;
   userExcess: string;
@@ -26,7 +34,9 @@ interface GameState {
 export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer }: Level3Props) {
   const [screen, setScreen] = useState<'setup' | 'game' | 'results'>('setup');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [unitMode, setUnitMode] = useState<UnitMode>('molecules');
   const [timerMode, setTimerMode] = useState(false);
+  const isGramMode = unitMode === 'grams';
   const [timeRemaining, setTimeRemaining] = useState(120);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -39,6 +49,10 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     currentReaction: null,
     reactant1Count: 0,
     reactant2Count: 0,
+    reactant1Grams: 0,
+    reactant2Grams: 0,
+    reactant1MolarMass: 0,
+    reactant2MolarMass: 0,
     userLimiting: '',
     userProducts: {},
     userExcess: '',
@@ -77,10 +91,22 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
     const products: Record<string, string> = {};
     reaction.products.forEach(p => { products[p.formula] = ''; });
 
+    // Calculate gram values if in gram mode
+    const r1MolarMass = getMolarMass(reaction.reactant1.formula);
+    const r2MolarMass = getMolarMass(reaction.reactant2.formula);
+    const molesR1 = isGramMode ? roundMass(r1Count * 0.5) : r1Count;
+    const molesR2 = isGramMode ? roundMass(r2Count * 0.5) : r2Count;
+    const r1Grams = roundMass(molesR1 * r1MolarMass);
+    const r2Grams = roundMass(molesR2 * r2MolarMass);
+
     setGameState({
       currentReaction: reaction,
-      reactant1Count: r1Count,
-      reactant2Count: r2Count,
+      reactant1Count: isGramMode ? molesR1 : r1Count,
+      reactant2Count: isGramMode ? molesR2 : r2Count,
+      reactant1Grams: r1Grams,
+      reactant2Grams: r2Grams,
+      reactant1MolarMass: r1MolarMass,
+      reactant2MolarMass: r2MolarMass,
       userLimiting: '',
       userProducts: products,
       userExcess: '',
@@ -103,16 +129,44 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
       gameState.reactant2Count
     );
 
+    // Tolerance for gram calculations (5% error)
+    const isCloseEnough = (val: number, expected: number) => {
+      if (expected === 0) return val === 0;
+      const tolerance = Math.abs(expected * 0.05);
+      return Math.abs(val - expected) <= Math.max(tolerance, 0.01);
+    };
+
     // Validate all parts
     const limitingCorrect = gameState.userLimiting === correctAnswer.limitingReactant;
-    const excessCorrect = parseInt(gameState.userExcess) === correctAnswer.excessRemaining;
 
+    // For gram mode, calculate expected gram values
+    let excessCorrect: boolean;
     let productsCorrect = true;
-    gameState.currentReaction.products.forEach(p => {
-      if (parseInt(gameState.userProducts[p.formula]) !== correctAnswer.productsFormed[p.formula]) {
-        productsCorrect = false;
-      }
-    });
+
+    if (isGramMode) {
+      // Calculate expected grams for excess
+      const excessMolarMass = correctAnswer.limitingReactant === gameState.currentReaction.reactant1.formula
+        ? gameState.reactant2MolarMass
+        : gameState.reactant1MolarMass;
+      const expectedExcessGrams = roundMass(correctAnswer.excessRemaining * excessMolarMass);
+      excessCorrect = isCloseEnough(parseFloat(gameState.userExcess), expectedExcessGrams);
+
+      // Calculate expected grams for products
+      gameState.currentReaction.products.forEach(p => {
+        const productMolarMass = getMolarMass(p.formula);
+        const expectedGrams = roundMass(correctAnswer.productsFormed[p.formula] * productMolarMass);
+        if (!isCloseEnough(parseFloat(gameState.userProducts[p.formula]), expectedGrams)) {
+          productsCorrect = false;
+        }
+      });
+    } else {
+      excessCorrect = parseInt(gameState.userExcess) === correctAnswer.excessRemaining;
+      gameState.currentReaction.products.forEach(p => {
+        if (parseInt(gameState.userProducts[p.formula]) !== correctAnswer.productsFormed[p.formula]) {
+          productsCorrect = false;
+        }
+      });
+    }
 
     const allCorrect = limitingCorrect && excessCorrect && productsCorrect;
 
@@ -196,6 +250,37 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
                   </div>
                 </button>
               ))}
+            </div>
+
+            {/* Unit mode selection */}
+            <div className="space-y-3 mb-6">
+              <h3 className="font-bold text-gray-700">Einingar:</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setUnitMode('molecules')}
+                  className={`p-3 rounded-xl border-2 text-left transition-all ${
+                    unitMode === 'molecules'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">🔵</div>
+                  <div className="font-bold text-sm">Sameindir</div>
+                  <div className="text-xs text-gray-500">Telja sameindir</div>
+                </button>
+                <button
+                  onClick={() => setUnitMode('grams')}
+                  className={`p-3 rounded-xl border-2 text-left transition-all ${
+                    unitMode === 'grams'
+                      ? 'border-yellow-500 bg-yellow-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">⚖️</div>
+                  <div className="font-bold text-sm">Grömm</div>
+                  <div className="text-xs text-gray-500">Vinna með massa</div>
+                </button>
+              </div>
             </div>
 
             <div className="bg-gray-50 rounded-xl p-4 mb-8">
@@ -348,20 +433,34 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600">Hvarfefni 1</p>
                   <p className="text-xl font-bold">{gameState.currentReaction.reactant1.formula}</p>
+                  {isGramMode && (
+                    <p className="text-xs text-gray-500">M = {gameState.reactant1MolarMass} g/mol</p>
+                  )}
                 </div>
-                <div className="flex flex-wrap justify-center gap-2 mb-4">
-                  {Array.from({ length: Math.min(gameState.reactant1Count, 12) }).map((_, i) => (
-                    <Molecule
-                      key={i}
-                      formula={gameState.currentReaction!.reactant1.formula}
-                      color={gameState.currentReaction!.reactant1.color}
-                      size={35}
-                    />
-                  ))}
-                  {gameState.reactant1Count > 12 && <span className="text-gray-500">+{gameState.reactant1Count - 12}</span>}
-                </div>
+                {isGramMode ? (
+                  <div className="flex justify-center mb-4">
+                    <div className="bg-yellow-100 rounded-lg p-4">
+                      <span className="text-3xl">⚖️</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                    {Array.from({ length: Math.min(gameState.reactant1Count, 12) }).map((_, i) => (
+                      <Molecule
+                        key={i}
+                        formula={gameState.currentReaction!.reactant1.formula}
+                        color={gameState.currentReaction!.reactant1.color}
+                        size={35}
+                      />
+                    ))}
+                    {gameState.reactant1Count > 12 && <span className="text-gray-500">+{gameState.reactant1Count - 12}</span>}
+                  </div>
+                )}
                 <p className="text-center text-xl font-bold">
-                  {gameState.reactant1Count} sameind{gameState.reactant1Count !== 1 ? 'ir' : ''}
+                  {isGramMode
+                    ? `${gameState.reactant1Grams} g`
+                    : `${gameState.reactant1Count} sameind${gameState.reactant1Count !== 1 ? 'ir' : ''}`
+                  }
                 </p>
               </div>
 
@@ -376,88 +475,140 @@ export function Level3({ onComplete, onBack, onCorrectAnswer, onIncorrectAnswer 
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600">Hvarfefni 2</p>
                   <p className="text-xl font-bold">{gameState.currentReaction.reactant2.formula}</p>
+                  {isGramMode && (
+                    <p className="text-xs text-gray-500">M = {gameState.reactant2MolarMass} g/mol</p>
+                  )}
                 </div>
-                <div className="flex flex-wrap justify-center gap-2 mb-4">
-                  {Array.from({ length: Math.min(gameState.reactant2Count, 12) }).map((_, i) => (
-                    <Molecule
-                      key={i}
-                      formula={gameState.currentReaction!.reactant2.formula}
-                      color={gameState.currentReaction!.reactant2.color}
-                      size={35}
-                    />
-                  ))}
-                  {gameState.reactant2Count > 12 && <span className="text-gray-500">+{gameState.reactant2Count - 12}</span>}
-                </div>
+                {isGramMode ? (
+                  <div className="flex justify-center mb-4">
+                    <div className="bg-yellow-100 rounded-lg p-4">
+                      <span className="text-3xl">⚖️</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                    {Array.from({ length: Math.min(gameState.reactant2Count, 12) }).map((_, i) => (
+                      <Molecule
+                        key={i}
+                        formula={gameState.currentReaction!.reactant2.formula}
+                        color={gameState.currentReaction!.reactant2.color}
+                        size={35}
+                      />
+                    ))}
+                    {gameState.reactant2Count > 12 && <span className="text-gray-500">+{gameState.reactant2Count - 12}</span>}
+                  </div>
+                )}
                 <p className="text-center text-xl font-bold">
-                  {gameState.reactant2Count} sameind{gameState.reactant2Count !== 1 ? 'ir' : ''}
+                  {isGramMode
+                    ? `${gameState.reactant2Grams} g`
+                    : `${gameState.reactant2Count} sameind${gameState.reactant2Count !== 1 ? 'ir' : ''}`
+                  }
                 </p>
               </div>
             </div>
 
             {/* Products input */}
             <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="font-bold text-gray-800 mb-4">Hversu margar afurðir myndast?</h3>
+              <h3 className="font-bold text-gray-800 mb-4">
+                {isGramMode ? 'Hversu mörg grömm af afurðum myndast?' : 'Hversu margar afurðir myndast?'}
+              </h3>
               <div className="space-y-4">
-                {gameState.currentReaction.products.map((product) => (
-                  <div key={product.formula} className="flex items-center gap-4">
-                    <Molecule
-                      formula={product.formula}
-                      color={product.color}
-                      size={45}
-                    />
-                    <span className="text-lg font-semibold w-24">{product.formula}:</span>
+                {gameState.currentReaction.products.map((product) => {
+                  const productMolarMass = getMolarMass(product.formula);
+                  const expectedGrams = correctAnswer
+                    ? roundMass(correctAnswer.productsFormed[product.formula] * productMolarMass)
+                    : 0;
+                  const userVal = parseFloat(gameState.userProducts[product.formula]);
+                  const isCorrectAnswer = isGramMode
+                    ? Math.abs(userVal - expectedGrams) <= Math.max(expectedGrams * 0.05, 0.01)
+                    : parseInt(gameState.userProducts[product.formula]) === correctAnswer?.productsFormed[product.formula];
+
+                  return (
+                    <div key={product.formula} className="flex items-center gap-4">
+                      <Molecule
+                        formula={product.formula}
+                        color={product.color}
+                        size={45}
+                      />
+                      <div className="w-28">
+                        <span className="text-lg font-semibold">{product.formula}:</span>
+                        {isGramMode && (
+                          <div className="text-xs text-gray-500">M = {productMolarMass} g/mol</div>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={gameState.userProducts[product.formula] || ''}
+                        onChange={(e) => setGameState(prev => ({
+                          ...prev,
+                          userProducts: { ...prev.userProducts, [product.formula]: e.target.value }
+                        }))}
+                        disabled={gameState.isAnswered}
+                        className={`w-24 px-3 py-2 border-2 rounded-lg text-lg ${
+                          gameState.isAnswered
+                            ? isCorrectAnswer
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-red-500 bg-red-50'
+                            : 'border-gray-300'
+                        }`}
+                        placeholder="0"
+                      />
+                      <span className="text-gray-600 text-sm">{isGramMode ? 'g' : ''}</span>
+                      {gameState.isAnswered && (
+                        <span className="text-sm text-gray-600">
+                          (Rétt: {isGramMode ? `${expectedGrams} g` : correctAnswer?.productsFormed[product.formula]})
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Excess input */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h3 className="font-bold text-gray-800 mb-4">
+                {isGramMode ? 'Afgangur í grömmum:' : 'Afgangur af hinu hvarfefninu:'}
+              </h3>
+              {(() => {
+                const excessMolarMass = correctAnswer?.limitingReactant === gameState.currentReaction.reactant1.formula
+                  ? gameState.reactant2MolarMass
+                  : gameState.reactant1MolarMass;
+                const expectedExcessGrams = correctAnswer
+                  ? roundMass(correctAnswer.excessRemaining * excessMolarMass)
+                  : 0;
+                const userVal = parseFloat(gameState.userExcess);
+                const isCorrectExcess = isGramMode
+                  ? Math.abs(userVal - expectedExcessGrams) <= Math.max(expectedExcessGrams * 0.05, 0.01)
+                  : parseInt(gameState.userExcess) === correctAnswer?.excessRemaining;
+
+                return (
+                  <div className="flex items-center gap-4">
                     <input
                       type="text"
-                      value={gameState.userProducts[product.formula] || ''}
-                      onChange={(e) => setGameState(prev => ({
-                        ...prev,
-                        userProducts: { ...prev.userProducts, [product.formula]: e.target.value }
-                      }))}
+                      value={gameState.userExcess}
+                      onChange={(e) => setGameState(prev => ({ ...prev, userExcess: e.target.value }))}
                       disabled={gameState.isAnswered}
                       className={`w-24 px-3 py-2 border-2 rounded-lg text-lg ${
                         gameState.isAnswered
-                          ? parseInt(gameState.userProducts[product.formula]) === correctAnswer?.productsFormed[product.formula]
+                          ? isCorrectExcess
                             ? 'border-green-500 bg-green-50'
                             : 'border-red-500 bg-red-50'
                           : 'border-gray-300'
                       }`}
                       placeholder="0"
                     />
+                    <span className="text-gray-600">
+                      {isGramMode ? 'g' : `sameind${parseInt(gameState.userExcess) !== 1 ? 'ir' : ''}`}
+                    </span>
                     {gameState.isAnswered && (
                       <span className="text-sm text-gray-600">
-                        (Rétt: {correctAnswer?.productsFormed[product.formula]})
+                        (Rétt: {isGramMode ? `${expectedExcessGrams} g` : correctAnswer?.excessRemaining})
                       </span>
                     )}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Excess input */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="font-bold text-gray-800 mb-4">Afgangur af hinu hvarfefninu:</h3>
-              <div className="flex items-center gap-4">
-                <input
-                  type="text"
-                  value={gameState.userExcess}
-                  onChange={(e) => setGameState(prev => ({ ...prev, userExcess: e.target.value }))}
-                  disabled={gameState.isAnswered}
-                  className={`w-24 px-3 py-2 border-2 rounded-lg text-lg ${
-                    gameState.isAnswered
-                      ? parseInt(gameState.userExcess) === correctAnswer?.excessRemaining
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-red-500 bg-red-50'
-                      : 'border-gray-300'
-                  }`}
-                  placeholder="0"
-                />
-                <span className="text-gray-600">sameind{parseInt(gameState.userExcess) !== 1 ? 'ir' : ''}</span>
-                {gameState.isAnswered && (
-                  <span className="text-sm text-gray-600">
-                    (Rétt: {correctAnswer?.excessRemaining})
-                  </span>
-                )}
-              </div>
+                );
+              })()}
             </div>
 
             {/* Solution (after answering) */}

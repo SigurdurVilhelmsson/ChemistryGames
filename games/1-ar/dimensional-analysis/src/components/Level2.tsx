@@ -37,10 +37,13 @@ export function Level2({ onComplete, onBack, initialProgress, onCorrectAnswer, o
   const [userAnswer, setUserAnswer] = useState('');
   const [predictedUnit, setPredictedUnit] = useState('');
   const [showPredictionPrompt, setShowPredictionPrompt] = useState(false);
+  const [predictionPhase, setPredictionPhase] = useState<'unit' | 'rationale'>('unit');
+  const [selectedRationale, setSelectedRationale] = useState<string | null>(null);
   const [pendingFactor, setPendingFactor] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [totalHintsUsed] = useState(0); // Level 2 doesn't have hints, but we track for consistency
+  const [, setRationaleCorrectCount] = useState(0);
 
   const problem = level2Problems[currentProblemIndex];
 
@@ -55,10 +58,49 @@ export function Level2({ onComplete, onBack, initialProgress, onCorrectAnswer, o
 
   const handleFactorSelect = (factor: string) => {
     setPendingFactor(factor);
+    setPredictionPhase('unit');
+    setSelectedRationale(null);
     setShowPredictionPrompt(true);
   };
 
-  const handlePredictionSubmit = () => {
+  // Generate rationale options based on the pending factor
+  const getRationaleOptions = () => {
+    if (!pendingFactor) return [];
+
+    const [numPart, denPart] = pendingFactor.split(' / ');
+    const numUnit = numPart.split(' ').slice(1).join(' ');
+    const denUnit = denPart.split(' ').slice(1).join(' ');
+
+    // Current unit before applying this factor (used for context)
+    const _currentUnit = selectedFactors.length > 0
+      ? selectedFactors[selectedFactors.length - 1].split(' / ')[0].split(' ').slice(1).join(' ')
+      : problem.startUnit;
+    void _currentUnit; // Mark as intentionally unused for now
+
+    // Correct answer: the denominator unit cancels with current unit
+    const correctRationale = `${denUnit} styttist út og ${numUnit} verður eftir`;
+
+    // Distractor options
+    const distractors = [
+      `${numUnit} styttist út og ${denUnit} verður eftir`,
+      `Báðar einingar styttast út`,
+      `Engar einingar styttast út`
+    ];
+
+    // Shuffle correct answer with distractors
+    const options = [correctRationale, ...distractors.slice(0, 2)];
+    return options.sort(() => Math.random() - 0.5).map(text => ({
+      text,
+      isCorrect: text === correctRationale
+    }));
+  };
+
+  const handleUnitPredictionSubmit = () => {
+    // Move to rationale phase after unit prediction
+    setPredictionPhase('rationale');
+  };
+
+  const handleRationaleSubmit = () => {
     // Track prediction
     const numeratorUnits = [problem.startUnit, ...selectedFactors.map(f => f.split(' / ')[0].split(' ')[1])];
     const denominatorUnits = selectedFactors.map(f => f.split(' / ')[1].split(' ')[1]);
@@ -78,6 +120,15 @@ export function Level2({ onComplete, onBack, initialProgress, onCorrectAnswer, o
 
     const predictionCorrect = predictedUnit.trim() === actualUnit;
 
+    // Check if rationale is correct
+    const rationaleOptions = getRationaleOptions();
+    const selectedOption = rationaleOptions.find(opt => opt.text === selectedRationale);
+    const rationaleCorrect = selectedOption?.isCorrect || false;
+
+    if (rationaleCorrect) {
+      setRationaleCorrectCount(prev => prev + 1);
+    }
+
     const newProgress = {
       ...progress,
       predictionsMade: progress.predictionsMade + 1,
@@ -89,6 +140,8 @@ export function Level2({ onComplete, onBack, initialProgress, onCorrectAnswer, o
     setSelectedFactors([...selectedFactors, pendingFactor]);
     setShowPredictionPrompt(false);
     setPredictedUnit('');
+    setSelectedRationale(null);
+    setPredictionPhase('unit');
   };
 
   const handleSubmit = () => {
@@ -370,9 +423,17 @@ export function Level2({ onComplete, onBack, initialProgress, onCorrectAnswer, o
       {showPredictionPrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-slide-up">
+            {/* Phase indicator */}
+            <div className="flex justify-center gap-2 mb-4">
+              <div className={`w-3 h-3 rounded-full ${predictionPhase === 'unit' ? 'bg-blue-500' : 'bg-green-500'}`} />
+              <div className={`w-3 h-3 rounded-full ${predictionPhase === 'rationale' ? 'bg-blue-500' : 'bg-gray-300'}`} />
+            </div>
+
             <div className="text-center mb-6">
-              <div className="text-4xl mb-2">🔮</div>
-              <h3 className="text-2xl font-bold text-gray-800">Spáðu fyrir um útkomunna!</h3>
+              <div className="text-4xl mb-2">{predictionPhase === 'unit' ? '🔮' : '🧠'}</div>
+              <h3 className="text-2xl font-bold text-gray-800">
+                {predictionPhase === 'unit' ? 'Spáðu fyrir um útkomunna!' : 'Af hverju?'}
+              </h3>
             </div>
 
             <div className="mb-6 p-4 bg-blue-50 rounded-xl">
@@ -397,38 +458,93 @@ export function Level2({ onComplete, onBack, initialProgress, onCorrectAnswer, o
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Hvaða eining verður útkoman?
-              </label>
-              <input
-                type="text"
-                value={predictedUnit}
-                onChange={(e) => setPredictedUnit(e.target.value)}
-                placeholder="t.d. kg, m/s, osfrv."
-                className="w-full p-4 border-2 border-gray-300 rounded-xl text-lg focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                autoFocus
-              />
-            </div>
+            {/* Phase 1: Unit prediction */}
+            {predictionPhase === 'unit' && (
+              <>
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Hvaða eining verður útkoman?
+                  </label>
+                  <input
+                    type="text"
+                    value={predictedUnit}
+                    onChange={(e) => setPredictedUnit(e.target.value)}
+                    placeholder="t.d. kg, m/s, osfrv."
+                    className="w-full p-4 border-2 border-gray-300 rounded-xl text-lg focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                    autoFocus
+                  />
+                </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowPredictionPrompt(false);
-                  setPredictedUnit('');
-                }}
-                className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
-              >
-                Hætta við
-              </button>
-              <button
-                onClick={handlePredictionSubmit}
-                disabled={!predictedUnit.trim()}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-              >
-                Staðfesta →
-              </button>
-            </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowPredictionPrompt(false);
+                      setPredictedUnit('');
+                      setPredictionPhase('unit');
+                    }}
+                    className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    Hætta við
+                  </button>
+                  <button
+                    onClick={handleUnitPredictionSubmit}
+                    disabled={!predictedUnit.trim()}
+                    className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Áfram →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Phase 2: Rationale selection */}
+            {predictionPhase === 'rationale' && (
+              <>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600 mb-2">Þú spáðir:</p>
+                  <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-bold text-center">
+                    {predictedUnit}
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Hvaða einingar styttast út?
+                  </label>
+                  <div className="space-y-2">
+                    {getRationaleOptions().map((option, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedRationale(option.text)}
+                        className={`w-full p-3 rounded-xl text-left transition-all border-2 ${
+                          selectedRationale === option.text
+                            ? 'border-blue-500 bg-blue-50 text-blue-800'
+                            : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                        }`}
+                      >
+                        {option.text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setPredictionPhase('unit')}
+                    className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    ← Til baka
+                  </button>
+                  <button
+                    onClick={handleRationaleSubmit}
+                    disabled={!selectedRationale}
+                    className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Staðfesta →
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
